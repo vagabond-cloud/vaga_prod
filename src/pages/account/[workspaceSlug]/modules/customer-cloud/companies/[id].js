@@ -46,6 +46,8 @@ function Contacts({ modules, companies, workspace }) {
         description: '',
         linkedin: '',
         website: '',
+        logoUrl: '',
+        bannerUrl: '',
     })
 
     const router = useRouter(false);

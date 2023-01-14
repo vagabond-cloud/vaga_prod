@@ -10,7 +10,7 @@ import {
 } from '@/prisma/services/workspace';
 
 const Site = ({ workspace }) => {
-  workspace = JSON.parse(workspace)
+  workspace = JSON.parse(workspace ? workspace : null)
   const router = useRouter();
 
   if (router.isFallback) {

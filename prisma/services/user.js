@@ -58,3 +58,10 @@ export const updateApi = async (id, email, previousEmail, apikey, secret) => {
     to: [email, previousEmail],
   });
 };
+
+
+export const getActivities = async (id) =>
+  await prisma.log.findMany({
+
+    where: { userId: id },
+  });

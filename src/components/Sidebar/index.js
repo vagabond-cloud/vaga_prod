@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import Link from 'next/link';
-
+import Image from 'next/image';
 import Actions from './actions';
 import Menu from './menu';
 import sidebarMenu from '@/config/menu/sidebar-static';
@@ -38,10 +38,10 @@ const Sidebar = ({ menu }) => {
   const toggleMenu = () => setMenuVisibility(!showMenu);
 
   return (
-    <aside className="sticky z-40 flex flex-col space-y-5 text-white bg-gray-800 dark:bg-gray-900 md:overflow-y-auto md:w-1/4 md:h-screen overscroll-contain">
+    <aside className="sticky z-40 flex flex-col space-y-5 text-white bg-gray-800 dark:bg-gray-900 md:overflow-y-auto md:w-1/5 md:h-screen overscroll-contain">
       <div className="relative flex items-center justify-center p-5 text-center border-b border-b-gray-900">
         <Link href="/" className="flex-grow text-2xl font-bold justify-center flex">
-          <img src="/android-chrome-192x192.png" className="h-12" alt="Vagabond Logo" />
+          <Image src="/android-chrome-192x192.png" width={48} height={48} alt="Vagabond Logo" />
 
         </Link>
         <button className="absolute right-0 p-5 md:hidden" onClick={toggleMenu}>

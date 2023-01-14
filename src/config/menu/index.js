@@ -1,3 +1,4 @@
+import { HomeIcon, SquaresPlusIcon, GlobeAltIcon, UsersIcon, FolderMinusIcon } from "@heroicons/react/24/outline";
 const menu = (workspaceId) => [
   {
     name: 'Workspace',
@@ -5,31 +6,37 @@ const menu = (workspaceId) => [
       {
         name: 'Home',
         path: `/account/${workspaceId}`,
+        icon: HomeIcon
       },
       {
         name: 'Integrations',
         path: `/account/${workspaceId}/integrations`,
+        icon: SquaresPlusIcon
+
       },
     ],
   },
   {
     name: 'Settings',
     menuItems: [
-      {
-        name: 'Workspace Information',
-        path: `/account/${workspaceId}/settings/general`,
-      },
+
       {
         name: 'Domain Configurations',
         path: `/account/${workspaceId}/settings/domain`,
+        icon: GlobeAltIcon
+
       },
       {
         name: 'Team Management',
         path: `/account/${workspaceId}/settings/team`,
+        icon: UsersIcon
+
       },
       {
         name: 'Advanced',
         path: `/account/${workspaceId}/settings/advanced`,
+        icon: FolderMinusIcon
+
       },
     ],
   },

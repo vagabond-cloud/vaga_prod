@@ -11,7 +11,7 @@ import { AccountLayout } from '@/layouts/index';
 import api from '@/lib/common/api';
 import { useWorkspace } from '@/providers/workspace';
 
-const Welcome = () => {
+const Welcome = ({ ip }) => {
   const router = useRouter();
   const { data: invitationsData, isLoading: isFetchingInvitations } =
     useInvitations();
@@ -140,9 +140,24 @@ const Welcome = () => {
             </Card.Empty>
           )}
         </div>
+        <div className="mt-5 text-xs text-gray-400">
+          IP address: {ip}
+        </div>
       </Content.Container>
     </AccountLayout>
   );
 };
 
 export default Welcome;
+
+export const getServerSideProps = async ({ req }) => {
+  const forwarded = req.headers['x-forwarded-for'];
+
+  const ip = typeof forwarded === 'string' ? forwarded.split(/, /)[0] : req.socket.remoteAddress;
+
+  console.log(ip);
+
+  return {
+    props: { ip },
+  };
+};

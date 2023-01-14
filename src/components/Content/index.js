@@ -2,6 +2,7 @@ import {
   ArrowLeftCircleIcon
 } from '@heroicons/react/24/solid'
 
+
 const Content = ({ children }) => {
   return (
     <div className="flex flex-col h-full p-5 space-y-5 overflow-y-auto md:p-10 md:w-3/4">
@@ -33,13 +34,19 @@ Content.Empty = ({ children }) => {
 };
 
 Content.Title = ({ subtitle, title }) => {
+
+
+  const handleBack = () => {
+    window.history.back()
+  };
+
   return (
     <div>
       <div className="flex gap-4">
-        <ArrowLeftCircleIcon className="w-8 cursor-pointer hover:text-red-600" />
+        <ArrowLeftCircleIcon className="w-8 cursor-pointer hover:text-red-600" onClick={handleBack} />
         <h1 className="text-lg font-bold md:text-lg">{title}</h1>
       </div>
-      <h3 className="text-gray-400 text-sm">{subtitle}</h3>
+      <h3 className="text-gray-400 text-sm ml-12">{subtitle}</h3>
     </div>
   );
 };

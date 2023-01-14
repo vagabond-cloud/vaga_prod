@@ -26,8 +26,26 @@ const Input = forwardRef(({ className, type, ...rest }, ref) => {
                 {...rest}
             />
         )
-    }
-    else {
+
+    } else if (type === "time") {
+        return (
+            <input
+                type="time"
+                className="p-2 border-gray-300  border w-full rounded-sm h-12 focus:border-red-600 focus:outline-none focus:ring-red-600 text-sm"
+                {...rest}
+            />
+        )
+    } else if (type === "phone") {
+        return (
+            <input
+                type="tel"
+                pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
+
+                className="p-2 border-gray-300  border w-full rounded-sm h-12 focus:border-red-600 focus:outline-none focus:ring-red-600 text-sm"
+                {...rest}
+            />
+        )
+    } else {
         return (
             <input
                 className="p-2 border-gray-300  border w-full rounded-sm h-12 focus:border-red-600 focus:outline-none focus:ring-red-600 text-sm"

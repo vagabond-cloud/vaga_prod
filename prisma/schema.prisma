@@ -9,17 +9,17 @@ datasource db {
 }
 
 model Account {
-  id                 String @id @default(auto()) @map("_id") @db.ObjectId
-  userId             String @db.ObjectId
+  id                 String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId             String  @db.ObjectId
   type               String
   provider           String
   providerAccountId  String
-  refresh_token      String? 
-  access_token       String? 
+  refresh_token      String?
+  access_token       String?
   expires_at         Int?
   token_type         String?
   scope              String?
-  id_token           String? 
+  id_token           String?
   session_state      String?
   oauth_token_secret String?
   oauth_token        String?
@@ -31,7 +31,7 @@ model Account {
 }
 
 model CustomerPayment {
-  id               String          @id @default(auto()) @map("_id") @db.ObjectId
+  id               String           @id @default(auto()) @map("_id") @db.ObjectId
   paymentId        String           @unique
   customerId       String           @unique @db.ObjectId
   email            String?          @unique
@@ -64,9 +64,9 @@ model Domain {
 }
 
 model Member {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  workspaceId String  @db.ObjectId
-  email       String @unique
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  workspaceId String    @db.ObjectId
+  email       String    @unique
   inviter     String
   invitedAt   DateTime? @default(now())
   joinedAt    DateTime?
@@ -84,9 +84,9 @@ model Member {
 }
 
 model Session {
-  id           String  @id @default(auto()) @map("_id") @db.ObjectId
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
   sessionToken String   @unique
-  userId       String @db.ObjectId
+  userId       String   @db.ObjectId
   expires      DateTime
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -95,7 +95,7 @@ model Session {
 }
 
 model User {
-  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
   userCode      String    @unique @default(cuid())
   name          String?
   email         String?   @unique
@@ -107,33 +107,43 @@ model User {
   deletedAt     DateTime?
   updatedAt     DateTime? @updatedAt
   photo_url     String?
-  phone_number  String?  @unique
-  vaga_address  String? @unique
+  phone_number  String?   @unique
+  vaga_address  String?   @unique
+  domain        String?
 
   accounts         Account[]
   sessions         Session[]
-  membership       Member[]         @relation("membership")
-  invitedMembers   Member[]         @relation("inviter")
+  membership       Member[]          @relation("membership")
+  invitedMembers   Member[]          @relation("inviter")
   createdWorkspace Workspace[]
   customerPayment  CustomerPayment?
   domains          Domain[]
+  Log              Log[]
+  Module           Module[]
+  Contact          Contact[]
+  Note             Note[]
+  Call             Call[]
+  Task             Task[]
+  ContactActivity  ContactActivity[]
+  Company          Company[]
+  Document         Document[]
 
   @@unique([userCode, email])
   @@map("users")
 }
 
 model VerificationToken {
-  id            String   @id @default(auto()) @map("_id") @db.ObjectId
-  identifier    String
-  token         String   @unique
-  expires       DateTime
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  identifier String
+  token      String   @unique
+  expires    DateTime
 
   @@unique([identifier, token])
   @@map("verificationTokens")
 }
 
 model Workspace {
-  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
   workspaceCode String    @unique @default(cuid())
   inviteCode    String    @unique @default(cuid())
   creatorId     String    @db.ObjectId
@@ -143,12 +153,239 @@ model Workspace {
   deletedAt     DateTime?
   updatedAt     DateTime? @updatedAt
 
-  creator User     @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  creator User      @relation(fields: [creatorId], references: [id], onDelete: Cascade)
   members Member[]
   domains Domain[]
+  Module  Module[]
+  Contact Contact[]
+  Company Company[]
 
   @@unique([workspaceCode, inviteCode])
   @@map("workspaces")
+}
+
+model Log {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  description String
+  action      String
+  createdAt   DateTime? @default(now())
+  ip          String?
+  userId      String    @db.ObjectId
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("logs")
+}
+
+model Module {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  addedById   String    @db.ObjectId
+  email       String    @unique
+  workspaceId String    @db.ObjectId
+  network     String
+  type        String
+  moduleCode  String    @unique @default(cuid())
+  name        String
+  createdAt   DateTime? @default(now())
+  updatedAt   DateTime? @updatedAt
+
+  user      User      @relation(fields: [addedById], references: [id], onDelete: Cascade)
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  contact   Contact[]
+  Company   Company[]
+
+  @@map("modules")
+}
+
+model Contact {
+  id                 String    @id @default(auto()) @map("_id") @db.ObjectId
+  email              String    @unique
+  workspaceId        String    @db.ObjectId
+  salutation         String?
+  firstName          String
+  lastName           String
+  contactEmail       String
+  phone              String?
+  jobTitle           String?
+  lifecycleStage     String?
+  leadStatus         String?
+  marketing          Boolean?
+  city               String?
+  state              String?
+  country            String?
+  street             String?
+  zip                String?
+  website            String?
+  persona            String?
+  timeZone           String?
+  twitter_handle     String?
+  preferred_language String?
+  contactOwnerId     String    @db.ObjectId
+  lastActivity       DateTime? @default(now())
+  createdAt          DateTime? @default(now())
+  updatedAt          DateTime? @updatedAt
+  moduleid           String?   @db.ObjectId
+  photoUrl           String?
+  bannerUrl          String?
+
+  user            User              @relation(fields: [contactOwnerId], references: [id], onDelete: Cascade)
+  workspace       Workspace         @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  module          Module?           @relation(fields: [moduleid], references: [id])
+  Note            Note[]
+  Call            Call[]
+  Task            Task[]
+  ContactActivity ContactActivity[]
+  Company         Company?          @relation(fields: [companyId], references: [id])
+  companyId       String?           @db.ObjectId
+  Document        Document[]
+
+  @@map("contacts")
+}
+
+model Note {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  addedById String    @db.ObjectId
+  email     String    @unique
+  contactId String    @db.ObjectId
+  title     String
+  note      String
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
+  deletedAt DateTime?
+
+  contact   Contact  @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [addedById], references: [id], onDelete: Cascade)
+  companyId String?  @db.ObjectId
+  Company   Company? @relation(fields: [companyId], references: [id])
+
+  @@map("notes")
+}
+
+model Call {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  addedById String    @db.ObjectId
+  email     String    @unique
+  contactId String    @db.ObjectId
+  outcome   String
+  direction String
+  date      DateTime?
+  time      DateTime?
+  note      String
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
+  deletedAt DateTime?
+
+  contact   Contact  @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [addedById], references: [id], onDelete: Cascade)
+  companyId String?  @db.ObjectId
+  Company   Company? @relation(fields: [companyId], references: [id])
+
+  @@map("calls")
+}
+
+model Task {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  addedById String    @db.ObjectId
+  email     String    @unique
+  contactId String    @db.ObjectId
+  note      String
+  title     String
+  reminder  String?
+  type      String
+  priority  String?
+  queue     String?
+  assigned  String?
+  date      DateTime?
+  status    String?
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
+  deletedAt DateTime?
+
+  contact   Contact  @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [addedById], references: [id], onDelete: Cascade)
+  companyId String?  @db.ObjectId
+  Company   Company? @relation(fields: [companyId], references: [id])
+
+  @@map("tasks")
+}
+
+model ContactActivity {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  description String
+  action      String
+  createdAt   DateTime? @default(now())
+  ip          String?
+  userId      String    @db.ObjectId
+  contactId   String    @db.ObjectId
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contact Contact @relation(fields: [contactId], references: [id], onDelete: Cascade)
+
+  companyId String? @db.ObjectId
+
+  @@map("contactActivities")
+}
+
+model Company {
+  id             String  @id @default(auto()) @map("_id") @db.ObjectId
+  email          String  @unique
+  workspaceId    String  @db.ObjectId
+  companyDomain  String
+  companyName    String
+  industry       String
+  type           String
+  phone          String
+  street         String
+  city           String
+  state          String
+  zip            String
+  country        String
+  employees      String
+  revenue        String
+  timeZone       String
+  description    String
+  linkedin       String
+  website        String
+  companyOwnerId String  @db.ObjectId
+  logoUrl        String?
+  bannerUrl      String?
+
+  lastActivity DateTime? @default(now())
+  createdAt    DateTime? @default(now())
+  updatedAt    DateTime? @updatedAt
+  moduleid     String?   @db.ObjectId
+
+  user      User       @relation(fields: [companyOwnerId], references: [id], onDelete: Cascade)
+  workspace Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  module    Module?    @relation(fields: [moduleid], references: [id])
+  Note      Note[]
+  Call      Call[]
+  Task      Task[]
+  contacts  Contact[]
+  Document  Document[]
+
+  @@map("companies")
+}
+
+model Document {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  addedById   String    @db.ObjectId
+  email       String    @unique
+  companyId   String?   @db.ObjectId
+  contactId   String?   @db.ObjectId
+  title       String
+  documentUrl String
+  createdAt   DateTime? @default(now())
+  updatedAt   DateTime? @updatedAt
+  deletedAt   DateTime?
+
+  user    User     @relation(fields: [addedById], references: [id], onDelete: Cascade)
+  Company Company? @relation(fields: [companyId], references: [id])
+  contact Contact? @relation(fields: [contactId], references: [id])
+
+  @@map("documents")
 }
 
 enum InvitationStatus {

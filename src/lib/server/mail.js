@@ -20,7 +20,7 @@ export const sendMail = async ({ from, html, subject, text, to }) => {
     html,
   };
 
-
+  console.log(sendMail)
   await transporter.sendMail(data)
 
 };

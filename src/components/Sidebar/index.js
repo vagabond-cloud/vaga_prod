@@ -12,6 +12,7 @@ const staticMenu = sidebarMenu();
 
 const Sidebar = ({ menu }) => {
   const [showMenu, setMenuVisibility] = useState(false);
+  const [collapsed, setCollapsed] = useState(true);
   const { data, isLoading } = useWorkspaces();
   const { workspace } = useWorkspace();
 

@@ -4,6 +4,8 @@ import Meta from '@/components/Meta/index';
 import Select from '@/components/Select';
 import SlideOver from '@/components/SlideOver';
 import { countries } from '@/config/common/countries';
+import { timezones } from '@/config/common/timezones';
+import { languages } from '@/config/common/languages';
 import { dealStage, industries, types } from '@/config/modules/crm';
 import { AccountLayout } from '@/layouts/index';
 import { log } from '@/lib/client/log';
@@ -81,19 +83,50 @@ function Settings({ modules }) {
             />
             <Content.Divider />
             <Content.Container>
+                <div className="px-4 my-10">
+                    <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                        Company Name
+                    </label>
+                    <div className="mt-1">
+                        <Input
+                            type="text"
+                            onChange={(e) => updateFormInput({ ...formInput, companyName: new Date(e.target.value) })}
+                        />
+                    </div>
+                </div>
+
                 <div className="px-4 my-6">
                     <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                        Project
+                        Time zone
                     </label>
                     <div className="mt-1">
                         <Select
                             onChange={(e) => updateFormInput({ ...formInput, projectId: e.target.value })}
                         >
-                            <option value="" className="text-gray-400">Choose a Project</option>
+                            <option value="" className="text-gray-400">Choose a Time Zone</option>
 
                             {
-                                types.map((stage, index) => (
-                                    <option key={index} value={stage.id}>{stage.name}</option>
+                                timezones.map((stage, index) => (
+                                    <option key={index} value={stage.id}>{stage.text}</option>
+                                )
+                                )}
+                        </Select>
+                    </div>
+                </div>
+
+                <div className="px-4 my-6">
+                    <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                        Time zone
+                    </label>
+                    <div className="mt-1">
+                        <Select
+                            onChange={(e) => updateFormInput({ ...formInput, projectId: e.target.value })}
+                        >
+                            <option value="" className="text-gray-400">Choose a Language</option>
+
+                            {
+                                languages.map((stage, index) => (
+                                    <option key={index} value={stage.value}>{stage.name}</option>
                                 )
                                 )}
                         </Select>

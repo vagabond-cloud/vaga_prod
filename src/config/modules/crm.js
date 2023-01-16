@@ -440,6 +440,48 @@ export const dueDate = [
         id: "8",
         name: "Other"
     },
+]
 
+export const dealStage = [
+    {
+        id: "1",
+        name: "First Contact"
+    },
+    {
+        id: "2",
+        name: "Initial Call/Presentation"
+    },
+    {
+        id: "3",
+        name: "Further Intrest"
+    },
+    {
+        id: "4",
+        name: "Follow-up call"
+    },
+    {
+        id: "5",
+        name: "Decision Making"
+    },
+    {
+        id: "6",
+        name: "Scope Defined"
+    },
+    {
+        id: "7",
+        name: "Negotiation"
+    },
+    {
+        id: "8",
+        name: "Deal Closed/Won"
+    },
+    {
+        id: "9",
+        name: "On Hold"
+    },
+    {
+        id: "10",
+        name: "Deal Closed/Lost"
+    },
 
 ]

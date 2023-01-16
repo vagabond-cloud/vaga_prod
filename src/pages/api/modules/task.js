@@ -27,7 +27,7 @@ const handler = async (req, res) => {
             res.status(400).json({ error: "Bad request - Error Code: 400" });
         }
     } else if (method === 'DELETE') {
-        console.log(req.query.contactId)
+
         const note = await deleteTask(req.query.contactId);
         res.status(200).json({ note });
 

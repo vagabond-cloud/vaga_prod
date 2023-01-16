@@ -11,7 +11,7 @@ const handler = async (req, res) => {
     joinWorkspace(workspaceCode, session.user.userId, session.user.email)
       .then((joinedAt) => res.status(200).json({ data: { joinedAt } }))
       .catch((error) => {
-        console.log(error)
+
         res.status(404).json({ errors: { error: { msg: error.message } } })
       });
   } else {

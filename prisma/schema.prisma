@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextIndex"]
 }
 
 datasource db {
@@ -127,6 +128,7 @@ model User {
   ContactActivity  ContactActivity[]
   Company          Company[]
   Document         Document[]
+  Deal             Deal[]
 
   @@unique([userCode, email])
   @@map("users")
@@ -189,13 +191,42 @@ model Module {
   name        String
   createdAt   DateTime? @default(now())
   updatedAt   DateTime? @updatedAt
+  currency    String?
+  moduleType  String?   @db.ObjectId
 
   user      User      @relation(fields: [addedById], references: [id], onDelete: Cascade)
   workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   contact   Contact[]
   Company   Company[]
+  Deal      Deal[]
 
   @@map("modules")
+}
+
+model CustomerModule {
+  id           String  @id @default(auto()) @map("_id") @db.ObjectId
+  email        String  @unique
+  companyName  String?
+  language     String?
+  timezone     String?
+  fiscalYear   String?
+  dateFormat   String?
+  numberFormat String?
+  vatNumber    String?
+  phone        String?
+  address      String?
+  city         String?
+  state        String?
+  zip          String?
+  country      String?
+  website      String?
+  logo         String?
+
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
+  deletedAt DateTime?
+
+  @@map("customermodules")
 }
 
 model Contact {
@@ -239,6 +270,7 @@ model Contact {
   Company         Company?          @relation(fields: [companyId], references: [id])
   companyId       String?           @db.ObjectId
   Document        Document[]
+  Deal            Deal[]
 
   @@map("contacts")
 }
@@ -365,27 +397,61 @@ model Company {
   Task      Task[]
   contacts  Contact[]
   Document  Document[]
+  Deal      Deal[]
 
   @@map("companies")
 }
 
 model Document {
-  id          String    @id @default(auto()) @map("_id") @db.ObjectId
-  addedById   String    @db.ObjectId
-  email       String    @unique
-  companyId   String?   @db.ObjectId
-  contactId   String?   @db.ObjectId
-  title       String
-  documentUrl String
-  createdAt   DateTime? @default(now())
-  updatedAt   DateTime? @updatedAt
-  deletedAt   DateTime?
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  addedById    String    @db.ObjectId
+  email        String    @unique
+  companyId    String?   @db.ObjectId
+  contactId    String?   @db.ObjectId
+  title        String
+  documentUrl  String
+  size         Int?
+  type         String?
+  lastModified Int?
+  createdAt    DateTime? @default(now())
+  updatedAt    DateTime? @updatedAt
+  deletedAt    DateTime?
 
   user    User     @relation(fields: [addedById], references: [id], onDelete: Cascade)
   Company Company? @relation(fields: [companyId], references: [id])
   contact Contact? @relation(fields: [contactId], references: [id])
 
+  @@fulltext([title])
   @@map("documents")
+}
+
+model Deal {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  addedById   String    @db.ObjectId
+  email       String    @unique
+  dealName    String
+  pipeline    String
+  dealStage   String
+  amount      String?
+  closeDate   DateTime?
+  dealOwnerId String
+  dealType    String?
+  priority    String?
+  contactId   String?   @db.ObjectId
+  companyId   String?   @db.ObjectId
+  projectId   String?   @db.ObjectId
+  createdAt   DateTime? @default(now())
+  updatedAt   DateTime? @updatedAt
+  deletedAt   DateTime?
+  moduleid    String?   @db.ObjectId
+  workspaceId String    @db.ObjectId
+
+  user    User     @relation(fields: [addedById], references: [id], onDelete: Cascade)
+  company Company? @relation(fields: [companyId], references: [id])
+  contact Contact? @relation(fields: [contactId], references: [id])
+  module  Module?  @relation(fields: [moduleid], references: [id])
+
+  @@map("deals")
 }
 
 enum InvitationStatus {

@@ -12,7 +12,6 @@ export const captureLog = async (title, description, action, ip, userId) => {
             userId
         },
     });
-    console.log(logs)
     return logs
 }
 

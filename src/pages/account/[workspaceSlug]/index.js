@@ -184,12 +184,12 @@ const Activity = ({ activity }) => {
           <div className="p-4">
             <div className="flex items-start">
               <div className="flex-shrink-0">
-                <p className="text-3xl">{activitydetails.find((a) => a.id === item.action).icon}</p>
+                <p className="text-3xl">{activitydetails.find((a) => a.id === item.action)?.icon}</p>
               </div>
               <div className="ml-3 w-0 flex-1 pt-0.5">
                 <p className="text-sm font-medium text-gray-900">{item.title}</p>
                 <p className="mt-1 text-sm text-gray-500">{item.description}</p>
-                <p className="mt-1 text-sm text-red-500">{activitydetails.find((a) => a.id === item.action).name}</p>
+                <p className="mt-1 text-sm text-red-500">{activitydetails.find((a) => a.id === item.action)?.name}</p>
                 <p className="mt-1 text-xs text-gray-500">{item.createdAt}</p>
 
               </div>

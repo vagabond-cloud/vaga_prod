@@ -155,7 +155,6 @@ export const getServerSideProps = async ({ req }) => {
 
   const ip = typeof forwarded === 'string' ? forwarded.split(/, /)[0] : req.socket.remoteAddress;
 
-  console.log(ip);
 
   return {
     props: { ip },

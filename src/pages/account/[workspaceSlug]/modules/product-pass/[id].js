@@ -102,7 +102,7 @@ export async function getServerSideProps(context) {
     const session = await getSession(context);
     let isTeamOwner = false;
     let workspace = null;
-    console.log("ID", context.params.id)
+
     const modules = await getModule(context.params.id);
 
     if (session) {

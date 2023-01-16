@@ -8,7 +8,7 @@ import { countries } from '@/config/common/countries';
 import { leadStages, lifecycleStages, outcomes, taskTypes, dueDate, industries, types } from '@/config/modules/crm';
 import { AccountLayout } from '@/layouts/index';
 import api from '@/lib/common/api';
-import { getCompany, getNote, getCall, getTask, getActivity } from '@/prisma/services/modules';
+import { getCompany, getNote, getCall, getTask, getActivity, getDocuments } from '@/prisma/services/modules';
 import { EnvelopeIcon, PhoneIcon, ChevronRightIcon } from '@heroicons/react/20/solid';
 import moment from 'moment';
 import Link from 'next/link';
@@ -20,12 +20,16 @@ import Modal from '@/components/Modal';
 import { contactActivity } from '@/lib/client/log';
 import { uploadToGCS } from '@/lib/client/upload';
 import { PencilIcon } from '@heroicons/react/24/outline';
+import { fileType } from '@/config/common/fileType';
+import Documents from '@/components/modules/customer-cloud/companies/Documents';
+import CContacts from '@/components/modules/customer-cloud/companies/Contacts';
+import Activities from '@/components/modules/customer-cloud/companies/Activities';
 
 function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
 }
 
-function Contacts({ company, notes, calls, tasks, activities }) {
+function Contacts({ company, notes, calls, tasks, activities, documents }) {
     company = JSON.parse(company)
 
     const router = useRouter(false);
@@ -54,7 +58,6 @@ function Contacts({ company, notes, calls, tasks, activities }) {
     const logoInput = useRef(null)
     const bannerInput = useRef(null)
 
-    const documents = JSON.stringify([])
 
 
     const profile = {
@@ -418,7 +421,7 @@ function Contacts({ company, notes, calls, tasks, activities }) {
                     <CContacts company={company} />
                 }
                 {tab === 'documents' &&
-                    <Documents documents={documents} />
+                    <Documents company={company} documents={documents} />
                 }
                 {/* Tabs End */}
 
@@ -446,159 +449,11 @@ const Overview = ({ profile }) => {
     )
 }
 
-const Activities = ({ activities }) => {
-    activities = JSON.parse(activities)
 
-    return (
-        <div className="w-full px-4 mt-10">
-            {activities.sort((a, b) => { new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime() }).reverse().map((item, index) => (
-                <div key={index} className="cursor-pointer pointer-events-auto w-full max-w-7xl overflow-hidden rounded-lg bg-white ring-1 ring-black ring-opacity-5 my-4 hover:bg-gray-100">
-                    <div className="p-4">
-                        <div className="flex items-between">
-                            <div className="ml-3 w-0 flex-1 pt-0.5">
-                                <p className="text-sm font-medium text-gray-900">{item.title}</p>
-                                <p className="text-xs text-gray-400 truncate pr-8 my-2">{item.description}</p>
-                                <p className="text-xs text-gray-400 truncate pr-8 my-2">{moment(item.createdAt).format("DD MMM. YYYY - hh:mm:ss")}</p>
-
-                            </div>
-
-                            <div className="ml-4 flex flex-shrink-0">
-                                <div className="block w-full">
-                                    <button
-                                        type="button"
-                                        className="inline-flex rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-                                    >
-                                        <span className="sr-only">Close</span>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            ))}
-        </div>
-    )
-}
 
 const writeLog = async (type, action, date, contactId) => {
     const res = await contactActivity(`${type}`, `${type} at ${date}`, `${action.toLowerCase()}`, '127.0.0.1', contactId);
 }
-
-const CContacts = ({ company }) => {
-    const router = useRouter()
-    const { workspaceSlug } = router.query
-    return (
-        <div className="w-full px-4 mt-10">
-            {company.contacts.sort((a, b) => { new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime() }).reverse().map((item, index) => (
-                <Link href={`/account/${workspaceSlug}/modules/customer-cloud/contacts/card/${item.id}`} key={index}>
-                    <div className="cursor-pointer pointer-events-auto w-full max-w-7xl overflow-hidden rounded-lg bg-white ring-1 ring-black ring-opacity-5 my-4 hover:bg-gray-100">
-                        <div className="p-4">
-                            <div className="flex items-between">
-                                <div className="ml-3 w-0 flex-1 pt-0.5">
-                                    <p className="text-sm font-medium text-gray-900">{item.firstName + ' ' + item.lastName}</p>
-                                    <p className="text-xs text-gray-400 truncate pr-8 my-2">{item.phone}</p>
-                                    <p className="text-xs text-gray-400 truncate pr-8 my-2">{item.email}</p>
-
-                                </div>
-
-                                <div className="ml-4 flex flex-shrink-0">
-                                    <div className="block w-full">
-                                        <button
-                                            type="button"
-                                            className="inline-flex rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-                                        >
-                                            <span className="sr-only">Close</span>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </Link>
-            ))}
-        </div>
-    )
-}
-
-
-const Documents = ({ documents }) => {
-    documents = JSON.parse(documents)
-
-    const router = useRouter()
-    const { workspaceSlug, id } = router.query
-    const documentsRef = useRef(null)
-    const [title, setTitle] = useState('')
-    const [document, setDocument] = useState(null)
-    const [documentUrl, setDocumentUrl] = useState('')
-    const [numPages, setNumPages] = useState(null);
-
-    const [formInput, updateFormInput] = useState({
-        title: '',
-        documentUrl: '',
-        companyId: id,
-        contactId: ''
-    })
-
-    const handlerDocumentUrl = (file) => {
-        setDocument(file)
-    }
-
-    const onDocumentLoadSuccess = ({ numPages }) => {
-
-        setNumPages(numPages);
-    };
-
-    console.log(document)
-    return (
-
-        <>
-            <div className="flex">
-                <div className="flex w-1/2">
-
-                </div>
-                <div className="flex w-full px-4 justify-end">
-                    <SlideOver
-                        buttonTitle="+"
-                        title="Add Document"
-                        subTitle="Upload Documents"
-                    >
-                        <div className="overflow-scroll h-full pb-20">
-                            <div className="px-4 my-6">
-                                <label htmlFor="email" className="block text-xs font-medium text-gray-500">
-                                    Title
-                                </label>
-                                <div className="mt-1">
-                                    <Input
-                                        defaultValue={""}
-                                        onChange={(e) => updateFormInput({ ...formInput, title: e.target.value })}
-                                    />
-                                </div>
-                            </div>
-                            <div className="px-4 my-6 flex justify-between mt-10">
-
-                                <input type="file" ref={documentsRef} className="" onChange={(e) => handlerDocumentUrl(e.target.files[0])} />
-                                <button className="bg-red-600 text-white w-40 h-10" onClick={() => console.log("first")}>Save</button>
-                            </div>
-                        </div>
-                        <div className="flex flex-shrink-0 justify-end px-4 py-4 w-full border-t absolute bottom-0 bg-white resize-y">
-
-                            <Button
-                                type="submit"
-                                className="ml-4 inline-flex text-white justify-center rounded-md border border-transparent bg-red-600 py-2 px-4 text-xs font-medium text-white5shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-                                onClick={() => updateContact()}
-                            >
-                                Save
-                            </Button>
-                        </div>
-
-                    </SlideOver>
-                </div>
-            </div>
-        </>
-    )
-}
-
-
 
 export async function getServerSideProps(context) {
 
@@ -607,13 +462,15 @@ export async function getServerSideProps(context) {
     const calls = await getCall(context.params.id)
     const tasks = await getTask(context.params.id)
     const activities = await getActivity(context.params.id)
+    const documents = await getDocuments(context.params.id)
     return {
         props: {
             company: JSON.stringify(company),
             notes: JSON.stringify(notes),
             calls: JSON.stringify(calls),
             tasks: JSON.stringify(tasks),
-            activities: JSON.stringify(activities)
+            activities: JSON.stringify(activities),
+            documents: JSON.stringify(documents)
         }
     }
 }

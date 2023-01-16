@@ -64,5 +64,10 @@ export const activitydetails = [
         "name": "Workspace member removed",
         "icon": "👥"
     },
+    {
+        "id": "company_created",
+        "name": "Company Created",
+        "icon": "🏢"
+    },
 
 ]

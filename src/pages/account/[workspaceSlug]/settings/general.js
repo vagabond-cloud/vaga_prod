@@ -17,7 +17,7 @@ import { useWorkspace } from '@/providers/workspace';
 import Input from '@/components/Input';
 
 const General = ({ isTeamOwner, workspace }) => {
-  console.log(isTeamOwner)
+
   const router = useRouter();
   const { setWorkspace } = useWorkspace();
   const [isSubmitting, setSubmittingState] = useState(false);

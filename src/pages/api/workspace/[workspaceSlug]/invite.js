@@ -19,7 +19,7 @@ const handler = async (req, res) => {
     )
       .then((members) => res.status(200).json({ data: { members } }))
       .catch((error) => {
-        console.log(error)
+
         res.status(404).json({ errors: { error: { msg: error.message } } })
       });
   } else {

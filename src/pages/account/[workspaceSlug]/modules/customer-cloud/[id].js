@@ -67,7 +67,7 @@ function CustomerCloud() {
                         </Link>
                     </Card>
                     <Card>
-                        <Link href={`/account/${workspaceSlug}/modules/customer-cloud/contacts/${id}`}>
+                        <Link href={`/account/${workspaceSlug}/modules/customer-cloud/deals/${id}`}>
                             <div className="bg-slate-500 hover:bg-gray-200 text-gray-100 hover:text-gray-800 cursor-pointer">
                                 <Card.Body title="Sales" subtitle="">
 
@@ -77,7 +77,6 @@ function CustomerCloud() {
                             </div>
                         </Link>
                     </Card>
-
                     <Card>
                         <Link href={`/account/${workspaceSlug}/modules/customer-cloud/contacts/${id}`}>
                             <div className="bg-amber-500 hover:bg-gray-200 text-gray-100 hover:text-gray-800 cursor-pointer">
@@ -85,6 +84,42 @@ function CustomerCloud() {
                                 <Card.Body title="Service" subtitle="">
                                     <div className="">
                                         <p className="text-xs ">Manage your Customer requests</p>
+                                    </div>
+                                </Card.Body>
+                            </div>
+                        </Link>
+                    </Card>
+                    <Card>
+                        <Link href={`/account/${workspaceSlug}/modules/customer-cloud/products/${id}`}>
+                            <div className="bg-orange-500 hover:bg-gray-200 text-gray-100 hover:text-gray-800 cursor-pointer">
+
+                                <Card.Body title="Products" subtitle="">
+                                    <div className="">
+                                        <p className="text-xs ">Manage your Products</p>
+                                    </div>
+                                </Card.Body>
+                            </div>
+                        </Link>
+                    </Card>
+                    <Card>
+                        <Link href={`/account/${workspaceSlug}/modules/customer-cloud/projects/${id}`}>
+                            <div className="bg-lime-500 hover:bg-gray-200 text-gray-100 hover:text-gray-800 cursor-pointer">
+
+                                <Card.Body title="Projects" subtitle="">
+                                    <div className="">
+                                        <p className="text-xs ">Manage your Projects</p>
+                                    </div>
+                                </Card.Body>
+                            </div>
+                        </Link>
+                    </Card>
+                    <Card>
+                        <Link href={`/account/${workspaceSlug}/modules/customer-cloud/settings/${id}`}>
+                            <div className="bg-gray-700 hover:bg-gray-800 text-gray-100 hover:text-gray-200 cursor-pointer">
+
+                                <Card.Body title="Settings" subtitle="">
+                                    <div className="">
+                                        <p className="text-xs ">Manage your Settings</p>
                                     </div>
                                 </Card.Body>
                             </div>

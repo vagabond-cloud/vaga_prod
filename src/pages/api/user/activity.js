@@ -11,7 +11,7 @@ const handler = async (req, res) => {
         const { workspaceSlug, id, email } = req.query;
 
         const session = await validateSession(req, res);
-        console.log(session)
+
 
         const activities = await getActivities(id);
         res.status(200).json({ data: { activities } });

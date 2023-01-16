@@ -234,12 +234,22 @@ export const deleteTask = async (id) => {
     return note
 }
 
-export const getActivity = async (id) =>
-    await prisma.contactActivity.findMany({
-        take: 20,
+export const getActivity = async (id, page) => {
+    console.log(page)
+    const allActivities = await prisma.contactActivity.findMany({
         where: { contactId: id },
     });
 
+    const activities = await prisma.contactActivity.findMany({
+        skip: page > 0 ? parseFloat(page) * 10 : 0,
+        take: 10,
+        orderBy: {
+            id: "desc",
+        },
+        where: { contactId: id },
+    });
+    return { activities, allActivities }
+}
 
 export const createCompany = async (companyOwnerId, email, data, workspaceId, moduleid) => {
 
@@ -326,5 +336,61 @@ export const getCompanies = async (moduleid) =>
         include: {
             module: true,
             user: true,
+            contacts: true
+        },
+    });
+
+
+export const getDocuments = async (id) =>
+    await prisma.document.findMany({
+        where: { companyId: id },
+
+    });
+
+
+export const createDeal = async (addedById, email, data, workspaceId, moduleid) => {
+
+    const contacts = await prisma.deal.createMany({
+        data: {
+            addedById,
+            email,
+            dealName: data.dealName,
+            pipeline: data.pipeline,
+            dealStage: data.dealStage,
+            amount: data.amount,
+            closeDate: data.closeDate,
+            dealOwnerId: data.dealOwnerId,
+            dealType: data.dealType,
+            priority: data.priority,
+            contactId: data.contactId,
+            companyId: data.companyId,
+            workspaceId,
+            moduleid
+        },
+    });
+    return contacts
+}
+
+
+export const getDeal = async (id) =>
+    await prisma.deal.findUnique({
+        where: {
+            id
+        },
+        include: {
+            user: true,
+            contact: true,
+            company: true
+        }
+    });
+
+
+export const getDeals = async (moduleid) =>
+    await prisma.deal.findMany({
+        include: {
+            module: true,
+            user: true,
+            contact: true,
+            company: true
         },
     });

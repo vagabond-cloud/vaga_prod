@@ -237,18 +237,18 @@ const Modules = ({ modules }) => {
         {modules.map((module, index) => (
           <li key={index} className={`col-span-1 flex rounded-md shadow-sm hover:bg-gray-200`}>
             <div
-              className={classNames(types.find((t) => t.type === module.type)?.bgColor,
+              className={classNames(types.find((t) => t.type === module.type).bgColor,
                 'flex-shrink-0 flex items-center justify-center w-16 text-white text-sm font-medium rounded-l-md '
               )}
             >
-              {types.find((t) => t.type === module.type)?.icon}
+              {types.find((t) => t.type === module.type).icon}
             </div>
             <div className="flex flex-1 items-center justify-between truncate rounded-r-md border-t border-r border-b border-gray-200 ">
               <div className="flex-1 truncate px-4 py-2 text-sm">
                 <Link href={`/account/${workspaceSlug}/modules/${module.type}/${module.moduleCode}`} className="font-medium text-red-600 hover:text-gray-600">
                   {module.name}
                 </Link>
-                <p className="text-gray-500">{types.find((t) => t.type === module.type)?.name}</p>
+                <p className="text-gray-500">{types.find((t) => t.type === module.type).name}</p>
                 <p className="text-gray-500 text-xs">{module.network.toUpperCase()}</p>
 
               </div>

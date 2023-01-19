@@ -36,11 +36,4 @@ export const items = [
         iconColor: 'bg-red-500',
         icon: HeartIcon,
     },
-    {
-        name: 'AI Cloud',
-        description: 'AI Cloud is an AI platform from Vagabond',
-        href: 'ai-cloud',
-        iconColor: 'bg-red-500',
-        icon: MegaphoneIcon,
-    },
 ]

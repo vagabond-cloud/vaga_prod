@@ -40,12 +40,6 @@ export const types = [
         type: 'cx-management',
         icon: <HeartIcon className="w-6 h-6 " />,
         bgColor: 'bg-purple-600',
-    },
-    {
-        name: 'AI Cloud',
-        description: 'A AI cloud is a module that allows you to sell a product or service to your customers.',
-        type: 'ai-cloud',
-        icon: <MegaphoneIcon className="w-6 h-6 " />,
-        bgColor: 'bg-stone-600',
+
     },
 ]

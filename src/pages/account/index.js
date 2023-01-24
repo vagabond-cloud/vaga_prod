@@ -11,7 +11,8 @@ import { AccountLayout } from '@/layouts/index';
 import api from '@/lib/common/api';
 import { useWorkspace } from '@/providers/workspace';
 
-const Welcome = ({ ip }) => {
+const Welcome = ({ ip, location }) => {
+  console.log(location?.query)
   const router = useRouter();
   const { data: invitationsData, isLoading: isFetchingInvitations } =
     useInvitations();
@@ -141,7 +142,7 @@ const Welcome = ({ ip }) => {
           )}
         </div>
         <div className="mt-5 text-xs text-gray-400">
-          IP address: {ip}
+          IP address: {!location ? ip : location?.query}
         </div>
       </Content.Container>
     </AccountLayout>
@@ -151,12 +152,16 @@ const Welcome = ({ ip }) => {
 export default Welcome;
 
 export const getServerSideProps = async ({ req }) => {
-  const forwarded = req.headers['x-forwarded-for'];
 
-  const ip = typeof forwarded === 'string' ? forwarded.split(/, /)[0] : req.socket.remoteAddress;
+  const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+
+  const location = await api(`http://ip-api.com/json/${ip === "::1" ? "142.251.214.148" : ip}`, { method: 'GET' });
 
 
   return {
-    props: { ip },
+    props: {
+      ip,
+      location
+    },
   };
 };

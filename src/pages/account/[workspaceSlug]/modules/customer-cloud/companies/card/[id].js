@@ -66,8 +66,8 @@ function Contacts({ company, notes, calls, tasks, activities, documents }) {
         coverImageUrl: company.bannerUrl ? company.bannerUrl : 'https://fasttechnologies.com/wp-content/uploads/2017/01/placeholder-banner.png',
 
         fields: {
-            Type: types.find((t) => t.id === company.type).name,
-            Industry: industries.find((i) => i.id === company.industry).name,
+            Type: types.find((t) => t.id === company.type)?.name,
+            Industry: industries.find((i) => i.id === company.industry)?.name,
             Phone: company.phone,
             Street: company.street,
             City: company.city,
@@ -220,7 +220,7 @@ function Contacts({ company, notes, calls, tasks, activities, documents }) {
                                                         defaultValue={company.industry}
                                                         onChange={(e) => updateFormInput({ ...formInput, lifecycleStage: e.target.value })}
                                                     >
-                                                        <option value={company.industry}>✅ {industries.find((i) => i.id === company.industry).name}</option>
+                                                        <option value={company.industry}>✅ {industries.find((i) => i.id === company.industry)?.name}</option>
 
                                                         {
                                                             industries.map((stage, index) => (
@@ -239,7 +239,7 @@ function Contacts({ company, notes, calls, tasks, activities, documents }) {
                                                         defaultValue={company.industry}
                                                         onChange={(e) => updateFormInput({ ...formInput, lifecycleStage: e.target.value })}
                                                     >
-                                                        <option value={company.type}>✅ {types.find((i) => i.id === company.type).name}</option>
+                                                        <option value={company.type}>✅ {types.find((i) => i.id === company.type)?.name}</option>
 
                                                         {
                                                             types.map((stage, index) => (

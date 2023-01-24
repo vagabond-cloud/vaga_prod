@@ -37,6 +37,7 @@ function Contacts({ modules, companies, workspace }) {
         type: '',
         phone: '',
         city: '',
+        street: '',
         state: '',
         zip: '',
         country: '',
@@ -159,6 +160,16 @@ function Contacts({ modules, companies, workspace }) {
                                         <Input
                                             type="phone"
                                             onChange={(e) => updateFormInput({ ...formInput, phone: e.target.value })}
+                                        />
+                                    </div>
+                                </div>
+                                <div className="px-4 my-10">
+                                    <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                                        Street
+                                    </label>
+                                    <div className="mt-1">
+                                        <Input
+                                            onChange={(e) => updateFormInput({ ...formInput, street: e.target.value })}
                                         />
                                     </div>
                                 </div>

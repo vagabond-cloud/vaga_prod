@@ -26,7 +26,6 @@ function classNames(...classes) {
 }
 
 
-
 function Settings({ modules }) {
     modules = JSON.parse(modules)
 
@@ -67,7 +66,6 @@ function Settings({ modules }) {
             toast.error('Error creating Deal')
         }
     }
-
     console.log(modules)
 
     const writeLog = async () => {
@@ -83,14 +81,14 @@ function Settings({ modules }) {
             />
             <Content.Divider />
             <Content.Container>
-                <div className="px-4 my-10">
+                <div className="px-4">
                     <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                         Company Name
                     </label>
                     <div className="mt-1">
                         <Input
                             type="text"
-                            onChange={(e) => updateFormInput({ ...formInput, companyName: new Date(e.target.value) })}
+                            onChange={(e) => updateFormInput({ ...formInput, companyName: e.target.value })}
                         />
                     </div>
                 </div>
@@ -132,6 +130,7 @@ function Settings({ modules }) {
                         </Select>
                     </div>
                 </div>
+
                 <div className="px-4 my-10">
                     <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                         Close Date
@@ -152,24 +151,18 @@ export default Settings
 
 
 export async function getServerSideProps(context) {
-
     const session = await getSession(context);
-    let isTeamOwner = false;
-    let workspace = null;
-
+    if (!session) {
+        return { props: { isTeamOwner: false, workspace: null, modules: null } }
+    }
+    const workspace = await getWorkspace(
+        session.user.userId,
+        session.user.email,
+        context.params.workspaceSlug
+    );
     const modules = await getModule(context.params.id);
 
-    if (session) {
-        workspace = await getWorkspace(
-            session.user.userId,
-            session.user.email,
-            context.params.workspaceSlug
-        );
-
-        if (workspace) {
-            isTeamOwner = isWorkspaceOwner(session.user.email, workspace);
-        }
-    }
+    const isTeamOwner = isWorkspaceOwner(session.user.email, workspace);
 
     return {
         props: {

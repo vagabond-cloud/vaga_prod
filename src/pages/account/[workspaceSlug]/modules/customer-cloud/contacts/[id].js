@@ -6,29 +6,22 @@ import SlideOver from '@/components/SlideOver';
 import { countries } from '@/config/common/countries';
 import { leadStages, lifecycleStages } from '@/config/modules/crm';
 import { AccountLayout } from '@/layouts/index';
-import { log } from '@/lib/client/log';
 import api from '@/lib/common/api';
 import { getContacts, getModule } from '@/prisma/services/modules';
 import { getWorkspace, isWorkspaceOwner } from '@/prisma/services/workspace';
 import { ArrowRightCircleIcon } from '@heroicons/react/24/outline';
+import { CheckBadgeIcon } from '@heroicons/react/24/solid';
 import moment from 'moment';
 import { getSession } from 'next-auth/react';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
-import Link from 'next/link'
-
-function classNames(...classes) {
-    return classes.filter(Boolean).join(' ')
-}
-
-
 
 function Contacts({ modules, contacts, workspace }) {
     modules = JSON.parse(modules)
     contacts = JSON.parse(contacts)
     workspace = JSON.parse(workspace)
-
 
     const [formInput, updateFormInput] = useState({
         firstName: '',
@@ -61,8 +54,9 @@ function Contacts({ modules, contacts, workspace }) {
     }
 
     const writeLog = async () => {
-        const res = await log('Contact created', `Contact with the name ${formInput.firstName + '' + formInput.lastName} created for Module: ${id} `, 'contact_created', '127.0.0.1');
     }
+
+    console.log(formInput)
 
     return (
         <AccountLayout>

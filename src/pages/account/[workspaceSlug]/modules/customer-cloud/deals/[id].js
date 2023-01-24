@@ -51,24 +51,25 @@ function Contacts({ modules, companies, workspace, deals, contacts }) {
     const router = useRouter(false);
     const { workspaceSlug, id } = router.query;
 
-    const createContact = async () => {
-        const res = await api(`/api/modules/deal`, {
-            method: 'PUT',
-            body: {
-                formInput,
-                workspaceId: workspace[0].id,
-                moduleId: modules.id
+    const createDeal = async () => {
+        try {
+            const { status } = await api(`/api/modules/deal`, {
+                method: 'PUT',
+                body: {
+                    formInput,
+                    workspaceId: workspace[0].id,
+                    moduleId: modules.id
+                }
+            });
+            if (status === 200) {
+                toast.success('Deal created successfully');
+                writeLog();
+                router.replace(router.asPath);
             }
-        })
-        if (res.status === 200) {
-            toast.success('Deal created successfully')
-            writeLog()
-            router.replace(router.asPath)
-
-        } else {
-            toast.error('Error creating Deal')
+        } catch (error) {
+            toast.error('Error creating Deal');
         }
-    }
+    };
 
     const writeLog = async () => {
         const res = await log('Deal created', `Deal with the name ${formInput.dealName} created for Module: ${id} `, 'deal_created', '127.0.0.1');
@@ -263,7 +264,7 @@ function Contacts({ modules, companies, workspace, deals, contacts }) {
                                 <button
                                     type="submit"
                                     className="ml-4 inline-flex justify-center  rounded-md border border-transparent bg-red-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-                                    onClick={() => createContact()}
+                                    onClick={() => createDeal()}
                                 >
                                     Save
                                 </button>

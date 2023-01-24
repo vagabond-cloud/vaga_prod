@@ -1,19 +1,13 @@
 import Card from '@/components/Card/index';
 import Content from '@/components/Content/index';
 import Meta from '@/components/Meta/index';
-import Reload from '@/components/Reload';
 import { AccountLayout } from '@/layouts/index';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { ChevronRightIcon } from '@heroicons/react/20/solid'
-import { items } from '@/config/modules/items'
-import Link from 'next/link'
-import Button from '@/components/Button';
 
 function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
 }
-
-
 
 function CustomerCloud() {
     const router = useRouter();

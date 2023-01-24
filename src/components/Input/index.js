@@ -13,7 +13,7 @@ const Input = forwardRef(({ className, type, ...rest }, ref) => {
         )
     } else if (type === "textarea") {
         return (
-            <textarea
+            <input
                 className="p-2 border-gray-300  border w-full rounded-sm h-12 focus:border-red-600 focus:outline-none focus:ring-red-600 text-sm"
                 {...rest}
             />

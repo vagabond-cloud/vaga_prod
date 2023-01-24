@@ -10,7 +10,7 @@ import Sidebar from '@/components/Sidebar/index';
 import menu from '@/config/menu/index';
 import { useWorkspace } from '@/providers/workspace';
 
-const AccountLayout = ({ children }) => {
+const AccountLayout = ({ children, footer }) => {
   const { status } = useSession();
   const router = useRouter();
   const { workspace } = useWorkspace();
@@ -30,7 +30,9 @@ const AccountLayout = ({ children }) => {
           <Toaster position="bottom-left" toastOptions={{ duration: 10000 }} />
           <Header />
           {children}
-          <Footer />
+          {!footer &&
+            <Footer />
+          }
         </Content>
       </main>
     </>

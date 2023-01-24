@@ -19,23 +19,40 @@ const Billing = ({ invoices, products }) => {
   const [isSubmitting, setSubmittingState] = useState(false);
   const [showModal, setModalVisibility] = useState(false);
 
-  const subscribe = (priceId) => {
-    setSubmittingState(true);
-    api(`/api/payments/subscription/${priceId}`, {
-      method: 'POST',
-    }).then((response) => {
-      setSubmittingState(false);
+  // const subscribe = (priceId) => {
+  //   setSubmittingState(true);
+  //   api(`/api/payments/subscription/${priceId}`, {
+  //     method: 'POST',
+  //   }).then((response) => {
+  //     setSubmittingState(false);
+
+  //     if (response.errors) {
+  //       Object.keys(response.errors).forEach((error) =>
+  //         toast.error(response.errors[error].msg)
+  //       );
+  //     } else {
+  //       (async () => redirectToCheckout(response.data.sessionId))();
+  //     }
+  //   });
+  // };
+  const subscribe = async (priceId) => {
+    try {
+      setSubmittingState(true);
+      const response = await api(`/api/payments/subscription/${priceId}`, {
+        method: 'POST',
+      });
 
       if (response.errors) {
-        Object.keys(response.errors).forEach((error) =>
-          toast.error(response.errors[error].msg)
-        );
+        Object.values(response.errors).forEach(error => toast.error(error.msg));
       } else {
-        (async () => redirectToCheckout(response.data.sessionId))();
+        redirectToCheckout(response.data.sessionId);
       }
-    });
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setSubmittingState(false);
+    }
   };
-
   const toggleModal = () => setModalVisibility(!showModal);
 
   return (

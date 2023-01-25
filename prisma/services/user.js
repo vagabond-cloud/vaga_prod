@@ -8,6 +8,73 @@ export const deactivate = async (id) =>
     where: { id },
   });
 
+// Get all users with pagnation and sorting
+export const getAllUsers = async (page, limit, sort) => {
+  const skip = (page - 1) * limit;
+  const users = await prisma.user.findMany({
+    select: {
+      email: true,
+      name: true,
+      company: true,
+      userCode: true,
+      apikey: true,
+      role: true,
+      secret: true,
+      photo_url: true,
+    },
+    skip,
+    take: limit,
+    orderBy: sort,
+  });
+  const total = await prisma.user.count();
+  return { users, total };
+};
+
+// fulltext search for users
+export const searchUsers = async (search, page, limit, sort) => {
+  const skip = (page - 1) * limit;
+  const users = await prisma.user.findMany({
+    select: {
+      email: true,
+      name: true,
+      company: true,
+      userCode: true,
+      apikey: true,
+      role: true,
+      secret: true,
+      photo_url: true,
+    },
+    skip,
+    take: limit,
+    orderBy: sort,
+    where: {
+      OR: [
+        {
+          email: {
+            contains: search,
+            mode: 'insensitive',
+          },
+        },
+        {
+          name: {
+            contains: search,
+            mode: 'insensitive',
+          },
+        },
+        {
+          company: {
+            contains: search,
+            mode: 'insensitive',
+          },
+        },
+      ],
+    },
+
+  });
+  return users
+}
+
+
 export const getUser = async (id) =>
   await prisma.user.findUnique({
     select: {

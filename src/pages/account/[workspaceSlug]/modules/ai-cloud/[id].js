@@ -39,7 +39,7 @@ function CustomerCloud() {
                         </Link>
                     </Card>
                     <Card>
-                        <Link href={`/account/${workspaceSlug}/modules/customer-cloud/companies/${id}`}>
+                        <Link href={`/account/${workspaceSlug}/modules/ai-cloud/chat/${id}`}>
                             <div className="bg-green-500 hover:bg-gray-200 text-gray-100 hover:text-gray-800 cursor-pointer">
                                 <Card.Body title="Chat" subtitle="">
 

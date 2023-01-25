@@ -2,28 +2,26 @@ import Button from '@/components/Button';
 import Content from '@/components/Content/index';
 import Input from '@/components/Input';
 import Meta from '@/components/Meta/index';
+import Activities from '@/components/modules/customer-cloud/contacts/Activities';
+import Calls from '@/components/modules/customer-cloud/contacts/Calls';
+import Notes from '@/components/modules/customer-cloud/contacts/Notes';
+import Tasks from '@/components/modules/customer-cloud/contacts/Tasks';
 import Select from '@/components/Select';
 import SlideOver from '@/components/SlideOver';
 import { countries } from '@/config/common/countries';
-import { leadStages, lifecycleStages, outcomes, taskTypes, dueDate } from '@/config/modules/crm';
+import { leadStages, lifecycleStages } from '@/config/modules/crm';
 import { AccountLayout } from '@/layouts/index';
+import { contactActivity } from '@/lib/client/log';
+import { uploadToGCS } from '@/lib/client/upload';
 import api from '@/lib/common/api';
-import { getContact, getNote, getCall, getTask, getActivity, getCompanies } from '@/prisma/services/modules';
-import { EnvelopeIcon, PhoneIcon, ChevronRightIcon } from '@heroicons/react/20/solid';
+import { getActivity, getCall, getCompanies, getContact, getNote, getTask } from '@/prisma/services/modules';
+import { EnvelopeIcon, PhoneIcon } from '@heroicons/react/20/solid';
+import { PencilIcon } from '@heroicons/react/24/outline';
 import moment from 'moment';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useState, useRef } from 'react';
+import { useRef, useState } from 'react';
 import toast from 'react-hot-toast';
-import { PlusIcon } from '@heroicons/react/24/solid';
-import Modal from '@/components/Modal';
-import { contactActivity } from '@/lib/client/log';
-import { PencilIcon } from '@heroicons/react/24/outline';
-import { uploadToGCS } from '@/lib/client/upload';
-import Calls from '@/components/modules/customer-cloud/contacts/Calls'
-import Notes from '@/components/modules/customer-cloud/contacts/Notes'
-import Tasks from '@/components/modules/customer-cloud/contacts/Tasks'
-import Activities from '@/components/modules/customer-cloud/contacts/Activities'
 
 function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
@@ -42,7 +40,6 @@ function Contacts({ contact, notes, calls, tasks, activities, companies }) {
     const [photo, setPhoto] = useState(null);
     const [banner, setBanner] = useState(null);
 
-
     const tabs = [
         { name: 'Overview', href: 'overview', current: tab === 'overview' || !tab ? true : false },
         { name: 'Activity', href: 'activity', current: tab === 'activity' ? true : false },
@@ -50,7 +47,6 @@ function Contacts({ contact, notes, calls, tasks, activities, companies }) {
         { name: 'Calls', href: 'calls', current: tab === 'calls' ? true : false },
         { name: 'Tasks', href: 'tasks', current: tab === 'tasks' ? true : false },
         { name: 'Projects', href: 'projects', current: tab === 'projects' ? true : false },
-
     ]
 
     const photoInput = useRef(null)
@@ -90,7 +86,6 @@ function Contacts({ contact, notes, calls, tasks, activities, companies }) {
                 formInput,
                 workspaceId: contact.workspaceId,
                 moduleid: contact.moduleid,
-
             }
         })
         if (res.status === 200) {
@@ -105,19 +100,16 @@ function Contacts({ contact, notes, calls, tasks, activities, companies }) {
     }
 
     const uploadLogo = async (file) => {
-
         const getPhoto = await uploadToGCS(file)
         updateFormInput({ ...formInput, photoUrl: getPhoto })
         setPhoto(getPhoto)
     };
 
     const uploadBanner = async (file) => {
-
         const getBanner = await uploadToGCS(file)
         updateFormInput({ ...formInput, bannerUrl: getBanner })
         setBanner(getBanner)
     }
-
 
     return (
         <AccountLayout>
@@ -141,7 +133,7 @@ function Contacts({ contact, notes, calls, tasks, activities, companies }) {
                             <img className="h-32 w-full object-cover lg:h-48" src={banner ? banner : profile.coverImageUrl} alt="" />
                         </div>
                     </div>
-                    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                    <div className="mx-auto max-w-full px-4 sm:px-6 lg:px-8">
                         <div className="-mt-12 sm:-mt-16 sm:flex sm:items-end sm:space-x-5">
                             <div className="flex relative cursor-pointer" >
                                 <input type="file" onChange={(e) => uploadLogo(e.target.files[0])} hidden ref={photoInput} />
@@ -440,7 +432,7 @@ function Contacts({ contact, notes, calls, tasks, activities, companies }) {
                 {/* Tabs */}
                 <div className="mt-6 sm:mt-2 2xl:mt-5">
                     <div className="border-b border-gray-200">
-                        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                        <div className="mx-auto max-w-full px-4 sm:px-6 lg:px-8">
                             <nav className="-mb-px flex space-x-8" aria-label="Tabs">
                                 {tabs.map((tab) => (
                                     <Link

@@ -112,6 +112,8 @@ model User {
   vaga_address  String?   @unique
   domain        String?
   company       String?
+  role          String?
+  active        Boolean?  @default(true)
 
   accounts         Account[]
   sessions         Session[]
@@ -132,6 +134,7 @@ model User {
   Deal             Deal[]
 
   @@unique([userCode, email])
+  @@fulltext([id, email, name, vaga_address])
   @@map("users")
 }
 

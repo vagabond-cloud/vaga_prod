@@ -8,7 +8,7 @@ import { dealStage, industries, types } from '@/config/modules/crm';
 import { AccountLayout } from '@/layouts/index';
 import { log } from '@/lib/client/log';
 import api from '@/lib/common/api';
-import { getCompanies, getModule, getDeals, getContacts } from '@/prisma/services/modules';
+import { getCompanies, getModule, getDeals, getDealContacts } from '@/prisma/services/modules';
 import { getWorkspace, isWorkspaceOwner } from '@/prisma/services/workspace';
 import { ArrowRightCircleIcon } from '@heroicons/react/24/outline';
 import moment from 'moment';
@@ -376,7 +376,7 @@ export async function getServerSideProps(context) {
     const modules = await getModule(context.params.id);
     const companies = await getCompanies(modules.id)
     const deals = await getDeals(modules.id)
-    const contacts = await getContacts(modules.id)
+    const contacts = await getDealContacts(modules.id)
     if (session) {
         workspace = await getWorkspace(
             session.user.userId,

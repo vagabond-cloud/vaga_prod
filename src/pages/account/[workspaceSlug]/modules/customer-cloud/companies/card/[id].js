@@ -141,7 +141,7 @@ function Contacts({ company, notes, calls, tasks, activities, documents }) {
                             <img className="h-32 w-full object-cover lg:h-48" src={banner ? banner : profile.coverImageUrl} alt="" />
                         </div>
                     </div>
-                    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                    <div className="mx-auto max-w-full px-4 sm:px-6 lg:px-8">
                         <div className="-mt-12 sm:-mt-16 sm:flex sm:items-end sm:space-x-5">
                             <div className="flex relative cursor-pointer" >
                                 <input type="file" onChange={(e) => uploadLogo(e.target.files[0])} hidden ref={logoInput} />
@@ -384,7 +384,7 @@ function Contacts({ company, notes, calls, tasks, activities, documents }) {
                 {/* Tabs */}
                 <div className="mt-6 sm:mt-2 2xl:mt-5">
                     <div className="border-b border-gray-200">
-                        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                        <div className="mx-auto max-w-full px-4 sm:px-6 lg:px-8">
                             <nav className="-mb-px flex space-x-8" aria-label="Tabs">
                                 {tabs.map((tab) => (
                                     <Link

@@ -117,8 +117,7 @@ export const getContact = async (id) =>
         }
     });
 
-
-export const getContacts = async (moduleid) =>
+export const getDealContacts = async (moduleid) =>
     await prisma.contact.findMany({
         where: { moduleid },
         include: {
@@ -126,6 +125,50 @@ export const getContacts = async (moduleid) =>
             user: true
         },
     });
+
+export const getContacts = async (page, limit, sort, moduleid) => {
+    const skip = (page - 1) * limit;
+    const contacts = await prisma.contact.findMany({
+        select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            contactEmail: true,
+            jobTitle: true,
+            phone: true,
+            lifecycleStage: true,
+            leadStatus: true,
+            marketing: true,
+            city: true,
+            state: true,
+            country: true,
+            street: true,
+            zip: true,
+            website: true,
+            persona: true,
+            timeZone: true,
+            twitter_handle: true,
+            preferred_language: true,
+            workspaceId: true,
+            moduleid: true,
+            companyId: true,
+            photoUrl: true,
+            bannerUrl: true,
+            contactOwnerId: true,
+            email: true,
+            createdAt: true,
+            updatedAt: true,
+            user: true,
+            module: true,
+        },
+        where: { moduleid },
+        skip,
+        take: limit,
+        orderBy: sort,
+    });
+    const total = await prisma.contact.count();
+    return { contacts, total };
+};
 
 
 export const createNote = async (addedById, email, contactId, note, title) => {

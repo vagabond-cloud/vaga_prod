@@ -136,7 +136,7 @@ function Deal({ deal }) {
                 {/* Tabs */}
                 <div className="mt-8 sm:mt-2 2xl:mt-5">
                     <div className="border-b border-gray-200">
-                        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                        <div className="mx-auto max-w-full px-4 sm:px-6 lg:px-8">
                             <nav className="-mb-px flex space-x-8" aria-label="Tabs">
                                 {tabs.map((tab) => (
                                     <Link

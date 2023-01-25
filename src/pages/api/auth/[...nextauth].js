@@ -19,6 +19,9 @@ export default NextAuth({
         if (customerPayment) {
           session.user.subscription = customerPayment.subscriptionType;
         }
+        if (user.role) {
+          session.user.role = user.role;
+        }
       }
 
       return session;

@@ -17,8 +17,9 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
+import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid'
 
-function Contacts({ modules, contacts, workspace }) {
+function Contacts({ modules, contacts, workspace, total }) {
     modules = JSON.parse(modules)
     contacts = JSON.parse(contacts)
     workspace = JSON.parse(workspace)
@@ -36,17 +37,17 @@ function Contacts({ modules, contacts, workspace }) {
         address: '',
         website: '',
         company: '',
-        leadStage: '',
+        leadStatus: '',
         lifecycleStage: '',
     })
-
+    console.log(formInput)
     const router = useRouter(false);
-    const { workspaceSlug, id } = router.query;
+    const { workspaceSlug, id, page } = router.query;
 
     const createContact = async () => {
 
         //Check if all fields of formInpput are filled
-        if (formInput.firstName === '' || formInput.lastName === '' || formInput.contactEmail === '', formInput.city === '' || formInput.address === '', formInput.leadStage === '' || formInput.lifecycleStage === '') {
+        if (formInput.firstName === '' || formInput.lastName === '' || formInput.contactEmail === '', formInput.city === '' || formInput.leadStatus === '' || formInput.lifecycleStage === '') {
             toast.error('Please fill in all fields')
             return
         }
@@ -75,17 +76,13 @@ function Contacts({ modules, contacts, workspace }) {
         } catch (err) {
             const message = error.response ? error.response.data.message : error.message;
             toast.error(`Error creating contact: ${message}`);
-
         }
     }
 
 
     const writeLog = async () => {
         toast.success('Contact created successfully')
-
     }
-
-    console.log(formInput)
 
     return (
         <AccountLayout>
@@ -359,6 +356,51 @@ function Contacts({ modules, contacts, workspace }) {
                             </div>
                         </div>
                     </div>
+                    {total > 1 &&
+                        <div className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-0">
+                            <div className="flex flex-1 justify-between sm:hidden">
+                                <a
+                                    href="#"
+                                    className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                                >
+                                    Previous
+                                </a>
+                                <a
+                                    href="#"
+                                    className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                                >
+                                    Next
+                                </a>
+                            </div>
+                            <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+                                <div>
+                                    <p className="text-sm text-gray-700">
+                                        Showing <span className="font-medium">{!page ? "1" : page}</span> to <span className="font-medium">10</span> of{' '}
+                                        <span className="font-medium">{total}</span> results
+                                    </p>
+                                </div>
+                                <div>
+                                    <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                                        <a
+                                            href="#"
+                                            className="relative inline-flex items-center rounded-l-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-20"
+                                        >
+                                            <span className="sr-only">Previous</span>
+                                            <ChevronLeftIcon className="h-5 w-5" aria-hidden="true" />
+                                        </a>
+
+                                        <a
+                                            href="#"
+                                            className="relative inline-flex items-center rounded-r-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-20"
+                                        >
+                                            <span className="sr-only">Next</span>
+                                            <ChevronRightIcon className="h-5 w-5" aria-hidden="true" />
+                                        </a>
+                                    </nav>
+                                </div>
+                            </div>
+                        </div>
+                    }
                 </div>
             </Content.Container>
         </AccountLayout >
@@ -370,12 +412,13 @@ export default Contacts
 
 export async function getServerSideProps(context) {
 
+    const { page } = context.query
     const session = await getSession(context);
     let isTeamOwner = false;
     let workspace = null;
 
     const modules = await getModule(context.params.id);
-    const contacts = await getContacts(modules.id)
+    const contacts = await getContacts(!page ? 1 : page, 10, { id: 'asc' }, modules.id)
 
     if (session) {
         workspace = await getWorkspace(
@@ -388,13 +431,14 @@ export async function getServerSideProps(context) {
             isTeamOwner = isWorkspaceOwner(session.user.email, workspace);
         }
     }
-
+    console.log(contacts.total)
     return {
         props: {
             isTeamOwner,
             workspace: JSON.stringify(workspace),
             modules: JSON.stringify(modules),
-            contacts: JSON.stringify(contacts)
+            contacts: JSON.stringify(contacts.contacts),
+            total: contacts.total
         }
     }
 }

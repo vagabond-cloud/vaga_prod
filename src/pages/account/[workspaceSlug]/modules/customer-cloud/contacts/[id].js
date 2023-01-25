@@ -437,7 +437,7 @@ export async function getServerSideProps(context) {
             isTeamOwner,
             workspace: JSON.stringify(workspace),
             modules: JSON.stringify(modules),
-            contacts: JSON.stringify(contacts.contacts),
+            contacts: JSON.stringify(contacts?.contacts),
             total: contacts.total
         }
     }

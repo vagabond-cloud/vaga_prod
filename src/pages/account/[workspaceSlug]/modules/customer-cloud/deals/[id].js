@@ -8,7 +8,7 @@ import { dealStage, industries, types } from '@/config/modules/crm';
 import { AccountLayout } from '@/layouts/index';
 import { log } from '@/lib/client/log';
 import api from '@/lib/common/api';
-import { getCompanies, getModule, getDeals, getDealContacts } from '@/prisma/services/modules';
+import { getCompanies, getModule, getAllDeals, getDealContacts } from '@/prisma/services/modules';
 import { getWorkspace, isWorkspaceOwner } from '@/prisma/services/workspace';
 import { ArrowRightCircleIcon } from '@heroicons/react/24/outline';
 import moment from 'moment';
@@ -24,14 +24,14 @@ function classNames(...classes) {
 }
 
 
-function Contacts({ modules, companies, workspace, deals, contacts }) {
+function Contacts({ modules, companies, workspace, deals, contacts, filters }) {
     modules = JSON.parse(modules)
     companies = JSON.parse(companies)
     workspace = JSON.parse(workspace)
     deals = JSON.parse(deals)
     contacts = JSON.parse(contacts)
 
-    const [filterStage, updateFilterStage] = useState('All')
+    const [filterStage, updateFilterStage] = useState(filters)
 
     const [formInput, updateFormInput] = useState({
         dealName: '',
@@ -73,6 +73,13 @@ function Contacts({ modules, companies, workspace, deals, contacts }) {
     const writeLog = async () => {
         const res = await log('Deal created', `Deal with the name ${formInput.dealName} created for Module: ${id} `, 'deal_created', '127.0.0.1');
     }
+
+    const handleFilterChange = (e) => {
+        const { value } = e.target;
+        router.replace(`/account/${workspaceSlug}/modules/customer-cloud/deals/${id}?filter=${value}`)
+        router.replace(router.asPath)
+    };
+
 
     return (
         <AccountLayout>
@@ -274,7 +281,7 @@ function Contacts({ modules, companies, workspace, deals, contacts }) {
 
                     <div className="grid grid-cols-4 gap-4 mt-2">
                         <Select
-                            onChange={(e) => updateFilterStage(e.target.value)}
+                            onChange={(e) => handleFilterChange(e)}
 
                         >
                             <option value="All">All Stages</option>
@@ -320,7 +327,7 @@ function Contacts({ modules, companies, workspace, deals, contacts }) {
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-gray-200 bg-white">
-                                            {deals.filter((stage) => filterStage === "All" ? stage.dealStage : stage.dealStage === filterStage).map((deal, index) => (
+                                            {deals.map((deal, index) => (
                                                 <tr key={index} className="hover:bg-gray-100">
                                                     <td className="whitespace-nowrap py-4 pl-4 pr-3 text-xs font-medium text-gray-900 sm:pl-6 ">
                                                         {deal.dealName}
@@ -368,6 +375,7 @@ export default Contacts
 
 
 export async function getServerSideProps(context) {
+    const { page, filter } = context.query;
 
     const session = await getSession(context);
     let isTeamOwner = false;
@@ -375,8 +383,9 @@ export async function getServerSideProps(context) {
 
     const modules = await getModule(context.params.id);
     const companies = await getCompanies(modules.id)
-    const deals = await getDeals(modules.id)
+    const deals = await getAllDeals(!page ? 1 : page, 10, { id: 'asc' }, modules.id)
     const contacts = await getDealContacts(modules.id)
+
     if (session) {
         workspace = await getWorkspace(
             session.user.userId,
@@ -395,7 +404,7 @@ export async function getServerSideProps(context) {
             workspace: JSON.stringify(workspace),
             modules: JSON.stringify(modules),
             companies: JSON.stringify(companies),
-            deals: JSON.stringify(deals),
+            deals: JSON.stringify(deals?.deals),
             contacts: JSON.stringify(contacts),
         }
     }

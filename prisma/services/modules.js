@@ -383,6 +383,46 @@ export const getCompanies = async (moduleid) =>
         },
     });
 
+export const getAllContacts = async (page, limit, sort, moduleid) => {
+    const skip = (page - 1) * limit;
+    const companies = await prisma.company.findMany({
+        select: {
+            id: true,
+            companyName: true,
+            companyDomain: true,
+            industry: true,
+            type: true,
+            phone: true,
+            city: true,
+            street: true,
+            state: true,
+            zip: true,
+            country: true,
+            employees: true,
+            revenue: true,
+            timeZone: true,
+            description: true,
+            linkedin: true,
+            website: true,
+            logoUrl: true,
+            bannerUrl: true,
+            module: true,
+            user: true,
+            contacts: true
+
+        },
+        where: { moduleid },
+        skip,
+        take: limit,
+        orderBy: sort,
+    });
+    const total = await prisma.company.count();
+    return { companies, total };
+};
+
+
+
+
 
 export const getDocuments = async (id) =>
     await prisma.document.findMany({
@@ -437,3 +477,49 @@ export const getDeals = async (moduleid) =>
             company: true
         },
     });
+
+export const getAllDeals = async (page, limit, sort, moduleid) => {
+    const skip = (page - 1) * limit;
+    const deals = await prisma.deal.findMany({
+        select: {
+            id: true,
+            dealName: true,
+            pipeline: true,
+            dealStage: true,
+            amount: true,
+            closeDate: true,
+            dealOwnerId: true,
+            dealType: true,
+            priority: true,
+            contactId: true,
+            companyId: true,
+            module: true,
+            user: true,
+            contact: true,
+            company: true
+        },
+        where: { moduleid },
+        skip,
+        take: limit,
+        orderBy: sort,
+    });
+    const total = await prisma.deal.count();
+    return { deals, total };
+};
+
+// get Deal by dealStage
+
+export const getDealByStage = async (dealStage, moduleid) => {
+    console.log(dealStage)
+    const filters = await prisma.deal.findMany({
+        where: { dealStage, moduleid },
+        include: {
+            module: true,
+            user: true,
+            contact: true,
+            company: true
+        },
+    });
+    return filters
+}
+

@@ -1,28 +1,19 @@
 import Content from '@/components/Content/index';
-import Input from '@/components/Input';
 import Meta from '@/components/Meta/index';
-import Select from '@/components/Select';
-import SlideOver from '@/components/SlideOver';
-import { countries } from '@/config/common/countries';
-import { dealStage, industries, types } from '@/config/modules/crm';
-import { getDeal } from '@/prisma/services/modules';
+import { dealStage } from '@/config/modules/crm';
 import { AccountLayout } from '@/layouts/index';
 import { log } from '@/lib/client/log';
 import api from '@/lib/common/api';
-import { ArrowRightCircleIcon } from '@heroicons/react/24/outline';
-import moment from 'moment';
-import { getSession } from 'next-auth/react';
+import { getDeal } from '@/prisma/services/modules';
+import { CheckIcon } from '@heroicons/react/24/solid';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
-import Link from 'next/link'
-import { CheckIcon } from '@heroicons/react/24/solid'
 
 function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
 }
-
-
 
 function Deal({ deal }) {
     deal = JSON.parse(deal)
@@ -53,11 +44,9 @@ function Deal({ deal }) {
         { name: 'Quotes', href: 'quotes', current: tab === 'quotes' ? true : false },
         { name: 'Finance', href: 'finance', current: tab === 'tasks' ? true : false },
         { name: 'Reports', href: 'reports', current: tab === 'reports' ? true : false },
-
     ]
 
-
-    const createContact = async () => {
+    const createDeal = async () => {
         const res = await api(`/api/modules/deal`, {
             method: 'PUT',
             body: {

@@ -111,6 +111,7 @@ model User {
   phone_number  String?   @unique
   vaga_address  String?   @unique
   domain        String?
+  company       String?
 
   accounts         Account[]
   sessions         Session[]

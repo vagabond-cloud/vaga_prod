@@ -14,6 +14,7 @@
     "@cosmjs/crypto": "^0.29.5",
     "@cosmjs/proto-signing": "^0.29.5",
     "@cosmjs/stargate": "^0.29.5",
+    "@google-cloud/dialogflow-cx": "^3.1.2",
     "@google-cloud/storage": "^6.9.0",
     "@headlessui/react": "1.7.7",
     "@heroicons/react": "^2.0.12",

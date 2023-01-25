@@ -29,31 +29,60 @@ function Contacts({ modules, contacts, workspace }) {
         contactEmail: '',
         jobTitle: '',
         phone: '',
+        country: '',
+        city: '',
+        state: '',
+        zip: '',
+        address: '',
+        website: '',
+        company: '',
+        leadStage: '',
+        lifecycleStage: '',
     })
 
     const router = useRouter(false);
     const { workspaceSlug, id } = router.query;
 
     const createContact = async () => {
-        const res = await api(`/api/modules/contact`, {
-            method: 'PUT',
-            body: {
-                formInput,
-                workspaceId: workspace[0].id,
-                moduleId: modules.id
-            }
-        })
-        if (res.status === 200) {
-            toast.success('Contact created successfully')
-            writeLog()
-            router.replace(router.asPath)
 
-        } else {
-            toast.error('Error creating contact')
+        //Check if all fields of formInpput are filled
+        if (formInput.firstName === '' || formInput.lastName === '' || formInput.contactEmail === '', formInput.city === '' || formInput.address === '', formInput.leadStage === '' || formInput.lifecycleStage === '') {
+            toast.error('Please fill in all fields')
+            return
+        }
+
+
+        try {
+            // Make a PUT request to the /api/modules/contact endpoint, passing in the formInput, the ID of the first workspace in the workspace array, and the ID of the module
+            const res = await api(`/api/modules/contact`, {
+                method: 'PUT',
+                body: {
+                    formInput,
+                    workspaceId: workspace[0].id,
+                    moduleId: modules.id
+                }
+            })
+            // Check the status of the response
+            if (res.status === 200) {
+                // If the status is 200, show a success message and call the writeLog function
+                writeLog()
+                // Refresh the current page
+                router.replace(router.asPath)
+            } else {
+                // If the status is not 200, show an error message
+                toast.error('Error creating contact')
+            }
+        } catch (err) {
+            const message = error.response ? error.response.data.message : error.message;
+            toast.error(`Error creating contact: ${message}`);
+
         }
     }
 
+
     const writeLog = async () => {
+        toast.success('Contact created successfully')
+
     }
 
     console.log(formInput)
@@ -83,7 +112,7 @@ function Contacts({ modules, contacts, workspace }) {
                             <div className="overflow-scroll h-full pb-20">
                                 <div className="px-4 my-10">
                                     <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                                        First Name
+                                        First Name  <span className="text-xs text-gray-500">(Required)</span>
                                     </label>
                                     <div className="mt-1">
                                         <Input
@@ -93,7 +122,7 @@ function Contacts({ modules, contacts, workspace }) {
                                 </div>
                                 <div className="px-4 my-10">
                                     <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                                        Last Name
+                                        Last Name  <span className="text-xs text-gray-500">(Required)</span>
                                     </label>
                                     <div className="mt-1">
                                         <Input
@@ -103,7 +132,7 @@ function Contacts({ modules, contacts, workspace }) {
                                 </div>
                                 <div className="px-4 my-10">
                                     <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                                        Email
+                                        Email  <span className="text-xs text-gray-500">(Required)</span>
                                     </label>
                                     <div className="mt-1">
                                         <Input
@@ -133,7 +162,7 @@ function Contacts({ modules, contacts, workspace }) {
                                 </div>
                                 <div className="px-4 my-10">
                                     <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                                        Lifecycle Stage
+                                        Lifecycle Stage  <span className="text-xs text-gray-500">(Required)</span>
                                     </label>
                                     <div className="mt-1">
                                         <Select
@@ -149,7 +178,7 @@ function Contacts({ modules, contacts, workspace }) {
                                 </div>
                                 <div className="px-4 my-10">
                                     <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                                        Lead Status
+                                        Lead Status <span className="text-xs text-gray-500">(Required)</span>
                                     </label>
                                     <div className="mt-1">
                                         <Select
@@ -165,7 +194,7 @@ function Contacts({ modules, contacts, workspace }) {
                                 </div>
                                 <div className="px-4 my-6">
                                     <label htmlFor="email" className="block text-xs font-medium text-gray-500">
-                                        City
+                                        City  <span className="text-xs text-gray-500">(Required)</span>
                                     </label>
                                     <div className="mt-1">
                                         <Input
@@ -175,7 +204,7 @@ function Contacts({ modules, contacts, workspace }) {
                                 </div>
                                 <div className="px-4 my-6">
                                     <label htmlFor="email" className="block text-xs font-medium text-gray-500">
-                                        Street
+                                        Street  <span className="text-xs text-gray-500">(Required)</span>
                                     </label>
                                     <div className="mt-1">
                                         <Input
@@ -185,7 +214,7 @@ function Contacts({ modules, contacts, workspace }) {
                                 </div>
                                 <div className="px-4 my-6">
                                     <label htmlFor="email" className="block text-xs font-medium text-gray-500">
-                                        Zip
+                                        Zip  <span className="text-xs text-gray-500">(Required)</span>
                                     </label>
                                     <div className="mt-1">
                                         <Input
@@ -205,7 +234,7 @@ function Contacts({ modules, contacts, workspace }) {
                                 </div>
                                 <div className="px-4 my-6">
                                     <label htmlFor="email" className="block text-xs font-medium text-gray-500">
-                                        Country
+                                        Country  <span className="text-xs text-gray-500">(Required)</span>
                                     </label>
                                     <div className="mt-1">
                                         <Select

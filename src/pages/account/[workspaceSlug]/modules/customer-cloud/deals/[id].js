@@ -24,7 +24,6 @@ function classNames(...classes) {
 }
 
 
-
 function Contacts({ modules, companies, workspace, deals, contacts }) {
     modules = JSON.parse(modules)
     companies = JSON.parse(companies)

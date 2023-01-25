@@ -21,6 +21,7 @@ const Settings = ({ user }) => {
   const [email, setEmail] = useState(user.email || '');
   const [isSubmitting, setSubmittingState] = useState(false);
   const [name, setName] = useState(user.name || '');
+  const [company, setCompany] = useState(user.company || '');
   const [showModal, setModalState] = useState(false);
   const [userCode] = useState(user.userCode);
   const [apikey] = useState(user.apikey);
@@ -32,6 +33,8 @@ const Settings = ({ user }) => {
   const verifiedEmail = verifyEmail === email;
 
   const router = useRouter();
+
+  console.log(user)
 
   const copyToClipboard = () => toast.success('Copied to clipboard!');
   const hideContent = () => setHide(!hide);
@@ -50,6 +53,25 @@ const Settings = ({ user }) => {
         );
       } else {
         toast.success('Name successfully updated!');
+      }
+    });
+  };
+
+  const changeCompany = (event) => {
+    event.preventDefault();
+    setSubmittingState(true);
+    api('/api/user/company', {
+      body: { company },
+      method: 'PUT',
+    }).then((response) => {
+      setSubmittingState(false);
+
+      if (response.errors) {
+        Object.keys(response.errors).forEach((error) =>
+          toast.error(response.errors[error].msg)
+        );
+      } else {
+        toast.success('Company name successfully updated!');
       }
     });
   };
@@ -135,6 +157,8 @@ const Settings = ({ user }) => {
 
   const handleNameChange = (event) => setName(event.target.value);
 
+  const handleCompanyChange = (event) => setCompany(event.target.value);
+
   const handleVerifyEmailChange = (event) => setVerifyEmail(event.target.value);
 
   const toggleModal = () => {
@@ -205,6 +229,32 @@ const Settings = ({ user }) => {
           </form>
         </Card>
         <Card>
+          <form>
+            <Card.Body
+              title="Company"
+              subtitle="Please enter your full company name"
+            >
+              <input
+                className="px-3 py-2 border rounded md:w-1/2"
+                disabled={isSubmitting}
+                onChange={handleCompanyChange}
+                type="text"
+                value={company}
+              />
+            </Card.Body>
+            <Card.Footer>
+              <small>Please use 64 characters at maximum</small>
+              <Button
+                className="text-white bg-red-600 hover:bg-red-500"
+                disabled={!validName || isSubmitting}
+                onClick={changeCompany}
+              >
+                Save
+              </Button>
+            </Card.Footer>
+          </form>
+        </Card>
+        <Card>
           <Card.Body
             title="Personal Account ID"
             subtitle="Used when interacting with APIs"
@@ -217,6 +267,7 @@ const Settings = ({ user }) => {
             </div>
           </Card.Body>
         </Card>
+
         <Card>
           <Card.Body
             title="API Key"
@@ -332,13 +383,14 @@ const Settings = ({ user }) => {
 
 export const getServerSideProps = async (context) => {
   const session = await getSession(context);
-  const { email, name, userCode, apikey, secret } = await getUser(session.user?.userId);
-
+  const { email, name, userCode, apikey, secret, company } = await getUser(session.user?.userId);
+  console.log(name)
   return {
     props: {
       user: {
         email,
         name,
+        company,
         userCode,
         apikey,
         secret

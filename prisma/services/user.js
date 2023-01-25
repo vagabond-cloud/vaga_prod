@@ -13,6 +13,7 @@ export const getUser = async (id) =>
     select: {
       email: true,
       name: true,
+      company: true,
       userCode: true,
       apikey: true,
       secret: true,
@@ -42,6 +43,11 @@ export const updateName = async (id, name) =>
     where: { id },
   });
 
+export const updateCompany = async (id, company) =>
+  await prisma.user.update({
+    data: { company },
+    where: { id },
+  });
 
 export const updateApi = async (id, email, previousEmail, apikey, secret) => {
   await prisma.user.update({

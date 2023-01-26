@@ -356,17 +356,17 @@ function Contacts({ modules, contacts, workspace, total }) {
                             </div>
                         </div>
                     </div>
-                    {total > 1 &&
+                    {total > 10 &&
                         <div className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-0">
                             <div className="flex flex-1 justify-between sm:hidden">
                                 <a
-                                    href="#"
+                                    href={`/account/${workspaceSlug}/modules/customer-cloud/contacts/${id}d?page=${page - 1}`}
                                     className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
                                 >
                                     Previous
                                 </a>
                                 <a
-                                    href="#"
+                                    href={`/account/${workspaceSlug}/modules/customer-cloud/contacts/${id}?page=${!page ? 2 : + 1}`}
                                     className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
                                 >
                                     Next
@@ -382,7 +382,7 @@ function Contacts({ modules, contacts, workspace, total }) {
                                 <div>
                                     <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
                                         <a
-                                            href="#"
+                                            href={`/account/${workspaceSlug}/modules/customer-cloud/contacts/${id}d?page=${page - 1}`}
                                             className="relative inline-flex items-center rounded-l-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-20"
                                         >
                                             <span className="sr-only">Previous</span>
@@ -390,7 +390,7 @@ function Contacts({ modules, contacts, workspace, total }) {
                                         </a>
 
                                         <a
-                                            href="#"
+                                            href={`/account/${workspaceSlug}/modules/customer-cloud/contacts/${id}?page=${!page ? 2 : + 1}`}
                                             className="relative inline-flex items-center rounded-r-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-20"
                                         >
                                             <span className="sr-only">Next</span>

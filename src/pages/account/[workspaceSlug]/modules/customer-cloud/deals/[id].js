@@ -3,35 +3,32 @@ import Input from '@/components/Input';
 import Meta from '@/components/Meta/index';
 import Select from '@/components/Select';
 import SlideOver from '@/components/SlideOver';
-import { countries } from '@/config/common/countries';
-import { dealStage, industries, types } from '@/config/modules/crm';
+import { dealStage, types } from '@/config/modules/crm';
 import { AccountLayout } from '@/layouts/index';
 import { log } from '@/lib/client/log';
 import api from '@/lib/common/api';
-import { getCompanies, getModule, getAllDeals, getDealContacts } from '@/prisma/services/modules';
+import { getCompanies, getDealByStage, getDealContacts, getModule } from '@/prisma/services/modules';
 import { getWorkspace, isWorkspaceOwner } from '@/prisma/services/workspace';
 import { ArrowRightCircleIcon } from '@heroicons/react/24/outline';
 import moment from 'moment';
 import { getSession } from 'next-auth/react';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
-import Link from 'next/link'
-import { ArrowDownIcon, ArrowUpIcon } from '@heroicons/react/20/solid'
+import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid'
 
 function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
 }
 
 
-function Contacts({ modules, companies, workspace, deals, contacts, filters }) {
+function Contacts({ modules, companies, workspace, deals, contacts, filters, total }) {
     modules = JSON.parse(modules)
     companies = JSON.parse(companies)
     workspace = JSON.parse(workspace)
     deals = JSON.parse(deals)
     contacts = JSON.parse(contacts)
-
-    const [filterStage, updateFilterStage] = useState(filters)
 
     const [formInput, updateFormInput] = useState({
         dealName: '',
@@ -48,8 +45,12 @@ function Contacts({ modules, companies, workspace, deals, contacts, filters }) {
     })
 
     const router = useRouter(false);
-    const { workspaceSlug, id } = router.query;
+    const { workspaceSlug, id, page } = router.query;
 
+    //This function creates a deal using the API. 
+    //It uses the PUT method to send formInput, workspaceId, and moduleId to the API. 
+    //If the status is 200, it will display a success message and write a log. 
+    //If there is an error, it will display an error message.
     const createDeal = async () => {
         try {
             const { status } = await api(`/api/modules/deal`, {
@@ -74,10 +75,26 @@ function Contacts({ modules, companies, workspace, deals, contacts, filters }) {
         const res = await log('Deal created', `Deal with the name ${formInput.dealName} created for Module: ${id} `, 'deal_created', '127.0.0.1');
     }
 
+    //This is a function that handles changes to the filter. 
+    //It takes in a single argument, e, which is an event object.
+    //handleFilterChange is a callback function that is invoked on the filter change event, it replaces the current route with the new route with the filter value or without the filter value based on its value.
+
     const handleFilterChange = (e) => {
+
+        //This destructures the target property of the event object to extract the value variable. 
+        //This variable represents the current value of the filter.
         const { value } = e.target;
-        router.replace(`/account/${workspaceSlug}/modules/customer-cloud/deals/${id}?filter=${value}`)
-        router.replace(router.asPath)
+
+        //This is a conditional statement that checks if the current value of the filter is "All".
+        if (value === 'All') {
+
+            //If the value is "All", it uses the router.replace function to redirect to the /account/${workspaceSlug}/modules/customer-cloud/deals/${id} route. workspaceSlug and id are variables that should be defined in the parent scope.
+            router.replace(`/account/${workspaceSlug}/modules/customer-cloud/deals/${id}`)
+
+            //If the value is not "All", it uses the router.replace function to redirect to the /account/${workspaceSlug}/modules/customer-cloud/deals/${id}?filter=${value} route, which appends the current value of the filter to the URL as a query string parameter.
+        } else {
+            router.replace(`/account/${workspaceSlug}/modules/customer-cloud/deals/${id}?filter=${value}`)
+        }
     };
 
 
@@ -365,6 +382,51 @@ function Contacts({ modules, companies, workspace, deals, contacts, filters }) {
                             </div>
                         </div>
                     </div>
+                    {total > 10 &&
+                        <div className="flex items-center justify-between border-t border-gray-200  px-4 py-3 sm:px-0">
+                            <div className="flex flex-1 justify-between sm:hidden">
+                                <a
+                                    href={`/account/${workspaceSlug}/modules/customer-cloud/deals/${id}?page=${page - 1}`}
+                                    className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                                >
+                                    Previous
+                                </a>
+                                <a
+                                    href={`/account/${workspaceSlug}/modules/customer-cloud/deals/${id}?page=${!page ? 2 : + 1}`}
+                                    className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                                >
+                                    Next
+                                </a>
+                            </div>
+                            <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+                                <div>
+                                    <p className="text-sm text-gray-700">
+                                        Showing <span className="font-medium">{!page ? "1" : page}</span> to <span className="font-medium">10</span> of{' '}
+                                        <span className="font-medium">{total}</span> results
+                                    </p>
+                                </div>
+                                <div>
+                                    <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                                        <a
+                                            href={`/account/${workspaceSlug}/modules/customer-cloud/deals/${id}?page=${page - 1}`}
+                                            className="relative inline-flex items-center rounded-l-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-20"
+                                        >
+                                            <span className="sr-only">Previous</span>
+                                            <ChevronLeftIcon className="h-5 w-5" aria-hidden="true" />
+                                        </a>
+
+                                        <a
+                                            href={`/account/${workspaceSlug}/modules/customer-cloud/deals/${id}?page=${!page ? 2 : + 1}`}
+                                            className="relative inline-flex items-center rounded-r-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-20"
+                                        >
+                                            <span className="sr-only">Next</span>
+                                            <ChevronRightIcon className="h-5 w-5" aria-hidden="true" />
+                                        </a>
+                                    </nav>
+                                </div>
+                            </div>
+                        </div>
+                    }
                 </div>
             </Content.Container >
         </AccountLayout >
@@ -373,18 +435,40 @@ function Contacts({ modules, companies, workspace, deals, contacts, filters }) {
 
 export default Contacts
 
-
+// This is an exported async function that takes in a single argument, context, which is an object containing information about the current request.
 export async function getServerSideProps(context) {
+
+    //This destructures the query property of the context object to extract the page and filter variables. 
+    //These variables are used to determine the current page number and the filter criteria for the data being retrieved.
     const { page, filter } = context.query;
 
+    //This retrieves the current session using the getSession function and assigns it to the session variable.
     const session = await getSession(context);
+
+    //These two variables are initialized as false and null respectively. 
+    //They are used to store whether the current user is a team owner and the current workspace.
     let isTeamOwner = false;
     let workspace = null;
 
+    //This retrieves the module data using the getModule function and assigns it to the modules variable. 
+    //It takes the id from the params property of the context object.
     const modules = await getModule(context.params.id);
+
+    //This retrieves the companies data using the getCompanies function and assigns it to the companies variable. 
+    //It takes the id from the modules variable.
     const companies = await getCompanies(modules.id)
-    const deals = await getAllDeals(!page ? 1 : page, 10, { id: 'asc' }, modules.id)
+
+    //This retrieves the deals data using the getDealByStage function and assigns it to the deals variable. 
+    //It takes the current page number (or 1 if no page number is provided), the number of deals per page, the sorting criteria, the filter criteria and the id of the modules.
+    const deals = await getDealByStage(!page ? 1 : page, 10, { id: 'asc' }, filter, modules.id)
+
+    //This retrieves the contacts data using the getDealContacts function and assigns it to the contacts variable. 
+    //It takes the id of the modules.
+
     const contacts = await getDealContacts(modules.id)
+
+    //If a session exists, it retrieves the workspace data using the getWorkspace function and assigns it to the workspace variable. 
+    //Then it checks if the current user is the owner of the workspace using the isWorkspaceOwner function and assigns it to the isTeamOwner variable.
 
     if (session) {
         workspace = await getWorkspace(
@@ -398,6 +482,10 @@ export async function getServerSideProps(context) {
         }
     }
 
+    //This returns an object that contains the props that will be passed to the component. 
+    //These props include isTeamOwner, workspace, modules, companies, deals, total and contacts. 
+    //These variables are all stringified before being returned.
+
     return {
         props: {
             isTeamOwner,
@@ -405,6 +493,7 @@ export async function getServerSideProps(context) {
             modules: JSON.stringify(modules),
             companies: JSON.stringify(companies),
             deals: JSON.stringify(deals?.deals),
+            total: deals.total,
             contacts: JSON.stringify(contacts),
         }
     }

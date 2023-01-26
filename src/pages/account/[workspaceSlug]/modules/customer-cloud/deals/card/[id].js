@@ -10,6 +10,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
+import moment from 'moment';
+import Button from '@/components/Button';
 
 function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
@@ -17,7 +19,8 @@ function classNames(...classes) {
 
 function Deal({ deal }) {
     deal = JSON.parse(deal)
-    const [filterStage, updateFilterStage] = useState('All')
+
+    console.log(deal)
 
     const [formInput, updateFormInput] = useState({
         dealName: '',
@@ -46,9 +49,9 @@ function Deal({ deal }) {
         { name: 'Reports', href: 'reports', current: tab === 'reports' ? true : false },
     ]
 
-    const createDeal = async () => {
+    const updateDeal = async () => {
         const res = await api(`/api/modules/deal`, {
-            method: 'PUT',
+            method: 'POST',
             body: {
                 formInput,
                 workspaceId: workspace[0].id,
@@ -65,6 +68,26 @@ function Deal({ deal }) {
         }
     }
 
+    //assigne deal to user
+    const assignDeal = async (userId) => {
+        console.log(userId)
+        const res = await api(`/api/modules/customer-cloud/deal`, {
+            method: 'POST',
+            body: {
+                dealId: id,
+                userId
+            }
+        })
+        if (res.status === 200) {
+            toast.success('Deal assigned successfully')
+            writeLog()
+            router.replace(router.asPath)
+        } else {
+            toast.error('Error assigning Deal')
+        }
+    }
+
+
     const writeLog = async () => {
         const res = await log('Deal created', `Deal with the name ${formInput.dealName} created for Module: ${id} `, 'deal_created', '127.0.0.1');
     }
@@ -78,6 +101,7 @@ function Deal({ deal }) {
             />
             <Content.Divider />
             <Content.Container>
+                <Button className="bg-red-600 text-white" onClick={() => assignDeal("63ba6db2da8e22e4b5d74635")}>Assign</Button>
                 <nav aria-label="Progress">
                     <ol role="list" className="divide-y divide-gray-300 rounded-md border border-gray-300 md:flex md:divide-y-0">
                         {dealStage.slice(parseFloat(deal.dealStage) - 2, parseFloat(deal.dealStage) + 4).map((step, stepIdx) => (
@@ -157,8 +181,44 @@ function Deal({ deal }) {
                         </div>
                     </div>
                 </div>
-                <div>
+                <div className="grid grid-cols-2 gap-4 border p-4">
+                    <div className="mt-8 col-span-1">
+                        <h3 className="text-lg font-medium leading-6 text-gray-900">Deal Details</h3>
+                        <p className="mt-1 max-w-2xl text-sm text-gray-500">Overview of Deal.</p>
+                    </div>
+                    <div className="mt-5 col-span-2 border-t border-gray-200">
+                        <dl className="sm:divide-y sm:divide-gray-200">
+                            <Link href={`/account/${workspaceSlug}/modules/customer-cloud/contacts/card/${deal.contact.id}`}>
+                                <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-3">
+                                    <dt className="text-sm font-medium text-gray-500">Deal name</dt>
 
+                                    <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{deal.dealName}</dd>
+                                </div>
+                            </Link>
+                            <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-3">
+                                <dt className="text-sm font-medium text-gray-500">Deal Type</dt>
+                                <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{deal.dealType}</dd>
+                            </div>
+                            <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-3">
+                                <dt className="text-sm font-medium text-gray-500">Amount</dt>
+                                <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{parseFloat(deal.amount)?.toLocaleString()}</dd>
+                            </div>
+                            <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-3">
+                                <dt className="text-sm font-medium text-gray-500">Close Date</dt>
+                                <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{moment(deal.closeDate).format("DD MMM. YYYY")}</dd>
+                            </div>
+                            <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-3">
+                                <dt className="text-sm font-medium text-gray-500">Priority</dt>
+                                <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{deal.priority.toUpperCase()}</dd>
+                            </div>
+                            <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-3">
+                                <dt className="text-sm font-medium text-gray-500">Updated at</dt>
+                                <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{moment(deal.updatedAat).format("DD MMM. YYYY - hh:mm:ss")}</dd>
+                            </div>
+                        </dl>
+                    </div>
+                </div>
+                <div>
                     <div className="grid grid-cols-2 gap-4 border p-4">
                         <div className="mt-8 col-span-1">
                             <h3 className="text-lg font-medium leading-6 text-gray-900">Contact Information</h3>

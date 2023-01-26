@@ -50,7 +50,7 @@ function CustomerCloud() {
                         </Link>
                     </Card>
                     <Card>
-                        <Link href={`/account/${workspaceSlug}/modules/customer-cloud/contacts/${id}`}>
+                        <Link href={`/account/${workspaceSlug}/modules/customer-cloud/marketing/${id}`}>
                             <div className="bg-purple-500 hover:bg-gray-200 text-gray-100 hover:text-gray-800 cursor-pointer">
                                 <Card.Body title="Marketing" subtitle="">
                                     <div className="">
@@ -72,7 +72,7 @@ function CustomerCloud() {
                         </Link>
                     </Card>
                     <Card>
-                        <Link href={`/account/${workspaceSlug}/modules/customer-cloud/contacts/${id}`}>
+                        <Link href={`/account/${workspaceSlug}/modules/customer-cloud/service/${id}`}>
                             <div className="bg-amber-500 hover:bg-gray-200 text-gray-100 hover:text-gray-800 cursor-pointer">
 
                                 <Card.Body title="Service" subtitle="">
@@ -102,6 +102,30 @@ function CustomerCloud() {
                                 <Card.Body title="Projects" subtitle="">
                                     <div className="">
                                         <p className="text-xs ">Manage your Projects</p>
+                                    </div>
+                                </Card.Body>
+                            </div>
+                        </Link>
+                    </Card>
+                    <Card>
+                        <Link href={`/account/${workspaceSlug}/modules/customer-cloud/projects/${id}`}>
+                            <div className="bg-emerald-500 hover:bg-gray-200 text-gray-100 hover:text-gray-800 cursor-pointer">
+
+                                <Card.Body title="Documents" subtitle="">
+                                    <div className="">
+                                        <p className="text-xs ">Manage your Documents</p>
+                                    </div>
+                                </Card.Body>
+                            </div>
+                        </Link>
+                    </Card>
+                    <Card>
+                        <Link href={`/account/${workspaceSlug}/modules/customer-cloud/projects/${id}`}>
+                            <div className="bg-cyan-500 hover:bg-gray-200 text-gray-100 hover:text-gray-800 cursor-pointer">
+
+                                <Card.Body title="Invoices" subtitle="">
+                                    <div className="">
+                                        <p className="text-xs ">Manage your Invoices</p>
                                     </div>
                                 </Card.Body>
                             </div>

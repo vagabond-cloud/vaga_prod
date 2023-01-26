@@ -1,4 +1,4 @@
-import { CalendarIcon, CommandLineIcon, MegaphoneIcon, ShoppingBagIcon, IdentificationIcon, UserGroupIcon, GlobeEuropeAfricaIcon, HeartIcon } from '@heroicons/react/24/outline'
+import { CalendarIcon, CommandLineIcon, CpuChipIcon, MegaphoneIcon, ShoppingBagIcon, IdentificationIcon, UserGroupIcon, GlobeEuropeAfricaIcon, HeartIcon } from '@heroicons/react/24/outline'
 
 export const items = [
     {
@@ -35,5 +35,12 @@ export const items = [
         href: 'cx-management',
         iconColor: 'bg-red-500',
         icon: HeartIcon,
+    },
+    {
+        name: 'AI Cloud',
+        description: 'AI Cloud is an AI platform from Vagabond',
+        href: 'ai-cloud',
+        iconColor: 'bg-red-500',
+        icon: CpuChipIcon,
     },
 ]

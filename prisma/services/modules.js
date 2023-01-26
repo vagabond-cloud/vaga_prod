@@ -498,7 +498,7 @@ export const getAllDeals = async (page, limit, sort, moduleid) => {
             contact: true,
             company: true
         },
-        where: { moduleid },
+        where: { dealStage, moduleid },
         skip,
         take: limit,
         orderBy: sort,
@@ -509,17 +509,47 @@ export const getAllDeals = async (page, limit, sort, moduleid) => {
 
 // get Deal by dealStage
 
-export const getDealByStage = async (dealStage, moduleid) => {
-    console.log(dealStage)
-    const filters = await prisma.deal.findMany({
-        where: { dealStage, moduleid },
-        include: {
+export const getDealByStage = async (page, limit, sort, dealStage, moduleid) => {
+    const skip = (page - 1) * limit;
+    const deals = await prisma.deal.findMany({
+        select: {
+            id: true,
+            dealName: true,
+            pipeline: true,
+            dealStage: true,
+            amount: true,
+            closeDate: true,
+            dealOwnerId: true,
+            dealType: true,
+            priority: true,
+            contactId: true,
+            companyId: true,
             module: true,
             user: true,
             contact: true,
             company: true
         },
+        where: { dealStage, moduleid },
+        skip,
+        take: limit,
+        orderBy: sort,
     });
-    return filters
+    const total = await prisma.deal.count({
+        where: { dealStage, moduleid },
+
+    });
+    return { deals, total };
+}
+
+// assign deal to user
+
+export const assignDeal = async (id, aassignedTo) => {
+    const deal = await prisma.deal.update({
+        where: { id },
+        data: {
+            aassignedTo
+        },
+    });
+    return deal
 }
 

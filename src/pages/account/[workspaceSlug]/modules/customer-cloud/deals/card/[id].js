@@ -12,16 +12,20 @@ import { useState } from 'react';
 import toast from 'react-hot-toast';
 import moment from 'moment';
 import Button from '@/components/Button';
+import { getSession } from 'next-auth/react';
+import { getWorkspace, isWorkspaceOwner } from '@/prisma/services/workspace';
+import { getMembers } from '@/prisma/services/membership';
+import Select from '@/components/Select';
 
 function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
 }
 
-function Deal({ deal }) {
+function Deal({ deal, team }) {
     deal = JSON.parse(deal)
+    team = JSON.parse(team)
 
     console.log(deal)
-
     const [formInput, updateFormInput] = useState({
         dealName: '',
         pipeline: '',
@@ -35,6 +39,8 @@ function Deal({ deal }) {
         linkCompanyId: '',
         linkProjectId: '',
     })
+
+    const [assign, updateAssign] = useState("")
 
     const router = useRouter(false);
     const { workspaceSlug, id, tab } = router.query;
@@ -75,7 +81,7 @@ function Deal({ deal }) {
             method: 'POST',
             body: {
                 dealId: id,
-                userId
+                userId: assign
             }
         })
         if (res.status === 200) {
@@ -181,6 +187,7 @@ function Deal({ deal }) {
                         </div>
                     </div>
                 </div>
+
                 <div className="grid grid-cols-2 gap-4 border p-4">
                     <div className="mt-8 col-span-1">
                         <h3 className="text-lg font-medium leading-6 text-gray-900">Deal Details</h3>
@@ -217,6 +224,21 @@ function Deal({ deal }) {
                             </div>
                         </dl>
                     </div>
+                </div>
+                <div className="py-4 items-center flex gap-4">
+                    <p className="w-20 text-sm">Assign to:</p>
+                    <Select
+                        className="w-40"
+                        onChange={(e) => updateAssign(e.target.value)}
+                    >
+                        {team.map((member, index) => (
+                            <option key={index} value={member.user.id} selected={deal.aassignedTo === member.user.id ? member.user.id : false}>
+                                {member.user.name}
+                            </option>
+                        ))}
+
+                    </Select>
+                    <Button className="w-20 bg-red-600 text-white" onClick={() => assignDeal()}>Assign</Button>
                 </div>
                 <div>
                     <div className="grid grid-cols-2 gap-4 border p-4">
@@ -294,11 +316,33 @@ export default Deal
 
 export async function getServerSideProps(context) {
 
-    const deal = await getDeal(context.params.id);
+    const session = await getSession(context);
 
+    //These two variables are initialized as false and null respectively. 
+    //They are used to store whether the current user is a team owner and the current workspace.
+    let isTeamOwner = false;
+    let workspace = null;
+
+    if (session) {
+        workspace = await getWorkspace(
+            session.user.userId,
+            session.user.email,
+            context.params.workspaceSlug
+        );
+
+        if (workspace) {
+            isTeamOwner = isWorkspaceOwner(session.user.email, workspace);
+        }
+    }
+
+    const team = await getMembers(context.query.workspaceSlug)
+
+    const deal = await getDeal(context.params.id);
+    console.log(team)
     return {
         props: {
-            deal: JSON.stringify(deal)
+            deal: JSON.stringify(deal),
+            team: JSON.stringify(team),
         }
     }
 }

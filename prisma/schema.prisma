@@ -79,6 +79,7 @@ model Member {
   member    User?            @relation(fields: [email], references: [email], name: "membership")
   invitedBy User?            @relation(fields: [inviter], references: [email], name: "inviter")
   workspace Workspace        @relation(fields: [workspaceId], references: [id])
+  user      User?             @relation(fields: [email], references: [email], onDelete: Cascade)
 
   @@unique([workspaceId, email])
   @@map("members")
@@ -132,6 +133,7 @@ model User {
   Company          Company[]
   Document         Document[]
   Deal             Deal[]
+  Member           Member?
 
   @@unique([userCode, email])
   @@fulltext([id, email, name, vaga_address])

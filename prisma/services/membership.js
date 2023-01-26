@@ -14,6 +14,9 @@ export const getMembers = async (slug) =>
         slug,
       },
     },
+    include: {
+      user: true,
+    },
   });
 
 export const getPendingInvitations = async (email) =>

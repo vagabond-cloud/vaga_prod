@@ -178,22 +178,7 @@ function Contacts({ modules, companies, workspace, deals, contacts, filters, tot
                                         />
                                     </div>
                                 </div>
-                                <div className="px-4 my-10">
-                                    <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                                        Deal Owner
-                                    </label>
-                                    <div className="mt-1">
-                                        <Select
-                                            onChange={(e) => updateFormInput({ ...formInput, dealOwnerId: e.target.value })}
-                                        >
-                                            {
-                                                types.map((stage, index) => (
-                                                    <option key={index} value={stage.id}>{stage.name}</option>
-                                                )
-                                                )}
-                                        </Select>
-                                    </div>
-                                </div>
+
                                 <div className="px-4 my-10">
                                     <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                                         Deal Type

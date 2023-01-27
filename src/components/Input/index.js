@@ -1,7 +1,7 @@
 /* eslint-disable react/display-name */
 import React, { forwardRef } from "react";
 
-const Input = forwardRef(({ className, type, ...rest }, ref) => {
+export const Input = forwardRef(({ className, type, ...rest }, ref) => {
 
     if (type === "checkbox") {
         return (
@@ -56,4 +56,3 @@ const Input = forwardRef(({ className, type, ...rest }, ref) => {
     }
 });
 
-export default Input;

@@ -32,6 +32,7 @@
     "express-validator": "^6.14.0",
     "firebase": "^9.15.0",
     "formidable": "^2.1.1",
+    "framer-motion": "^8.5.3",
     "logsnag": "^0.0.6",
     "micro": "^9.3.4",
     "moment": "^2.29.4",

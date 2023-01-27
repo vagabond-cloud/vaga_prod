@@ -1,5 +1,6 @@
 import Content from '@/components/Content/index';
 import Input from '@/components/Input';
+import Textarea from '@/components/Textarea';
 import Meta from '@/components/Meta/index';
 import Select from '@/components/Select';
 import SlideOver from '@/components/SlideOver';
@@ -17,20 +18,21 @@ import { useRouter } from 'next/router';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 import Link from 'next/link'
+import { useForm, Controller } from "react-hook-form";
 
 function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
 }
 
-
-
-function Contacts({ modules, companies, workspace }) {
+function Company({ modules, companies, workspace }) {
     modules = JSON.parse(modules)
     companies = JSON.parse(companies)
     workspace = JSON.parse(workspace)
 
+    const router = useRouter(false);
+    const { workspaceSlug, id } = router.query;
 
-    const [formInput, updateFormInput] = useState({
+    const defaultValues = {
         companyDomain: '',
         companyName: '',
         industry: '',
@@ -47,14 +49,16 @@ function Contacts({ modules, companies, workspace }) {
         description: '',
         linkedin: '',
         website: '',
+        timeZone: '',
         logoUrl: '',
         bannerUrl: '',
-    })
+    }
 
-    const router = useRouter(false);
-    const { workspaceSlug, id } = router.query;
+    const { handleSubmit, control, formState: { errors } } = useForm({ defaultValues });
+    const onSubmit = data => createCompany(data);
 
-    const createContact = async () => {
+    const createCompany = async (formInput) => {
+        console.log(formInput)
         const res = await api(`/api/modules/company`, {
             method: 'PUT',
             body: {
@@ -74,8 +78,10 @@ function Contacts({ modules, companies, workspace }) {
     }
 
     const writeLog = async () => {
-        const res = await log('Company created', `Company with the name ${formInput.companyName} created for Module: ${id} `, 'company_created', '127.0.0.1');
+        const res = await log('Company created', `Company with the name ${defaultValues.companyName} created for Module: ${id} `, 'company_created', '127.0.0.1');
     }
+
+    console.log(errors)
 
     return (
         <AccountLayout>
@@ -99,190 +105,275 @@ function Contacts({ modules, companies, workspace }) {
                             subTitle="Add a new company to your account"
                             buttonTitle="Add Company"
                         >
-                            <div className="overflow-scroll h-full pb-20">
-                                <div className="px-4 my-10">
-                                    <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                                        Company Domain
-                                    </label>
-                                    <div className="mt-1">
-                                        <Input
-                                            onChange={(e) => updateFormInput({ ...formInput, companyDomain: e.target.value })}
-                                        />
-                                    </div>
-                                </div>
-                                <div className="px-4 my-10">
-                                    <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                                        Company Name
-                                    </label>
-                                    <div className="mt-1">
-                                        <Input
-                                            onChange={(e) => updateFormInput({ ...formInput, companyName: e.target.value })}
-                                        />
-                                    </div>
-                                </div>
-                                <div className="px-4 my-10">
-                                    <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                                        Industry
-                                    </label>
-                                    <div className="mt-1">
-                                        <Select
-                                            onChange={(e) => updateFormInput({ ...formInput, industry: e.target.value })}
-                                        >
-                                            {
-                                                industries.map((stage, index) => (
-                                                    <option key={index} value={stage.id}>{stage.name}</option>
-                                                )
+                            <form onSubmit={handleSubmit(onSubmit)}>
+                                <div className="overflow-scroll h-full pb-20">
+                                    <div className="px-4 my-10">
+                                        <div className="mt-1">
+                                            <Controller
+                                                name="companyDomain"
+                                                id="companyDomain"
+                                                control={control}
+                                                rules={{
+                                                    required: true,
+                                                    pattern: {
+                                                        value: /^[a-zA-Z0-9]+([a-zA-Z0-9-]*[a-zA-Z0-9])*(\.[a-zA-Z0-9]+([a-zA-Z0-9-]*[a-zA-Z0-9])*)+$/,
+                                                        message: "Invalid domain"
+                                                    }
+                                                }}
+                                                render={({ field }) => (
+                                                    <Input
+                                                        label="Company Domain *"
+                                                        placeholder="domain.com"
+                                                        {...field}
+                                                    />
                                                 )}
-                                        </Select>
-                                    </div>
-                                </div>
-                                <div className="px-4 my-10">
-                                    <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                                        Type
-                                    </label>
-                                    <div className="mt-1">
-                                        <Select
-                                            onChange={(e) => updateFormInput({ ...formInput, type: e.target.value })}
-                                        >
-                                            {
-                                                types.map((stage, index) => (
-                                                    <option key={index} value={stage.id}>{stage.name}</option>
-                                                )
-                                                )}
-                                        </Select>
-                                    </div>
-                                </div>
-                                <div className="px-4 my-10">
-                                    <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                                        Phone
-                                    </label>
-                                    <div className="mt-1">
-                                        <Input
-                                            type="phone"
-                                            onChange={(e) => updateFormInput({ ...formInput, phone: e.target.value })}
-                                        />
-                                    </div>
-                                </div>
-                                <div className="px-4 my-10">
-                                    <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                                        Street
-                                    </label>
-                                    <div className="mt-1">
-                                        <Input
-                                            onChange={(e) => updateFormInput({ ...formInput, street: e.target.value })}
-                                        />
-                                    </div>
-                                </div>
-                                <div className="px-4 my-10">
-                                    <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                                        City
-                                    </label>
-                                    <div className="mt-1">
-                                        <Input
-                                            onChange={(e) => updateFormInput({ ...formInput, city: e.target.value })}
-                                        />
-                                    </div>
-                                </div>
-                                <div className="px-4 my-10">
-                                    <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                                        State
-                                    </label>
-                                    <div className="mt-1">
-                                        <Input
-                                            onChange={(e) => updateFormInput({ ...formInput, state: e.target.value })}
-                                        />
-                                    </div>
-                                </div>
-                                <div className="px-4 my-10">
-                                    <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                                        Zip
-                                    </label>
-                                    <div className="mt-1">
-                                        <Input
-                                            onChange={(e) => updateFormInput({ ...formInput, zip: e.target.value })}
-                                        />
-                                    </div>
-                                </div>
-                                <div className="px-4 my-10">
-                                    <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                                        Country
-                                    </label>
-                                    <div className="mt-1">
-                                        <Select
-                                            onChange={(e) => updateFormInput({ ...formInput, country: e.target.value })}
-                                        >
-                                            {
-                                                countries.map((stage, index) => (
-                                                    <option key={index} value={stage.id}>{stage.name}</option>
-                                                )
-                                                )}
-                                        </Select>
-                                    </div>
-                                </div>
-                                <div className="px-4 my-10">
-                                    <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                                        # of Employees
-                                    </label>
-                                    <div className="mt-1">
-                                        <Input
-                                            onChange={(e) => updateFormInput({ ...formInput, employees: e.target.value })}
-                                        />
-                                    </div>
-                                </div>
-                                <div className="px-4 my-10">
-                                    <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                                        Revenue
-                                    </label>
-                                    <div className="mt-1">
-                                        <Input
-                                            onChange={(e) => updateFormInput({ ...formInput, revenue: e.target.value })}
-                                        />
-                                    </div>
-                                </div>
-                                <div className="px-4 my-10">
-                                    <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                                        Description
-                                    </label>
-                                    <div className="mt-1">
-                                        <textarea
-                                            type="textarea"
-                                            rows={4}
-                                            className="w-full border border-gray-300 rounded-sm shadow-sm focus:ring-red-500 focus:border-red-500 sm:text-sm"
-                                            onChange={(e) => updateFormInput({ ...formInput, description: e.target.value })}
-                                        />
-                                    </div>
-                                </div>
-                                <div className="px-4 my-10">
-                                    <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                                        LinkedIn profile URL
-                                    </label>
-                                    <div className="mt-1">
-                                        <Input
-                                            onChange={(e) => updateFormInput({ ...formInput, linkedIn: e.target.value })}
-                                        />
-                                    </div>
-                                </div>
-                                <div className="px-4 my-10">
-                                    <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                                        Website
-                                    </label>
-                                    <div className="mt-1">
-                                        <Input
-                                            onChange={(e) => updateFormInput({ ...formInput, website: e.target.value })}
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="flex flex-shrink-0 justify-end px-4 py-4 w-full border-t absolute bottom-0 bg-white">
+                                            />
+                                            <div className="text-red-600 mt-1 text-xs">
+                                                {errors.companyDomain?.type === 'required' && <p role="alert">Company Domain is required</p>}
+                                                {errors.companyDomain && <p role="alert">{errors.companyDomain?.message}</p>}
 
-                                <button
-                                    type="submit"
-                                    className="ml-4 inline-flex justify-center  rounded-md border border-transparent bg-red-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-                                    onClick={() => createContact()}
-                                >
-                                    Save
-                                </button>
-                            </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="px-4 my-10">
+                                        <div className="mt-1">
+                                            <Controller
+                                                name="companyName"
+                                                id="companyName"
+                                                control={control}
+                                                rules={{ required: true }}
+                                                render={({ field }) => (
+                                                    <Input
+                                                        label="Company Name *"
+                                                        {...field}
+                                                    />
+                                                )}
+                                            />
+                                            <div className="text-red-600 mt-1 text-xs">{errors.companyName?.type === 'required' && <p role="alert">Company Name is required</p>}</div>
+                                        </div>
+                                    </div>
+                                    <div className="px-4 my-10">
+                                        <div className="mt-1">
+                                            <Controller
+                                                name="industry"
+                                                id="industry"
+                                                control={control}
+                                                render={({ field }) => (
+                                                    <Select
+                                                        label="Industry"
+                                                        {...field}
+                                                    >
+                                                        {
+                                                            industries.map((stage, index) => (
+                                                                <option key={index} value={stage.id}>{stage.name}</option>
+                                                            ))}
+                                                    </Select>
+                                                )}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="px-4 my-10">
+                                        <div className="mt-1">
+                                            <Controller
+                                                name="type"
+                                                id="type"
+                                                control={control}
+                                                render={({ field }) => (
+                                                    <Select
+                                                        label="Type"
+                                                        {...field}
+                                                    >
+                                                        {
+                                                            types.map((stage, index) => (
+                                                                <option key={index} value={stage.id}>{stage.name}</option>
+                                                            ))}
+                                                    </Select>
+                                                )}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="px-4 my-10">
+                                        <div className="mt-1">
+                                            <Controller
+                                                name="phone"
+                                                id="phone"
+                                                control={control}
+                                                render={({ field }) => (
+                                                    <Input
+                                                        label="Phone"
+                                                        {...field}
+                                                    />
+                                                )}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="px-4 my-10">
+                                        <div className="mt-1">
+                                            <Controller
+                                                name="street"
+                                                id="street"
+                                                control={control}
+                                                render={({ field }) => (
+                                                    <Input
+                                                        label="Street"
+                                                        {...field}
+                                                    />
+                                                )}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="px-4 my-10">
+                                        <div className="mt-1">
+                                            <Controller
+                                                name="city"
+                                                id="city"
+                                                control={control}
+                                                render={({ field }) => (
+                                                    <Input
+                                                        label="City"
+                                                        {...field}
+                                                    />
+                                                )}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="px-4 my-10">
+                                        <div className="mt-1">
+                                            <Controller
+                                                name="state"
+                                                id="state"
+                                                control={control}
+                                                render={({ field }) => (
+                                                    <Input
+                                                        label="State"
+                                                        {...field}
+                                                    />
+                                                )}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="px-4 my-10">
+                                        <div className="mt-1">
+                                            <Controller
+                                                name="zip"
+                                                id="zip"
+                                                control={control}
+                                                render={({ field }) => (
+                                                    <Input
+                                                        label="Zip"
+                                                        {...field}
+                                                    />
+                                                )}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="px-4 my-10">
+                                        <div className="mt-1">
+                                            <Controller
+                                                name="country"
+                                                id="country"
+                                                control={control}
+                                                render={({ field }) => (
+                                                    <Select
+                                                        label="Country"
+                                                        {...field}
+                                                    >
+                                                        {
+                                                            countries.map((stage, index) => (
+                                                                <option key={index} value={stage.id}>{stage.name}</option>
+                                                            ))}
+                                                    </Select>
+                                                )}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="px-4 my-10">
+                                        <div className="mt-1">
+                                            <Controller
+                                                name="employees"
+                                                id="employees"
+                                                control={control}
+                                                render={({ field }) => (
+                                                    <Input
+                                                        label="# of Employees"
+                                                        {...field}
+                                                    />
+                                                )}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="px-4 my-10">
+                                        <div className="mt-1">
+                                            <Controller
+                                                name="revenue"
+                                                id="revenue"
+                                                control={control}
+                                                render={({ field }) => (
+                                                    <Input
+                                                        label="Revenue"
+                                                        {...field}
+                                                    />
+                                                )}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="px-4 my-10">
+                                        <div className="mt-1">
+                                            <Controller
+                                                name="description"
+                                                id="description"
+                                                control={control}
+                                                render={({ field }) => (
+                                                    <Textarea
+                                                        label="Description"
+                                                        rows={4}
+                                                        {...field}
+                                                    />
+                                                )}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="px-4 my-10">
+                                        <div className="mt-1">
+                                            <Controller
+                                                name="linkedin"
+                                                id="linkedin"
+                                                control={control}
+                                                render={({ field }) => (
+                                                    <Input
+                                                        label="LinkedIn"
+                                                        {...field}
+                                                    />
+                                                )}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="px-4 my-10">
+                                        <div className="mt-1">
+                                            <Controller
+                                                name="website"
+                                                id="website"
+                                                control={control}
+                                                render={({ field }) => (
+                                                    <Input
+                                                        label="Website"
+                                                        {...field}
+                                                    />
+                                                )}
+                                            />
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div className="flex flex-shrink-0 justify-end px-4 py-4 w-full border-t absolute bottom-0 bg-white">
+                                    <button
+                                        type="submit"
+                                        className="ml-4 inline-flex justify-center  rounded-md border border-transparent bg-red-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                                    >
+                                        Save
+                                    </button>
+                                </div>
+                            </form>
                         </SlideOver>
                     </div>
                     <div className="mt-8 flex flex-col">
@@ -341,7 +432,7 @@ function Contacts({ modules, companies, workspace }) {
     )
 }
 
-export default Contacts
+export default Company
 
 
 export async function getServerSideProps(context) {

@@ -9,6 +9,8 @@ import Modal from '@/components/Modal'
 import api from '@/lib/common/api'
 import { contactActivity } from '@/lib/client/log';
 import toast from 'react-hot-toast';
+import { useForm, Controller } from "react-hook-form";
+import Textarea from '@/components/Textarea'
 
 function Notes({ profile, notes }) {
     notes = JSON.parse(notes)
@@ -21,14 +23,24 @@ function Notes({ profile, notes }) {
     const [showOverlay, setShowOverlay] = useState(false)
     const [modalContent, setModalContent] = useState({})
 
-    const addNote = async () => {
-        if (!title || !note) return toast.error("Please fill all the fields")
+
+    const defaultValues = {
+        title: '',
+        note: ''
+    }
+
+
+    const { handleSubmit, control, formState: { errors } } = useForm({ defaultValues });
+    const onSubmit = data => addNote(data);
+
+
+    const addNote = async (formInput) => {
         const res = await api(`/api/modules/note`, {
             method: "PUT",
             body: {
                 contactId: id,
-                note,
-                title,
+                note: formInput.note,
+                title: formInput.title,
             }
         })
         await writeLog("Note Created", "note_created", new Date(), id)
@@ -65,39 +77,61 @@ function Notes({ profile, notes }) {
                     title="Add Note"
                     buttonTitle={<PlusIcon className="w-5 h-5 text-white" />}
                 >
-                    <div className="px-4 my-6">
-                        <div className="mb-4">
-                            <Input
-                                placeholder="Title"
-                                onChange={(e) => setTitle(e.target.value)}
+                    <form onSubmit={handleSubmit(onSubmit)}>
+                        <div className="px-4 my-6">
+                            <div className="mb-4">
+                                <Controller
+                                    name="title"
+                                    id="title"
+                                    control={control}
+                                    rules={{ required: true }}
+                                    render={({ field }) => (
+                                        <Input
+                                            placeholder="Title"
+                                            {...field}
+                                        />
+                                    )}
+                                />
+                                <div className="text-red-600 mt-1 text-xs">{errors.title?.type === 'required' && <p role="alert">Title is required</p>}</div>
+
+                            </div>
+                            <Controller
+                                name="note"
+                                id="note"
+                                control={control}
+                                rules={{ required: true }}
+                                render={({ field }) => (
+                                    <Textarea
+                                        type="textarea"
+                                        placeholder="Add Note"
+                                        className="w-full border border-gray-300 rounded-sm shadow-sm focus:ring-red-500 focus:border-red-500 sm:text-sm"
+                                        rows={18}
+                                        {...field}
+                                    />
+                                )}
                             />
+                            <div className="text-red-600 mt-1 text-xs">{errors.note?.type === 'required' && <p role="alert">Note is required</p>}</div>
+
+
+
                         </div>
-                        <textarea
-                            type="textarea"
-                            placeholder="Add Note"
-                            className="w-full border border-gray-300 rounded-sm shadow-sm focus:ring-red-500 focus:border-red-500 sm:text-sm"
-                            rows={18}
-                            onChange={(e) => setNote(e.target.value)}
-                        />
+                        <div className="px-4 my-6">
+                            <p className="text-md font-medium text-gray-500">{profile.name}</p>
+                            <p className="text-sm my-1 text-gray-500">{profile.fields.Lead}</p>
+                            <p className="text-sm my-1 text-gray-500">{profile.fields.Stage}</p>
+                            <p className="text-sm my-2 text-gray-500">{moment().format("DD MMM. YYYY - hh:mm:ss")}</p>
+                        </div>
 
-                    </div>
-                    <div className="px-4 my-6">
-                        <p className="text-md font-medium text-gray-500">{profile.name}</p>
-                        <p className="text-sm my-1 text-gray-500">{profile.fields.Lead}</p>
-                        <p className="text-sm my-1 text-gray-500">{profile.fields.Stage}</p>
-                        <p className="text-sm my-2 text-gray-500">{moment().format("DD MMM. YYYY - hh:mm:ss")}</p>
-                    </div>
+                        <div className="flex flex-shrink-0 justify-end px-4 py-4 w-full border-t absolute bottom-0 bg-white">
 
-                    <div className="flex flex-shrink-0 justify-end px-4 py-4 w-full border-t absolute bottom-0 bg-white">
-
-                        <Button
-                            type="submit"
-                            className="ml-4 inline-flex text-white justify-center rounded-md border border-transparent bg-red-600 py-2 px-4 text-xs font-medium text-white5shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-                            onClick={() => addNote()}
-                        >
-                            Save
-                        </Button>
-                    </div>
+                            <Button
+                                type="submit"
+                                className="ml-4 inline-flex text-white justify-center rounded-md border border-transparent bg-red-600 py-2 px-4 text-xs font-medium text-white5shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                            >
+                                Save
+                            </Button>
+                        </div>
+                    </form>
                 </SlideOver>
             </div>
             <div className="w-full px-4 mt-10">
@@ -154,7 +188,6 @@ function Notes({ profile, notes }) {
                     <Button
                         type="submit"
                         className="bg-red-600 hover:bg-red-700 focus:ring-red-500 text-white"
-                        onClick={() => setShowOverlay(!showOverlay)}
                     >
                         Close
                     </Button>

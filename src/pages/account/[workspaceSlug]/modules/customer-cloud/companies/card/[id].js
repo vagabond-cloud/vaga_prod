@@ -24,7 +24,8 @@ import { fileType } from '@/config/common/fileType';
 import Documents from '@/components/modules/customer-cloud/companies/Documents';
 import CContacts from '@/components/modules/customer-cloud/companies/Contacts';
 import Activities from '@/components/modules/customer-cloud/companies/Activities';
-
+import { useForm, Controller } from "react-hook-form";
+import Textarea from '@/components/Textarea';
 function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
 }
@@ -38,14 +39,14 @@ function Contacts({ company, notes, calls, tasks, activities, documents }) {
     const [logo, setLogo] = useState(null);
     const [banner, setBanner] = useState(null);
 
-    const [formInput, updateFormInput] = useState({
-        firstName: '',
-        lastName: '',
-        contactEmail: '',
-        jobTitle: '',
-        phone: '',
-        logoUrl: '',
-    })
+    // const [formInput, updateFormInput] = useState({
+    //     firstName: '',
+    //     lastName: '',
+    //     contactEmail: '',
+    //     jobTitle: '',
+    //     phone: '',
+    //     logoUrl: '',
+    // })
 
     const tabs = [
         { name: 'Overview', href: 'overview', current: tab === 'overview' || !tab ? true : false },
@@ -58,7 +59,31 @@ function Contacts({ company, notes, calls, tasks, activities, documents }) {
     const logoInput = useRef(null)
     const bannerInput = useRef(null)
 
+    const defaultValues = {
+        companyDomain: company.companyDomain,
+        companyName: company.companyName,
+        industry: company.industry,
+        type: company.type,
+        phone: company.phone,
+        city: company.city,
+        street: company.street,
+        state: company.state,
+        zip: company.zip,
+        country: company.country,
+        employees: company.employees,
+        revenue: company.revenue,
+        timeZone: company.timeZone,
+        description: company.description,
+        timeZone: company.timeZone,
+        linkedin: company.linkedin,
+        website: company.website,
+        logoUrl: company.logoUrl,
+        bannerUrl: company.bannerUrl,
+    }
 
+
+    const { handleSubmit, control, formState: { errors } } = useForm({ defaultValues });
+    const onSubmit = data => updateCompany(data);
 
     const profile = {
         name: company.companyName,
@@ -82,7 +107,9 @@ function Contacts({ company, notes, calls, tasks, activities, documents }) {
         },
     }
 
-    const updateContact = async () => {
+    const updateCompany = async (formInput) => {
+        console.log(formInput)
+
         const res = await api(`/api/modules/company`, {
             method: 'POST',
             body: {
@@ -96,7 +123,7 @@ function Contacts({ company, notes, calls, tasks, activities, documents }) {
         if (res.status === 200) {
             //TODO - add to api call
             await writeLog("Company Updated", "company_updated", new Date(), id)
-            updateFormInput([])
+            setLogo(null)
             router.replace(router.asPath)
             toast.success('Contact updated successfully')
         } else {
@@ -104,19 +131,42 @@ function Contacts({ company, notes, calls, tasks, activities, documents }) {
         }
     }
 
-
     const uploadLogo = async (file) => {
-
         const getLogo = await uploadToGCS(file)
-        updateFormInput({ ...formInput, logoUrl: getLogo })
-        setLogo(getLogo)
+
+        const res = await api(`/api/modules/customer-cloud/updateLogo`, {
+            method: 'POST',
+            body: {
+                id: company.id,
+                logoUrl: getLogo,
+            }
+        })
+        if (res.status === 200) {
+            router.replace(router.asPath)
+            toast.success('Logo updated successfully')
+        } else {
+            toast.error('Logo update failed')
+        }
     };
 
     const uploadBanner = async (file) => {
-
+        setBanner(true)
         const getBanner = await uploadToGCS(file)
-        updateFormInput({ ...formInput, bannerUrl: getBanner })
-        setBanner(getBanner)
+        const res = await api(`/api/modules/customer-cloud/updateBanner`, {
+            method: 'POST',
+            body: {
+                id: company.id,
+                bannerUrl: getBanner,
+            }
+        })
+        setBanner(false)
+
+        if (res.status === 200) {
+            router.replace(router.asPath)
+            toast.success('Logo updated successfully')
+        } else {
+            toast.error('Logo update failed')
+        }
     }
     return (
         <AccountLayout>
@@ -133,27 +183,38 @@ function Contacts({ company, notes, calls, tasks, activities, documents }) {
                     <div>
                         <input type="file" onChange={(e) => uploadBanner(e.target.files[0])} hidden ref={bannerInput} />
                         <div className="relative w-full m-auto">
-                            {formInput.bannerUrl ?
-                                <div className="w-1/2 h-1/2 absolute top-1/3 left-1/2 px-auto py-auto"><button className="bg-gray-200 text-gray-800 w-auto h-10 px-8 rounded-md hover:bg-gray-300" onClick={() => updateContact()}>Save</button></div>
+                            {banner ?
+                                <div className="w-1/2 h-1/2 absolute top-1/3 left-1/2 p-4">                                    <svg aria-hidden="true" className="w-8 h-8 mr-2 text-gray-200 animate-spin dark:text-gray-600 fill-red-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor" />
+                                    <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill" />
+                                </svg>
+                                    <span className="sr-only">Loading...</span>
+                                </div>
                                 :
                                 <div className="w-1/2 h-1/2 absolute top-1/3 left-1/2 p-4"><PencilIcon className="w-8 h-8 text-gray-500" onClick={e => bannerInput.current && bannerInput.current.click()} /></div>
                             }
-                            <img className="h-32 w-full object-cover lg:h-48" src={banner ? banner : profile.coverImageUrl} alt="" />
+                            <img className="h-32 w-full object-cover lg:h-48" src={profile.coverImageUrl} alt="" />
                         </div>
                     </div>
                     <div className="mx-auto max-w-full px-4 sm:px-6 lg:px-8">
                         <div className="-mt-12 sm:-mt-16 sm:flex sm:items-end sm:space-x-5">
                             <div className="flex relative cursor-pointer" >
                                 <input type="file" onChange={(e) => uploadLogo(e.target.files[0])} hidden ref={logoInput} />
+
                                 <div className="relative w-full m-auto">
-                                    {formInput.logoUrl ?
-                                        <div className="w-1/2 h-1/2 absolute top-1/4 left-1/8 p-4"><button className="bg-gray-200 text-gray-800 w-auto h-10 px-8 rounded-md hover:bg-gray-300" onClick={() => updateContact()}>Save</button></div>
+                                    {logo ?
+                                        <div className="w-1/2 h-1/2 absolute top-1/3 left-1/2 p-4">                                            <svg aria-hidden="true" className="w-8 h-8 mr-2 text-gray-200 animate-spin dark:text-gray-600 fill-red-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor" />
+                                            <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill" />
+                                        </svg>
+                                            <span className="sr-only">Loading...</span>
+                                        </div>
                                         :
                                         <div className="w-1/2 h-1/2 absolute top-1/4 left-1/4 p-4"><PencilIcon className="w-8 h-8 text-gray-500" onClick={e => logoInput.current && logoInput.current.click()} /></div>
                                     }
                                     <img
                                         className="h-24 w-24 rounded-full ring-4 ring-white sm:h-32 sm:w-32"
-                                        src={logo ? logo : profile.imageUrl}
+                                        src={profile.imageUrl}
                                         alt=""
 
                                     />
@@ -188,189 +249,275 @@ function Contacts({ company, notes, calls, tasks, activities, documents }) {
                                         title="Edit Contact"
                                         subTitle="Make changes to the contact's information"
                                     >
-                                        <div className="overflow-scroll h-full pb-20">
-                                            <div className="px-4 my-6">
-                                                <label htmlFor="email" className="block text-xs font-medium text-gray-500">
-                                                    Company Domain
-                                                </label>
-                                                <div className="mt-1">
-                                                    <Input
-                                                        defaultValue={company.companyDomain}
-                                                        onChange={(e) => updateFormInput({ ...formInput, companyDomain: e.target.value })}
-                                                    />
-                                                </div>
-                                            </div>
-                                            <div className="px-4 my-6">
-                                                <label htmlFor="email" className="block text-xs font-medium text-gray-500">
-                                                    Company Name
-                                                </label>
-                                                <div className="mt-1">
-                                                    <Input
-                                                        defaultValue={company.companyName}
-                                                        onChange={(e) => updateFormInput({ ...formInput, companyName: e.target.value })}
-                                                    />
-                                                </div>
-                                            </div>
-                                            <div className="px-4 my-6">
-                                                <label htmlFor="email" className="block text-xs font-medium text-gray-500">
-                                                    Industry
-                                                </label>
-                                                <div className="mt-1">
-                                                    <Select
-                                                        defaultValue={company.industry}
-                                                        onChange={(e) => updateFormInput({ ...formInput, lifecycleStage: e.target.value })}
-                                                    >
-                                                        <option value={company.industry}>✅ {industries.find((i) => i.id === company.industry)?.name}</option>
-
-                                                        {
-                                                            industries.map((stage, index) => (
-                                                                <option key={index} value={stage.id}>{stage.name}</option>
-                                                            )
+                                        <form onSubmit={handleSubmit(onSubmit)}>
+                                            <div className="overflow-scroll h-full pb-20">
+                                                <div className="px-4 my-10">
+                                                    <div className="mt-1">
+                                                        <Controller
+                                                            name="companyDomain"
+                                                            id="companyDomain"
+                                                            control={control}
+                                                            rules={{
+                                                                required: true,
+                                                                pattern: {
+                                                                    value: /^[a-zA-Z0-9]+([a-zA-Z0-9-]*[a-zA-Z0-9])*(\.[a-zA-Z0-9]+([a-zA-Z0-9-]*[a-zA-Z0-9])*)+$/,
+                                                                    message: "Invalid domain"
+                                                                }
+                                                            }}
+                                                            render={({ field }) => (
+                                                                <Input
+                                                                    label="Company Domain *"
+                                                                    placeholder="domain.com"
+                                                                    {...field}
+                                                                />
                                                             )}
-                                                    </Select>
-                                                </div>
-                                            </div>
-                                            <div className="px-4 my-6">
-                                                <label htmlFor="email" className="block text-xs font-medium text-gray-500">
-                                                    Type
-                                                </label>
-                                                <div className="mt-1">
-                                                    <Select
-                                                        defaultValue={company.industry}
-                                                        onChange={(e) => updateFormInput({ ...formInput, lifecycleStage: e.target.value })}
-                                                    >
-                                                        <option value={company.type}>✅ {types.find((i) => i.id === company.type)?.name}</option>
+                                                        />
+                                                        <div className="text-red-600 mt-1 text-xs">
+                                                            {errors.companyDomain?.type === 'required' && <p role="alert">Company Domain is required</p>}
+                                                            {errors.companyDomain && <p role="alert">{errors.companyDomain?.message}</p>}
 
-                                                        {
-                                                            types.map((stage, index) => (
-                                                                <option key={index} value={stage.id}>{stage.name}</option>
-                                                            )
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="px-4 my-10">
+                                                    <div className="mt-1">
+                                                        <Controller
+                                                            name="companyName"
+                                                            id="companyName"
+                                                            control={control}
+                                                            rules={{ required: true }}
+                                                            render={({ field }) => (
+                                                                <Input
+                                                                    label="Company Name *"
+                                                                    {...field}
+                                                                />
                                                             )}
-                                                    </Select>
+                                                        />
+                                                        <div className="text-red-600 mt-1 text-xs">{errors.companyName?.type === 'required' && <p role="alert">Company Name is required</p>}</div>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div className="px-4 my-6">
-                                                <label htmlFor="email" className="block text-xs font-medium text-gray-500">
-                                                    Phone
-                                                </label>
-                                                <div className="mt-1">
-                                                    <Input
-                                                        type="phone"
-                                                        defaultValue={company.phone}
-                                                        onChange={(e) => updateFormInput({ ...formInput, phone: e.target.value })}
-                                                    />
+                                                <div className="px-4 my-10">
+                                                    <div className="mt-1">
+                                                        <Controller
+                                                            name="industry"
+                                                            id="industry"
+                                                            control={control}
+                                                            render={({ field }) => (
+                                                                <Select
+                                                                    label="Industry"
+                                                                    {...field}
+                                                                >
+                                                                    {
+                                                                        industries.map((stage, index) => (
+                                                                            <option key={index} value={stage.id}>{stage.name}</option>
+                                                                        ))}
+                                                                </Select>
+                                                            )}
+                                                        />
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div className="px-4 my-6">
-                                                <label htmlFor="email" className="block text-xs font-medium text-gray-500">
-                                                    Street
-                                                </label>
-                                                <div className="mt-1">
-                                                    <Input
-                                                        defaultValue={company.street}
-                                                        onChange={(e) => updateFormInput({ ...formInput, street: e.target.value })}
-                                                    />
+                                                <div className="px-4 my-10">
+                                                    <div className="mt-1">
+                                                        <Controller
+                                                            name="type"
+                                                            id="type"
+                                                            control={control}
+                                                            render={({ field }) => (
+                                                                <Select
+                                                                    label="Type"
+                                                                    {...field}
+                                                                >
+                                                                    {
+                                                                        types.map((stage, index) => (
+                                                                            <option key={index} value={stage.id}>{stage.name}</option>
+                                                                        ))}
+                                                                </Select>
+                                                            )}
+                                                        />
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div className="px-4 my-6">
-                                                <label htmlFor="email" className="block text-xs font-medium text-gray-500">
-                                                    Zip
-                                                </label>
-                                                <div className="mt-1">
-                                                    <Input
-                                                        defaultValue={company.zip}
-                                                        onChange={(e) => updateFormInput({ ...formInput, zip: e.target.value })}
-                                                    />
+                                                <div className="px-4 my-10">
+                                                    <div className="mt-1">
+                                                        <Controller
+                                                            name="phone"
+                                                            id="phone"
+                                                            control={control}
+                                                            render={({ field }) => (
+                                                                <Input
+                                                                    label="Phone"
+                                                                    {...field}
+                                                                />
+                                                            )}
+                                                        />
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div className="px-4 my-6">
-                                                <label htmlFor="email" className="block text-xs font-medium text-gray-500">
-                                                    City
-                                                </label>
-                                                <div className="mt-1">
-                                                    <Input
-                                                        defaultValue={company.city}
-                                                        onChange={(e) => updateFormInput({ ...formInput, city: e.target.value })}
-                                                    />
+                                                <div className="px-4 my-10">
+                                                    <div className="mt-1">
+                                                        <Controller
+                                                            name="street"
+                                                            id="street"
+                                                            control={control}
+                                                            render={({ field }) => (
+                                                                <Input
+                                                                    label="Street"
+                                                                    {...field}
+                                                                />
+                                                            )}
+                                                        />
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div className="px-4 my-6">
-                                                <label htmlFor="email" className="block text-xs font-medium text-gray-500">
-                                                    State
-                                                </label>
-                                                <div className="mt-1">
-                                                    <Input
-                                                        defaultValue={company.state}
-                                                        onChange={(e) => updateFormInput({ ...formInput, state: e.target.value })}
-                                                    />
+                                                <div className="px-4 my-10">
+                                                    <div className="mt-1">
+                                                        <Controller
+                                                            name="city"
+                                                            id="city"
+                                                            control={control}
+                                                            render={({ field }) => (
+                                                                <Input
+                                                                    label="City"
+                                                                    {...field}
+                                                                />
+                                                            )}
+                                                        />
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div className="px-4 my-6">
-                                                <label htmlFor="email" className="block text-xs font-medium text-gray-500">
-                                                    Country
-                                                </label>
-                                                <div className="mt-1">
-                                                    <Input
-                                                        defaultValue={company.country}
-                                                        onChange={(e) => updateFormInput({ ...formInput, country: e.target.value })}
-                                                    />
+                                                <div className="px-4 my-10">
+                                                    <div className="mt-1">
+                                                        <Controller
+                                                            name="state"
+                                                            id="state"
+                                                            control={control}
+                                                            render={({ field }) => (
+                                                                <Input
+                                                                    label="State"
+                                                                    {...field}
+                                                                />
+                                                            )}
+                                                        />
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div className="px-4 my-6">
-                                                <label htmlFor="email" className="block text-xs font-medium text-gray-500">
-                                                    Website
-                                                </label>
-                                                <div className="mt-1">
-                                                    <Input
-                                                        defaultValue={company.website}
-                                                        onChange={(e) => updateFormInput({ ...formInput, website: e.target.value })}
-                                                    />
+                                                <div className="px-4 my-10">
+                                                    <div className="mt-1">
+                                                        <Controller
+                                                            name="zip"
+                                                            id="zip"
+                                                            control={control}
+                                                            render={({ field }) => (
+                                                                <Input
+                                                                    label="Zip"
+                                                                    {...field}
+                                                                />
+                                                            )}
+                                                        />
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div className="px-4 my-6">
-                                                <label htmlFor="email" className="block text-xs font-medium text-gray-500">
-                                                    LinkedIn
-                                                </label>
-                                                <div className="mt-1">
-                                                    <Input
-                                                        defaultValue={company.linkedin}
-                                                        onChange={(e) => updateFormInput({ ...formInput, linkedin: e.target.value })}
-                                                    />
+                                                <div className="px-4 my-10">
+                                                    <div className="mt-1">
+                                                        <Controller
+                                                            name="country"
+                                                            id="country"
+                                                            control={control}
+                                                            render={({ field }) => (
+                                                                <Select
+                                                                    label="Country"
+                                                                    {...field}
+                                                                >
+                                                                    {
+                                                                        countries.map((stage, index) => (
+                                                                            <option key={index} value={stage.id}>{stage.name}</option>
+                                                                        ))}
+                                                                </Select>
+                                                            )}
+                                                        />
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div className="px-4 my-6">
-                                                <label htmlFor="email" className="block text-xs font-medium text-gray-500">
-                                                    Employees
-                                                </label>
-                                                <div className="mt-1">
-                                                    <Input
-                                                        defaultValue={company.state}
-                                                        onChange={(e) => updateFormInput({ ...formInput, employees: e.target.value })}
-                                                    />
+                                                <div className="px-4 my-10">
+                                                    <div className="mt-1">
+                                                        <Controller
+                                                            name="employees"
+                                                            id="employees"
+                                                            control={control}
+                                                            render={({ field }) => (
+                                                                <Input
+                                                                    label="# of Employees"
+                                                                    {...field}
+                                                                />
+                                                            )}
+                                                        />
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div className="px-4 my-6">
-                                                <label htmlFor="email" className="block text-xs font-medium text-gray-500">
-                                                    Revenue
-                                                </label>
-                                                <div className="mt-1">
-                                                    <Input
-                                                        defaultValue={parseFloat(company.revenue).toLocaleString()}
-                                                        onChange={(e) => updateFormInput({ ...formInput, revenue: e.target.value })}
-                                                    />
+                                                <div className="px-4 my-10">
+                                                    <div className="mt-1">
+                                                        <Controller
+                                                            name="revenue"
+                                                            id="revenue"
+                                                            control={control}
+                                                            render={({ field }) => (
+                                                                <Input
+                                                                    label="Revenue"
+                                                                    {...field}
+                                                                />
+                                                            )}
+                                                        />
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </div>
-                                        <div className="flex flex-shrink-0 justify-end px-4 py-4 w-full border-t absolute bottom-0 bg-white resize-y">
+                                                <div className="px-4 my-10">
+                                                    <div className="mt-1">
+                                                        <Controller
+                                                            name="description"
+                                                            id="description"
+                                                            control={control}
+                                                            render={({ field }) => (
+                                                                <Textarea
+                                                                    label="Description"
+                                                                    rows={4}
+                                                                    {...field}
+                                                                />
+                                                            )}
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <div className="px-4 my-10">
+                                                    <div className="mt-1">
+                                                        <Controller
+                                                            name="linkedin"
+                                                            id="linkedin"
+                                                            control={control}
+                                                            render={({ field }) => (
+                                                                <Input
+                                                                    label="LinkedIn"
+                                                                    {...field}
+                                                                />
+                                                            )}
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <div className="px-4 my-10">
+                                                    <div className="mt-1">
+                                                        <Controller
+                                                            name="website"
+                                                            id="website"
+                                                            control={control}
+                                                            render={({ field }) => (
+                                                                <Input
+                                                                    label="Website"
+                                                                    {...field}
+                                                                />
+                                                            )}
+                                                        />
+                                                    </div>
+                                                </div>
 
-                                            <Button
-                                                type="submit"
-                                                className="ml-4 inline-flex text-white justify-center rounded-md border border-transparent bg-red-600 py-2 px-4 text-xs font-medium text-white5shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-                                                onClick={() => updateContact()}
-                                            >
-                                                Save
-                                            </Button>
-                                        </div>
+                                            </div>
+                                            <div className="flex flex-shrink-0 justify-end px-4 py-4 w-full border-t absolute bottom-0 bg-white">
+                                                <button
+                                                    type="submit"
+                                                    className="ml-4 inline-flex justify-center  rounded-md border border-transparent bg-red-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                                                >
+                                                    Save
+                                                </button>
+                                            </div>
+                                        </form>
                                     </SlideOver>
 
                                 </div>

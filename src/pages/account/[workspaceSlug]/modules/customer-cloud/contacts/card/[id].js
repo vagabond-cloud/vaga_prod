@@ -22,6 +22,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useRef, useState } from 'react';
 import toast from 'react-hot-toast';
+import { useForm, Controller } from "react-hook-form";
 
 function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
@@ -34,8 +35,32 @@ function Contacts({ contact, notes, calls, tasks, activities, companies }) {
     const router = useRouter(false);
     const { workspaceSlug, id, tab } = router.query;
 
-    const [formInput, updateFormInput] = useState({
-    })
+    const defaultValues = {
+        salutation: contact.salutation,
+        firstName: contact.firstName,
+        lastName: contact.lastName,
+        contactEmail: contact.contactEmail,
+        jobTitle: contact.jobTitle,
+        phone: contact.phone,
+        country: contact.country,
+        city: contact.city,
+        state: contact.state,
+        zip: contact.zip,
+        street: contact.street,
+        website: contact.website,
+        company: contact.company,
+        leadStatus: contact.leadStatus,
+        lifecycleStage: contact.lifecycleStage,
+        twitter_handle: contact.twitter_handle,
+        preferred_language: contact.preferred_language,
+        persona: contact.persona,
+        banner_url: contact.bannerUrl,
+        photo_url: contact.photoUrl,
+    }
+
+    const { handleSubmit, control, formState: { errors } } = useForm({ defaultValues });
+    const onSubmit = data => updateContact(data);
+
 
     const [photo, setPhoto] = useState(null);
     const [banner, setBanner] = useState(null);
@@ -61,8 +86,8 @@ function Contacts({ contact, notes, calls, tasks, activities, companies }) {
         fields: {
             Email: contact.contactEmail,
             Title: contact.jobTitle,
-            Lead: contact.leadStatus,
-            Stage: contact.lifecycleStage,
+            Lead: leadStages.find((l) => l.id === contact.leadStatus)?.stage,
+            Stage: lifecycleStages.find((l) => l.id === contact.lifecycleStage)?.stage,
             Phone: contact.phone,
             City: contact.city,
             State: contact.state,
@@ -72,13 +97,13 @@ function Contacts({ contact, notes, calls, tasks, activities, companies }) {
             Website: contact.website,
             Persona: contact.persona,
             Twitter: contact.twitter_handle,
-            Language: countries.find((c) => c.language.code === contact.preferred_language).language.name,
+            Language: countries.find((c) => c.code === contact.preferred_language)?.language.name,
             Owner: contact?.user?.name,
             Company: <Link href={`/account/${workspaceSlug}/modules/customer-cloud/companies/card/${contact?.companyId}`}>{companies.find((c) => c.id === contact?.companyId)?.companyName}</Link>,
         },
     }
 
-    const updateContact = async () => {
+    const updateContact = async (formInput) => {
         const res = await api(`/api/modules/contact`, {
             method: 'POST',
             body: {
@@ -90,7 +115,6 @@ function Contacts({ contact, notes, calls, tasks, activities, companies }) {
         })
         if (res.status === 200) {
             await writeLog("Contact Updated", "contact_updated", new Date(), id)
-            updateFormInput([])
 
             router.replace(router.asPath)
             toast.success('Contact updated successfully')
@@ -125,7 +149,7 @@ function Contacts({ contact, notes, calls, tasks, activities, companies }) {
                     <div>
                         <input type="file" onChange={(e) => uploadBanner(e.target.files[0])} hidden ref={bannerInput} />
                         <div className="relative w-full m-auto">
-                            {formInput.bannerUrl ?
+                            {defaultValues.bannerUrl ?
                                 <div className="w-1/2 h-1/2 absolute top-1/3 left-1/2 px-auto py-auto"><button className="bg-gray-200 text-gray-800 w-auto h-10 px-8 rounded-md hover:bg-gray-300" onClick={() => updateContact()}>Save</button></div>
                                 :
                                 <div className="w-1/2 h-1/2 absolute top-1/3 left-1/2 p-4"><PencilIcon className="w-8 h-8 text-gray-500" onClick={e => bannerInput.current && bannerInput.current.click()} /></div>
@@ -138,7 +162,7 @@ function Contacts({ contact, notes, calls, tasks, activities, companies }) {
                             <div className="flex relative cursor-pointer" >
                                 <input type="file" onChange={(e) => uploadLogo(e.target.files[0])} hidden ref={photoInput} />
                                 <div className="relative w-full m-auto">
-                                    {formInput.photoUrl ?
+                                    {defaultValues.photoUrl ?
                                         <div className="w-1/2 h-1/2 absolute top-1/4 left-1/8 p-4"><button className="bg-gray-200 text-gray-800 w-auto h-10 px-8 rounded-md hover:bg-gray-300" onClick={() => updateContact()}>Save</button></div>
                                         :
                                         <div className="w-1/2 h-1/2 absolute top-1/4 left-1/4 p-4"><PencilIcon className="w-8 h-8 text-gray-500" onClick={e => photoInput.current && photoInput.current.click()} /></div>
@@ -176,251 +200,329 @@ function Contacts({ contact, notes, calls, tasks, activities, companies }) {
                                         </Button>
                                     </Link>
                                     <SlideOver
-                                        buttonTitle="Edit"
                                         title="Edit Contact"
-                                        subTitle="Make changes to the contact's information"
+                                        subTitle=""
+                                        buttonTitle="Edit
+                                        "
                                     >
-                                        <div className="overflow-scroll h-full pb-20">
-                                            <div className="px-4 my-6">
-                                                <label htmlFor="email" className="block text-xs font-medium text-gray-500">
-                                                    First Name
-                                                </label>
-                                                <div className="mt-1">
-                                                    <Input
-                                                        defaultValue={contact.firstName}
-                                                        onChange={(e) => updateFormInput({ ...formInput, firstName: e.target.value })}
-                                                    />
-                                                </div>
-                                            </div>
-                                            <div className="px-4 my-6">
-                                                <label htmlFor="email" className="block text-xs font-medium text-gray-500">
-                                                    Last Name
-                                                </label>
-                                                <div className="mt-1">
-                                                    <Input
-                                                        defaultValue={contact.lastName}
-                                                        onChange={(e) => updateFormInput({ ...formInput, lastName: e.target.value })}
-                                                    />
-                                                </div>
-                                            </div>
-                                            <div className="px-4 my-6">
-                                                <label htmlFor="email" className="block text-xs font-medium text-gray-500">
-                                                    Email
-                                                </label>
-                                                <div className="mt-1">
-                                                    <Input
-                                                        defaultValue={contact.contactEmail}
-                                                        onChange={(e) => updateFormInput({ ...formInput, contactEmail: e.target.value })}
-                                                    />
-                                                </div>
-                                            </div>
-                                            <div className="px-4 my-6">
-                                                <label htmlFor="email" className="block text-xs font-medium text-gray-500">
-                                                    Job Title
-                                                </label>
-                                                <div className="mt-1">
-                                                    <Input
-                                                        defaultValue={contact.jobTitle}
-                                                        onChange={(e) => updateFormInput({ ...formInput, jobTitle: e.target.value })}
-                                                    />
-                                                </div>
-                                            </div>
-                                            <div className="px-4 my-6">
-                                                <label htmlFor="email" className="block text-xs font-medium text-gray-500">
-                                                    Phone Number
-                                                </label>
-                                                <div className="mt-1">
-                                                    <Input
-                                                        defaultValue={contact.phone}
-                                                        onChange={(e) => updateFormInput({ ...formInput, phone: e.target.value })}
-                                                    />
-                                                </div>
-                                            </div>
-                                            <div className="px-4 my-6">
-                                                <label htmlFor="email" className="block text-xs font-medium text-gray-500">
-                                                    Lifecycle Stage
-                                                </label>
-                                                <div className="mt-1">
-                                                    <Select
-                                                        defaultValue={contact.lifecycleStage}
-                                                        onChange={(e) => updateFormInput({ ...formInput, lifecycleStage: e.target.value })}
-                                                    >
-                                                        <option value={contact.lifecycleStage}>✅ {contact.lifecycleStage}</option>
+                                        <form onSubmit={handleSubmit(onSubmit)}>
 
-                                                        {
-                                                            lifecycleStages.map((stage, index) => (
-                                                                <option key={index} value={stage.stage}>{stage.stage}</option>
-                                                            )
+                                            <div className="overflow-scroll h-full pb-20">
+                                                <div className="px-4 my-10">
+                                                    <div className="mt-1">
+                                                        <Controller
+                                                            name="salutation"
+                                                            id="salutation"
+                                                            control={control}
+                                                            render={({ field }) => (
+                                                                <Select
+                                                                    label="Salutation"
+                                                                    {...field}
+                                                                >
+                                                                    <option value="Mr.">Mr.</option>
+                                                                    <option value="Mrs.">Mrs.</option>
+                                                                    <option value="Ms.">Ms.</option>
+
+                                                                </Select>
                                                             )}
-                                                    </Select>
+                                                        />
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div className="px-4 my-6">
-                                                <label htmlFor="email" className="block text-xs font-medium text-gray-500">
-                                                    Lead Status
-                                                </label>
-                                                <div className="mt-1">
-                                                    <Select
-                                                        defaultValue={contact.leadStatus}
-                                                        onChange={(e) => updateFormInput({ ...formInput, leadStatus: e.target.value })}
-                                                    >
-                                                        <option value={contact.leadStatus}>✅ {contact.leadStatus}</option>
+                                                <div className="px-4 my-10">
 
-                                                        {
-                                                            leadStages.map((stage, index) => (
-                                                                <option key={index} value={stage.stage}>{stage.stage}</option>
-                                                            )
+                                                    <div className="mt-1">
+                                                        <Controller
+                                                            name="firstName"
+                                                            id="firstName"
+                                                            control={control}
+                                                            rules={{ required: true }}
+                                                            render={({ field }) => (
+                                                                <Input
+                                                                    label="First Name *"
+                                                                    {...field}
+
+                                                                />
                                                             )}
-                                                    </Select>
-                                                </div>
-                                            </div>
-                                            <div className="px-4 my-6">
-                                                <label htmlFor="email" className="block text-xs font-medium text-gray-500">
-                                                    City
-                                                </label>
-                                                <div className="mt-1">
-                                                    <Input
-                                                        defaultValue={contact.city}
-                                                        onChange={(e) => updateFormInput({ ...formInput, city: e.target.value })}
-                                                    />
-                                                </div>
-                                            </div>
-                                            <div className="px-4 my-6">
-                                                <label htmlFor="email" className="block text-xs font-medium text-gray-500">
-                                                    Street
-                                                </label>
-                                                <div className="mt-1">
-                                                    <Input
-                                                        defaultValue={contact.street}
-                                                        onChange={(e) => updateFormInput({ ...formInput, street: e.target.value })}
-                                                    />
-                                                </div>
-                                            </div>
-                                            <div className="px-4 my-6">
-                                                <label htmlFor="email" className="block text-xs font-medium text-gray-500">
-                                                    Zip
-                                                </label>
-                                                <div className="mt-1">
-                                                    <Input
-                                                        defaultValue={contact.zip}
-                                                        onChange={(e) => updateFormInput({ ...formInput, zip: e.target.value })}
-                                                    />
-                                                </div>
-                                            </div>
-                                            <div className="px-4 my-6">
-                                                <label htmlFor="email" className="block text-xs font-medium text-gray-500">
-                                                    State
-                                                </label>
-                                                <div className="mt-1">
-                                                    <Input
-                                                        defaultValue={contact.state}
-                                                        onChange={(e) => updateFormInput({ ...formInput, state: e.target.value })}
-                                                    />
-                                                </div>
-                                            </div>
-                                            <div className="px-4 my-6">
-                                                <label htmlFor="email" className="block text-xs font-medium text-gray-500">
-                                                    Country
-                                                </label>
-                                                <div className="mt-1">
-                                                    <Select
-                                                        defaultValue={contact.country}
-                                                        onChange={(e) => updateFormInput({ ...formInput, country: e.target.value })}
-                                                    >
-                                                        <option value={contact.country}>{countries.find((c) => c.code === contact.country).name} </option>
+                                                        />
+                                                        <p className="text-red-600 mt-1 text-xs">{errors.firstName?.type === 'required' && <p role="alert">First name is required</p>}</p>
 
-                                                        {
-                                                            countries.map((country, index) => (
-                                                                <option key={index} value={country.code}>{country.name}</option>
-                                                            )
+                                                    </div>
+                                                </div>
+                                                <div className="px-4 my-10">
+                                                    <div className="mt-1">
+                                                        <Controller
+                                                            name="lastName"
+                                                            id="lastName"
+                                                            control={control}
+                                                            rules={{ required: true }}
+                                                            render={({ field }) => (
+                                                                <Input
+                                                                    label="Last Name *"
+                                                                    {...field}
+                                                                />
                                                             )}
-                                                    </Select>
-                                                </div>
-                                            </div>
-                                            <div className="px-4 my-6">
-                                                <label htmlFor="email" className="block text-xs font-medium text-gray-500">
-                                                    Website
-                                                </label>
-                                                <div className="mt-1">
-                                                    <Input
-                                                        defaultValue={contact.website}
-                                                        onChange={(e) => updateFormInput({ ...formInput, website: e.target.value })}
-                                                    />
-                                                </div>
-                                            </div>
-                                            <div className="px-4 my-6">
-                                                <label htmlFor="email" className="block text-xs font-medium text-gray-500">
-                                                    Persona
-                                                </label>
-                                                <div className="mt-1">
-                                                    <Input
-                                                        defaultValue={contact.persona}
-                                                        onChange={(e) => updateFormInput({ ...formInput, persona: e.target.value })}
-                                                    />
-                                                </div>
-                                            </div>
-                                            <div className="px-4 my-6">
-                                                <label htmlFor="email" className="block text-xs font-medium text-gray-500">
-                                                    Twitter Username
-                                                </label>
-                                                <div className="mt-1">
-                                                    <Input
-                                                        defaultValue={contact.twitter_handle}
-                                                        onChange={(e) => updateFormInput({ ...formInput, twitter_handle: e.target.value })}
-                                                    />
-                                                </div>
-                                            </div>
-                                            <div className="px-4 my-6">
-                                                <label htmlFor="email" className="block text-xs font-medium text-gray-500">
-                                                    Preferred Language
-                                                </label>
-                                                <div className="mt-1">
-                                                    <Select
-                                                        defaultValue={contact.country}
-                                                        onChange={(e) => updateFormInput({ ...formInput, preferred_language: e.target.value })}
-                                                    >
-                                                        <option value={contact.country}>{countries.find((c) => c.language.code === contact.preferred_language).language.name} </option>
+                                                        />
+                                                        <p className="text-red-600 mt-1 text-xs">{errors.lastName?.type === 'required' && <p role="alert">Last name is required</p>}</p>
 
-                                                        {
-                                                            countries.map((country, index) => (
-                                                                <option key={index} value={country.language.code}>{country.language.name}</option>
-                                                            )
+                                                    </div>
+                                                </div>
+                                                <div className="px-4 my-10">
+
+                                                    <div className="mt-1">
+                                                        <Controller
+                                                            name="contactEmail"
+                                                            id="contactEmail"
+                                                            rules={{ required: true }}
+                                                            control={control}
+                                                            render={({ field }) => (
+                                                                <Input
+                                                                    label="Email *"
+                                                                    autoComplete="email"
+                                                                    type="email"
+                                                                    pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"                                                        {...field}
+                                                                />
                                                             )}
-                                                    </Select>
+                                                        />
+                                                        <p className="text-red-600 mt-1 text-xs">{errors.contactEmail?.type === 'required' && <p role="alert">Email is required</p>}</p>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div className="px-4 my-6">
-                                                <label htmlFor="email" className="block text-xs font-medium text-gray-500">
-                                                    Company
-                                                </label>
-                                                <div className="mt-1">
-                                                    <Select
-                                                        defaultValue={contact.leadStatus}
-                                                        onChange={(e) => updateFormInput({ ...formInput, companyId: e.target.value })}
-                                                    >
-                                                        <option value={contact.companyId}>✅ {companies.find((c) => c.id === contact.companyId)?.companyName}</option>
-
-                                                        {
-                                                            companies.map((company, index) => (
-                                                                <option key={index} value={company.id}>{company.companyName}</option>
-                                                            )
+                                                <div className="px-4 my-10">
+                                                    <div className="mt-1">
+                                                        <Controller
+                                                            name="jobTitle"
+                                                            id="jobTitle"
+                                                            control={control}
+                                                            render={({ field }) => (
+                                                                <Input
+                                                                    label="Job Title"
+                                                                    {...field}
+                                                                />
                                                             )}
-                                                    </Select>
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <div className="px-4 my-10">
+                                                    <div className="mt-1">
+                                                        <Controller
+                                                            name="phone"
+                                                            id="phone"
+                                                            control={control}
+                                                            render={({ field }) => (
+                                                                <Input
+                                                                    label="Phone"
+                                                                    {...field}
+                                                                />
+                                                            )}
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <div className="px-4 my-10">
+                                                    <div className="mt-1">
+                                                        <Controller
+                                                            name="lifecycleStage"
+                                                            id="lifecycleStage"
+                                                            rules={{ required: true }}
+                                                            control={control}
+                                                            render={({ field }) => (
+                                                                <Select
+                                                                    label="Lifecycle Stage"
+                                                                    {...field}
+                                                                >
+                                                                    {lifecycleStages.map((stage, index) => (
+                                                                        <option key={index} value={stage.id}>{stage.stage}</option>
+                                                                    )
+                                                                    )}
+                                                                </Select>
+                                                            )}
+                                                        />
+                                                        <p className="text-red-600 mt-1 text-xs">{errors.firstName?.type === 'required' && <p role="alert">Lifecycle Stage is required</p>}</p>
+
+                                                    </div>
+                                                </div>
+                                                <div className="px-4 my-10">
+                                                    <div className="mt-1">
+                                                        <Controller
+                                                            name="leadStatus"
+                                                            id="leadStatus"
+                                                            rules={{ required: true }}
+                                                            control={control}
+                                                            render={({ field }) => (
+                                                                <Select
+                                                                    label="Lead Status"
+                                                                    {...field}
+                                                                >
+                                                                    {leadStages.map((stage, index) => (
+                                                                        <option key={index} value={stage.id}>{stage.stage}</option>
+                                                                    )
+                                                                    )}
+                                                                </Select>
+                                                            )}
+                                                        />
+                                                        <p className="text-red-600 mt-1 text-xs">{errors.firstName?.type === 'required' && <p role="alert">Lifecycle Stage is required</p>}</p>
+
+                                                    </div>
+                                                </div>
+                                                <div className="px-4 my-10">
+                                                    <div className="mt-1">
+                                                        <Controller
+                                                            name="city"
+                                                            id="city"
+                                                            control={control}
+                                                            render={({ field }) => (
+                                                                <Input
+                                                                    label="City"
+                                                                    {...field}
+                                                                />
+                                                            )}
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <div className="px-4 my-10">
+                                                    <div className="mt-1">
+                                                        <Controller
+                                                            name="street"
+                                                            id="street"
+                                                            control={control}
+                                                            render={({ field }) => (
+                                                                <Input
+                                                                    label="Street"
+                                                                    {...field}
+                                                                />
+                                                            )}
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <div className="px-4 my-10">
+                                                    <div className="mt-1">
+                                                        <Controller
+                                                            name="zip"
+                                                            id="zip"
+                                                            control={control}
+                                                            render={({ field }) => (
+                                                                <Input
+                                                                    label="Zip"
+                                                                    {...field}
+                                                                />
+                                                            )}
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <div className="px-4 my-10">
+                                                    <div className="mt-1">
+                                                        <Controller
+                                                            name="state"
+                                                            id="state"
+                                                            control={control}
+                                                            render={({ field }) => (
+                                                                <Input
+                                                                    label="State"
+                                                                    {...field}
+                                                                />
+                                                            )}
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <div className="px-4 my-10">
+                                                    <div className="mt-1">
+                                                        <Controller
+                                                            name="country"
+                                                            id="country"
+                                                            control={control}
+                                                            render={({ field }) => (
+                                                                <Select
+                                                                    {...field}
+                                                                    label="Country"
+                                                                >
+                                                                    {
+                                                                        countries.map((country, index) => (
+                                                                            <option key={index} value={country.code}>{country.name}</option>
+                                                                        )
+                                                                        )}
+                                                                </Select>
+                                                            )}
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <div className="px-4 my-10">
+                                                    <div className="mt-1">
+                                                        <Controller
+                                                            name="website"
+                                                            id="website"
+                                                            control={control}
+                                                            render={({ field }) => (
+                                                                <Input
+                                                                    label="Website"
+                                                                    {...field}
+                                                                />
+                                                            )}
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <div className="px-4 my-10">
+                                                    <div className="mt-1">
+                                                        <Controller
+                                                            name="persona"
+                                                            id="persona"
+                                                            control={control}
+                                                            render={({ field }) => (
+                                                                <Input
+                                                                    label="Persona"
+                                                                    {...field}
+                                                                />
+                                                            )}
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <div className="px-4 my-10">
+                                                    <div className="mt-1">
+                                                        <Controller
+                                                            name="twitter_handle"
+                                                            id="twitter_handle"
+                                                            control={control}
+                                                            render={({ field }) => (
+                                                                <Input
+                                                                    label="Twitter"
+                                                                    {...field}
+                                                                />
+                                                            )}
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <div className="px-4 my-10">
+                                                    <div className="mt-1">
+                                                        <Controller
+                                                            name="preferred_language"
+                                                            id="preferred_language"
+                                                            control={control}
+                                                            render={({ field }) => (
+                                                                <Select
+                                                                    {...field}
+                                                                    label="Language"
+                                                                >
+
+                                                                    {
+                                                                        countries.map((country, index) => (
+                                                                            <option key={index} value={country.code}>{country.language.name}</option>
+                                                                        )
+                                                                        )}
+                                                                </Select>
+                                                            )}
+                                                        />
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                        <div className="flex flex-shrink-0 justify-end px-4 py-4 w-full border-t absolute bottom-0 bg-white">
+                                            <div className="flex flex-shrink-0 justify-end px-4 py-4 w-full border-t absolute bottom-0 bg-white">
 
-                                            <Button
-                                                type="submit"
-                                                className="ml-4 inline-flex text-white justify-center rounded-md border border-transparent bg-red-600 py-2 px-4 text-xs font-medium text-white5shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-                                                onClick={() => updateContact()}
-                                            >
-                                                Save
-                                            </Button>
-                                        </div>
+                                                <button
+                                                    type="submit"
+                                                    className="ml-4 inline-flex justify-center  rounded-md border border-transparent bg-red-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                                                // onClick={() => createContact()}
+                                                >
+                                                    Save
+                                                </button>
+                                            </div>
+                                        </form>
                                     </SlideOver>
-
                                 </div>
                             </div>
                         </div>

@@ -1,7 +1,7 @@
 /* eslint-disable react/display-name */
 import React, { forwardRef } from "react";
 
-const Input = forwardRef(({ className, type, blur, label, ...rest }, ref) => {
+const Textarea = forwardRef(({ className, type, rows, placeholder, label, ...rest }, ref) => {
 
     return (
         <>
@@ -9,8 +9,10 @@ const Input = forwardRef(({ className, type, blur, label, ...rest }, ref) => {
                 {label}
             </label>
             <div className="mt-1">
-                <input
+                <textarea
                     type={type}
+                    rows={`${rows}`}
+                    placeholder={placeholder}
                     defaultValue={rest.defaultValue}
                     className={`p-2 border-gray-300  border w-full rounded-sm h-12 focus:border-red-600 focus:outline-none focus:ring-red-600 text-sm`}
                     {...rest}
@@ -20,4 +22,4 @@ const Input = forwardRef(({ className, type, blur, label, ...rest }, ref) => {
     );
 });
 
-export default Input;
+export default Textarea;

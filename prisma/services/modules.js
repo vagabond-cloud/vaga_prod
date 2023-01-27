@@ -43,24 +43,25 @@ export const createContact = async (contactOwnerId, email, data, workspaceId, mo
             firstName: data.firstName,
             lastName: data.lastName,
             contactEmail: data.contactEmail,
-            jobTitle: data.jobTitle,
-            phone: data.phone,
-            lifecycleStage: data.lifecycleStage,
-            leadStatus: data.leadStatus,
-            marketing: data.marketing,
-            city: data.city,
-            state: data.state,
-            country: data.country,
-            street: data.street,
-            zip: data.zip,
-            website: data.website,
-            persona: data.persona,
-            timeZone: data.timeZone,
-            twitter_handle: data.twitter_handle,
-            preferred_language: data.preferred_language,
-            companyId: data.companyId,
-            photoUrl: data.photoUrl,
-            bannerUrl: data.bannerUrl,
+            jobTitle: data.jobTitle || null,
+            phone: data.phone || null,
+            lifecycleStage: data.lifecycleStage || null,
+            leadStatus: data.leadStatus || null,
+            marketing: data.marketing || null,
+            city: data.city || null,
+            state: data.state || null,
+            country: data.country || null,
+            street: data.street || null,
+            zip: data.zip || null,
+            website: data.website || null,
+            persona: data.persona || null,
+            timeZone: data.timeZone || null,
+            twitter_handle: data.twitter_handle || null,
+            preferred_language: data.preferred_language || null,
+            companyId: data.companyId || null,
+            photoUrl: data.photoUrl || null,
+            bannerUrl: data.bannerUrl || null,
+            salutation: data.salutation || null,
             workspaceId,
             moduleid
         },
@@ -69,39 +70,44 @@ export const createContact = async (contactOwnerId, email, data, workspaceId, mo
 }
 
 export const updateContact = async (id, contactOwnerId, email, data, workspaceId, moduleid) => {
+
     const contact = await prisma.contact.findUnique({
         where: {
             id
         },
     });
+    console.log(contact)
+
+
     const contacts = await prisma.contact.update({
         where: { id },
         data: {
-            contactOwnerId: !contactOwnerId ? contact.contactOwnerId : contactOwnerId,
-            email: !email ? contact.email : email,
-            firstName: !data.firstName ? contact.firstName : data.firstName,
-            lastName: !data.lastName ? contact.lastName : data.lastName,
-            contactEmail: !data.contactEmail ? contact.contactEmail : data.contactEmail,
-            jobTitle: !data.jobTitle ? contact.jobTitle : data.jobTitle,
-            phone: !data.phone ? contact.phone : data.phone,
-            lifecycleStage: !data.lifecycleStage ? contact.lifecycleStage : data.lifecycleStage,
-            leadStatus: !data.leadStatus ? contact.leadStatus : data.leadStatus,
-            marketing: !data.marketing ? contact.marketing : data.marketing,
-            city: !data.city ? contact.city : data.city,
-            state: !data.state ? contact.state : data.state,
-            country: !data.country ? contact.country : data.country,
-            street: !data.street ? contact.street : data.street,
-            zip: !data.zip ? contact.zip : data.zip,
-            website: !data.website ? contact.website : data.website,
-            persona: !data.persona ? contact.persona : data.persona,
-            timeZone: !data.timeZone ? contact.timeZone : data.timeZone,
-            twitter_handle: !data.twitter_handle ? contact.twitter_handle : data.twitter_handle,
-            preferred_language: !data.preferred_language ? contact.preferred_language : data.preferred_language,
-            workspaceId: !data.workspaceId ? contact.workspaceId : data.workspaceId,
-            moduleid: !data.moduleid ? contact.moduleid : data.moduleid,
-            companyId: !data.companyId ? contact.companyId : data.companyId,
-            photoUrl: !data.photoUrl ? contact.photoUrl : data.photoUrl,
-            bannerUrl: !data.bannerUrl ? contact.bannerUrl : data.bannerUrl,
+            contactOwnerId: data.contactOwnerId || undefined,
+            email: data.email || undefined,
+            firstName: data.firstName || undefined,
+            lastName: data.lastName || undefined,
+            contactEmail: data.contactEmail || undefined,
+            jobTitle: data.jobTitle || undefined,
+            phone: data.phone || undefined,
+            lifecycleStage: data.lifecycleStage || undefined,
+            leadStatus: data.leadStatus || undefined,
+            marketing: data.marketing || undefined,
+            city: data.city || undefined,
+            state: data.state || undefined,
+            country: data.country || undefined,
+            street: data.street || undefined,
+            zip: data.zip || undefined,
+            website: data.website || undefined,
+            persona: data.persona || undefined,
+            timeZone: data.timeZone || undefined,
+            twitter_handle: data.twitter_handle || undefined,
+            preferred_language: data.preferred_language || undefined,
+            workspaceId: data.workspaceId || undefined,
+            moduleid: data.moduleid || undefined,
+            companyId: data.companyId || undefined,
+            photoUrl: data.photoUrl || undefined,
+            bannerUrl: data.bannerUrl || undefined,
+            salutation: data.salutation || undefined,
         },
     });
     return contacts
@@ -332,31 +338,54 @@ export const updateCompany = async (id, companyOwnerId, email, data, workspaceId
             id
         },
     });
+    console.log(data)
     const companies = await prisma.company.update({
         where: { id },
         data: {
-            companyOwnerId: !companyOwnerId ? company.companyOwnerId : companyOwnerId,
-            email: !email ? company.email : email,
-            companyDomain: !data.companyDomain ? company.companyDomain : data.companyDomain,
-            companyName: !data.companyName ? company.companyName : data.companyName,
-            industry: !data.industry ? company.industry : data.industry,
-            type: !data.type ? company.type : data.type,
-            phone: !data.phone ? company.phone : data.phone,
-            street: !data.street ? company.street : data.street,
-            city: !data.city ? company.city : data.city,
-            state: !data.state ? company.state : data.state,
-            zip: !data.zip ? company.zip : data.zip,
-            country: !data.country ? company.country : data.country,
-            employees: !data.employees ? company.employees : data.employees,
-            revenue: !data.revenue ? company.revenue : data.revenue,
-            timeZone: !data.timeZone ? company.timeZone : data.timeZone,
-            description: !data.description ? company.description : data.description,
-            linkedin: !data.linkedin ? company.linkedin : data.linkedin,
-            website: !data.website ? company.website : data.website,
-            workspaceId: !workspaceId ? company.workspaceId : workspaceId,
-            moduleid: !moduleid ? company.moduleid : moduleid,
-            logoUrl: !data.logoUrl ? company.logoUrl : data.logoUrl,
-            bannerUrl: !data.bannerUrl ? company.bannerUrl : data.bannerUrl,
+            companyOwnerId: companyOwnerId,
+            email: email,
+            companyDomain: data.companyDomain || undefined,
+            companyName: data.companyName || undefined,
+            industry: data.industry || undefined,
+            type: data.type || undefined,
+            phone: data.phone || undefined,
+            street: data.street || undefined,
+            city: data.city || undefined,
+            state: data.state || undefined,
+            zip: data.zip || undefined,
+            country: data.country || undefined,
+            employees: data.employees || undefined,
+            revenue: data.revenue || undefined,
+            timeZone: data.timeZone || undefined,
+            description: data.description || undefined,
+            linkedin: data.linkedin || undefined,
+            website: data.website || undefined,
+            workspaceId: workspaceId,
+            moduleid: moduleid,
+            logoUrl: data.logoUrl || undefined,
+            bannerUrl: data.bannerUrl || undefined,
+        },
+    });
+    return companies
+}
+
+export const updateLogo = async (id, logoUrl) => {
+
+    const companies = await prisma.company.update({
+        where: { id },
+        data: {
+            logoUrl: logoUrl || undefined,
+        },
+    });
+    return companies
+}
+
+export const updateBanner = async (id, bannerUrl) => {
+
+    const companies = await prisma.company.update({
+        where: { id },
+        data: {
+            bannerUrl: bannerUrl || undefined,
         },
     });
     return companies

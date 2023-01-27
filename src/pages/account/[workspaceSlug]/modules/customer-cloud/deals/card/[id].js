@@ -107,7 +107,6 @@ function Deal({ deal, team }) {
             />
             <Content.Divider />
             <Content.Container>
-                <Button className="bg-red-600 text-white" onClick={() => assignDeal("63ba6db2da8e22e4b5d74635")}>Assign</Button>
                 <nav aria-label="Progress">
                     <ol role="list" className="divide-y divide-gray-300 rounded-md border border-gray-300 md:flex md:divide-y-0">
                         {dealStage.slice(parseFloat(deal.dealStage) - 2, parseFloat(deal.dealStage) + 4).map((step, stepIdx) => (
@@ -225,20 +224,21 @@ function Deal({ deal, team }) {
                         </dl>
                     </div>
                 </div>
-                <div className="py-4 items-center flex gap-4">
-                    <p className="w-20 text-sm">Assign to:</p>
-                    <Select
-                        className="w-40"
-                        onChange={(e) => updateAssign(e.target.value)}
-                    >
-                        {team.map((member, index) => (
-                            <option key={index} value={member.user.id} selected={deal.aassignedTo === member.user.id ? member.user.id : false}>
-                                {member.user.name}
-                            </option>
-                        ))}
+                <div className="grid grid-cols-3 gap-4">
+                    <div className="py-4 items-center flex gap-4 col-span-2">
+                        <p className="w-20 text-xs">Assign to:</p>
+                        <Select
+                            onChange={(e) => updateAssign(e.target.value)}
+                        >
+                            {team.map((member, index) => (
+                                <option key={index} value={member.user.id} selected={deal.aassignedTo === member.user.id ? member.user.id : false}>
+                                    {member.user.name}
+                                </option>
+                            ))}
 
-                    </Select>
-                    <Button className="w-20 bg-red-600 text-white" onClick={() => assignDeal()}>Assign</Button>
+                        </Select>
+                        <Button className="w-20 bg-red-600 text-white" onClick={() => assignDeal()}>Assign</Button>
+                    </div>
                 </div>
                 <div>
                     <div className="grid grid-cols-2 gap-4 border p-4">

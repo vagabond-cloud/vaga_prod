@@ -21,11 +21,11 @@ const Header = () => {
 
   const logOut = () => {
     const result = confirm('Are you sure you want to logout?');
-
     if (result) {
       signOut({ callbackUrl: '/' });
     }
   };
+
   const toggleTheme = (event) => {
     event.preventDefault();
     setTheme(theme === 'dark' ? 'light' : 'dark');

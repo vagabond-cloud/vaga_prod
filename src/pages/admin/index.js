@@ -10,7 +10,7 @@ import { useRouter } from 'next/router';
 function Admin({ session }) {
     const router = useRouter()
     const { workspaceSlug, id } = router.query
-    console.log(session)
+
     return (
         <AdminLayout>
             <Content.Container>

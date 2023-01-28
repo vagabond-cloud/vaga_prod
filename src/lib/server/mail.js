@@ -19,8 +19,6 @@ export const sendMail = async ({ from, html, subject, text, to }) => {
     text,
     html,
   };
-
-  console.log(sendMail)
   await transporter.sendMail(data)
 
 };

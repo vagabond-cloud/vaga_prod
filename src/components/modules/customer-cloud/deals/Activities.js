@@ -5,7 +5,7 @@ import { useRouter } from 'next/router'
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid'
 
 function Activites({ activities }) {
-    activities = JSON.parse(activities)
+
 
     const router = useRouter();
     const { workspaceSlug, id } = router.query;
@@ -23,10 +23,9 @@ function Activites({ activities }) {
         })
         setActivitiy(res.log)
     }
-
     const handlePageIndex = (number) => {
-        if (number < 0) return;
-        if (number > activities?.allActivities?.length / 10) return;
+        if (number < 1) return;
+        if (number > activities?.allActivities?.length / 10 - 1) return;
         setPageIndex(number)
     }
 
@@ -60,6 +59,7 @@ function Activites({ activities }) {
             ))}
             <div className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
                 <div>
+
                     <p className="text-sm text-gray-700">
                         Showing <span className="font-medium">{pageIndex === 0 ? 1 : pageIndex * 10 + 1}</span> to <span className="font-medium">{pageIndex === 0 ? 10 : pageIndex * 10 + 10 > activities?.allActivities?.length ? activities?.allActivities?.length : pageIndex * 10 + 10} {' '}of {' '}</span>
                         <span className="font-medium">{activities?.allActivities?.length}</span> results

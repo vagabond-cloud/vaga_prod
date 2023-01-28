@@ -58,7 +58,7 @@ function Company({ modules, companies, workspace }) {
     const onSubmit = data => createCompany(data);
 
     const createCompany = async (formInput) => {
-        console.log(formInput)
+
         const res = await api(`/api/modules/company`, {
             method: 'PUT',
             body: {
@@ -80,8 +80,6 @@ function Company({ modules, companies, workspace }) {
     const writeLog = async () => {
         const res = await log('Company created', `Company with the name ${defaultValues.companyName} created for Module: ${id} `, 'company_created', '127.0.0.1');
     }
-
-    console.log(errors)
 
     return (
         <AccountLayout>

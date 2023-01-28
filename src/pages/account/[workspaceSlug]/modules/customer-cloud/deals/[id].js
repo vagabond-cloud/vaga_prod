@@ -6,6 +6,8 @@ import SlideOver from '@/components/SlideOver';
 import { dealStage, types } from '@/config/modules/crm';
 import { AccountLayout } from '@/layouts/index';
 import { log } from '@/lib/client/log';
+import { contactActivity } from '@/lib/client/log';
+
 import api from '@/lib/common/api';
 import { getCompanies, getDealByStage, getDealContacts, getModule } from '@/prisma/services/modules';
 import { getWorkspace, isWorkspaceOwner } from '@/prisma/services/workspace';
@@ -14,9 +16,11 @@ import moment from 'moment';
 import { getSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid'
+import { useForm, Controller } from "react-hook-form";
+import Button from '@/components/Button';
 
 function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
@@ -30,7 +34,11 @@ function Contacts({ modules, companies, workspace, deals, contacts, filters, tot
     deals = JSON.parse(deals)
     contacts = JSON.parse(contacts)
 
-    const [formInput, updateFormInput] = useState({
+    const router = useRouter(false);
+    const { workspaceSlug, id, page } = router.query;
+
+
+    const defaultValues = {
         dealName: '',
         pipeline: '',
         dealStage: '',
@@ -42,16 +50,17 @@ function Contacts({ modules, companies, workspace, deals, contacts, filters, tot
         linkContactId: '',
         linkCompanyId: '',
         linkProjectId: '',
-    })
+    }
 
-    const router = useRouter(false);
-    const { workspaceSlug, id, page } = router.query;
+
+    const { handleSubmit, control, setValue, formState: { errors } } = useForm({ defaultValues });
+    const onSubmit = data => createDeal(data);
 
     //This function creates a deal using the API. 
     //It uses the PUT method to send formInput, workspaceId, and moduleId to the API. 
     //If the status is 200, it will display a success message and write a log. 
     //If there is an error, it will display an error message.
-    const createDeal = async () => {
+    const createDeal = async (formInput) => {
         try {
             const { status } = await api(`/api/modules/deal`, {
                 method: 'PUT',
@@ -72,7 +81,7 @@ function Contacts({ modules, companies, workspace, deals, contacts, filters, tot
     };
 
     const writeLog = async () => {
-        const res = await log('Deal created', `Deal with the name ${formInput.dealName} created for Module: ${id} `, 'deal_created', '127.0.0.1');
+        const res = await log('Deal created', `Deal with the name ${defaultValues.dealName} created for Module: ${id} `, 'deal_created', '127.0.0.1');
     }
 
     //This is a function that handles changes to the filter. 
@@ -120,179 +129,240 @@ function Contacts({ modules, companies, workspace, deals, contacts, filters, tot
                             subTitle="Add a new deal to your account"
                             buttonTitle="Add Deal"
                         >
-                            <div className="overflow-scroll h-full pb-20">
-                                <div className="px-4 my-10">
-                                    <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                                        Deal Name
-                                    </label>
-                                    <div className="mt-1">
-                                        <Input
-                                            onChange={(e) => updateFormInput({ ...formInput, dealName: e.target.value })}
+                            <form onSubmit={handleSubmit(onSubmit)}>
+                                <div className="overflow-scroll h-full pb-20">
+                                    <div className="px-4 my-10">
+                                        <Controller
+                                            name="dealName"
+                                            id="dealName"
+                                            control={control}
+                                            rules={{ required: true }}
+                                            render={({ field }) => (
+                                                <Input
+                                                    {...field}
+                                                    label="Deal Name"
+                                                />
+                                            )}
+                                        />
+                                        <div className="text-red-600 mt-1 text-xs">{errors.dealName?.type === 'required' && <p role="alert">Deal name is required</p>}</div>
+                                    </div>
+                                    <div className="px-4 my-10">
+                                        <Controller
+                                            name="pipeline"
+                                            id="pipeline"
+                                            control={control}
+                                            rules={{ required: true }}
+                                            render={({ field }) => (
+                                                <Input
+                                                    {...field}
+                                                    label="Pipeline"
+                                                />
+                                            )}
+                                        />
+                                        <div className="text-red-600 mt-1 text-xs">{errors.pipeline?.type === 'required' && <p role="alert">Pipeline is required</p>}</div>
+                                    </div>
+                                    <div className="px-4 my-10">
+                                        <Controller
+                                            name="dealStage"
+                                            id="dealStage"
+                                            control={control}
+                                            rules={{ required: true }}
+                                            render={({ field }) => (
+                                                <Select
+                                                    {...field}
+                                                    label="Deal Stage"
+                                                >
+                                                    {
+                                                        dealStage.map((stage, index) => (
+                                                            <option key={index} value={stage.id}>{stage.name}</option>
+                                                        )
+                                                        )}
+                                                </Select>
+                                            )}
+                                        />
+                                        <div className="text-red-600 mt-1 text-xs">{errors.dealStage?.type === 'required' && <p role="alert">Deal stage is required</p>}</div>
+                                    </div>
+                                    <div className="px-4 my-10">
+                                        <Controller
+                                            name="amount"
+                                            id="amount"
+                                            control={control}
+                                            rules={{ required: true }}
+                                            render={({ field }) => (
+                                                <Input
+                                                    {...field}
+                                                    label="Amount"
+                                                />
+                                            )}
+                                        />
+                                        <div className="text-red-600 mt-1 text-xs">{errors.amount?.type === 'required' && <p role="alert">Amount is required</p>}</div>
+                                    </div>
+                                    <div className="px-4 my-10">
+                                        <Controller
+                                            name="closeDate"
+                                            id="closeDate"
+                                            control={control}
+                                            rules={{ required: true }}
+                                            render={({ field }) => (
+                                                <Input
+                                                    {...field}
+                                                    type="date"
+                                                    label="Close Date"
+                                                />
+                                            )}
+                                        />
+                                        <div className="text-red-600 mt-1 text-xs">{errors.closeDate?.type === 'required' && <p role="alert">Close date is required</p>}</div>
+                                    </div>
+                                    <div className="px-4 my-10">
+                                        <Controller
+                                            name="dealType"
+                                            id="dealType"
+                                            control={control}
+                                            rules={{ required: true }}
+                                            render={({ field }) => (
+                                                <Select
+                                                    {...field}
+                                                    label="Deal Type"
+                                                >
+                                                    <option value="">Choose Type</option>
+                                                    <option value="New Business">New Business</option>
+                                                    <option value="Existing Business">Existing Business</option>
+
+                                                </Select>
+                                            )}
+                                        />
+                                        <div className="text-red-600 mt-1 text-xs">{errors.contact?.type === 'required' && <p role="alert">Contact is required</p>}</div>
+                                    </div>
+                                    <div className="px-4 my-10">
+                                        <Controller
+                                            name="priority"
+                                            id="priority"
+                                            control={control}
+                                            render={({ field }) => (
+                                                <Select
+                                                    {...field}
+                                                    label="Priority"
+                                                >
+                                                    <option value="">Choose Priority</option>
+                                                    <option value="low">Low</option>
+                                                    <option value="medium">Medium</option>
+                                                    <option value="high">Heigh</option>
+                                                </Select>
+                                            )}
                                         />
                                     </div>
-                                </div>
-                                <div className="px-4 my-10">
-                                    <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                                        Pipeline
-                                    </label>
-                                    <div className="mt-1">
-                                        <Input
-                                            onChange={(e) => updateFormInput({ ...formInput, pipeline: e.target.value })}
+                                    <div className="px-4 my-10">
+                                        <Controller
+                                            name="contactId"
+                                            id="contactId"
+                                            control={control}
+                                            render={({ field }) => (
+                                                <Select
+                                                    {...field}
+                                                    label="Associate with"
+                                                >
+                                                    <option value="">Choose Contact</option>
+                                                    {
+                                                        contacts.map((stage, index) => (
+                                                            <option key={index} value={stage.id}>{stage.firstName + ' ' + stage.lastName}</option>
+                                                        )
+                                                        )}
+                                                </Select>
+                                            )}
                                         />
                                     </div>
-                                </div>
-                                <div className="px-4 my-10">
-                                    <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                                        Deal Stage
-                                    </label>
-                                    <div className="mt-1">
-                                        <Select
-                                            onChange={(e) => updateFormInput({ ...formInput, dealStage: e.target.value })}
-                                        >
-                                            {
-                                                dealStage.map((stage, index) => (
-                                                    <option key={index} value={stage.id}>{stage.name}</option>
-                                                )
-                                                )}
-                                        </Select>
-                                    </div>
-                                </div>
-                                <div className="px-4 my-10">
-                                    <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                                        Amount
-                                    </label>
-                                    <div className="mt-1">
-                                        <Input
-                                            onChange={(e) => updateFormInput({ ...formInput, amount: e.target.value })}
+                                    <div className="px-4 my-10">
+                                        <Controller
+
+                                            name="companyId"
+                                            id="companyId"
+                                            control={control}
+                                            render={({ field }) => (
+                                                <Select
+                                                    {...field}
+                                                    label="Company"
+                                                >
+                                                    <option value="">Choose Company</option>
+                                                    {
+                                                        companies.map((stage, index) => (
+                                                            <option key={index} value={stage.id}>{stage.companyName}</option>
+                                                        )
+                                                        )}
+                                                </Select>
+                                            )}
                                         />
                                     </div>
-                                </div>
-                                <div className="px-4 my-10">
-                                    <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                                        Close Date
-                                    </label>
-                                    <div className="mt-1">
-                                        <Input
-                                            type="date"
-                                            onChange={(e) => updateFormInput({ ...formInput, closeDate: new Date(e.target.value) })}
+                                    <div className="px-4 my-10">
+                                        <Controller
+                                            name="projectId"
+                                            id="projectId"
+                                            control={control}
+                                            render={({ field }) => (
+                                                <Select
+                                                    {...field}
+                                                    label="Project"
+                                                >
+                                                    <option value="">Choose Project</option>
+                                                    {
+                                                        types.map((stage, index) => (
+                                                            <option key={index} value={stage.id}>{stage.name}</option>
+                                                        )
+                                                        )}
+                                                </Select>
+                                            )}
                                         />
                                     </div>
+
+
+                                    {/*
+                                   
+                                    
+                                   
+                                    <div className="px-4 my-6">
+                                        <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                                            Project
+                                        </label>
+                                        <div className="mt-1">
+                                            <Select
+                                                onChange={(e) => updateFormInput({ ...formInput, projectId: e.target.value })}
+                                            >
+                                                <option value="" className="text-gray-400">Choose a Project</option>
+
+                                                {
+                                                    types.map((stage, index) => (
+                                                        <option key={index} value={stage.id}>{stage.name}</option>
+                                                    )
+                                                    )}
+                                            </Select>
+                                        </div>
+                                    </div> */}
+                                </div>
+                                <div className="flex flex-shrink-0 justify-end px-4 py-4 w-full border-t absolute bottom-0 bg-white">
+                                    <Button
+                                        type="submit"
+                                        className="ml-4 inline-flex justify-center  rounded-md border border-transparent bg-red-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                                    >
+                                        Save
+                                    </Button>
                                 </div>
 
-                                <div className="px-4 my-10">
-                                    <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                                        Deal Type
-                                    </label>
-                                    <div className="mt-1">
-                                        <Select
-                                            onChange={(e) => updateFormInput({ ...formInput, dealType: e.target.value })}
-                                        >
-                                            <option value="">Choose Type</option>
-                                            <option value="New Business">New Business</option>
-                                            <option value="Existing Business">Existing Business</option>
-
-                                        </Select>
-                                    </div>
-                                </div>
-                                <div className="px-4 my-10">
-                                    <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                                        Priority
-                                    </label>
-                                    <div className="mt-1">
-                                        <Select
-                                            onChange={(e) => updateFormInput({ ...formInput, priority: e.target.value })}
-                                        >
-                                            <option value="">Choose Priority</option>
-                                            <option value="low">Low</option>
-                                            <option value="medium">Medium</option>
-                                            <option value="high">Heigh</option>
-                                        </Select>
-                                    </div>
-                                </div>
-                                <div className="px-6 my-4 border-t">
-                                    <p className="text-lg text-gray-500 pt-6">Associate with</p>
-                                </div>
-                                <div className="px-4 my-6">
-                                    <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                                        Contact
-                                    </label>
-                                    <div className="mt-1">
-                                        <Select
-                                            onChange={(e) => updateFormInput({ ...formInput, contactId: e.target.value })}
-                                        >
-                                            <option value="" className="text-gray-400">Choose a Contact</option>
-
-                                            {
-                                                contacts.map((stage, index) => (
-                                                    <option key={index} value={stage.id}>{stage.firstName + ' ' + stage.lastName}</option>
-                                                )
-                                                )}
-                                        </Select>
-                                    </div>
-                                </div>
-                                <div className="px-4 my-6">
-                                    <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                                        Company
-                                    </label>
-                                    <div className="mt-1">
-                                        <Select
-                                            onChange={(e) => updateFormInput({ ...formInput, companyId: e.target.value })}
-                                        >
-                                            <option value="" className="text-gray-400">Choose a Company</option>
-
-                                            {
-                                                companies.map((stage, index) => (
-                                                    <option key={index} value={stage.id}>{stage.companyName}</option>
-                                                )
-                                                )}
-                                        </Select>
-                                    </div>
-                                </div>
-                                <div className="px-4 my-6">
-                                    <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                                        Project
-                                    </label>
-                                    <div className="mt-1">
-                                        <Select
-                                            onChange={(e) => updateFormInput({ ...formInput, projectId: e.target.value })}
-                                        >
-                                            <option value="" className="text-gray-400">Choose a Project</option>
-
-                                            {
-                                                types.map((stage, index) => (
-                                                    <option key={index} value={stage.id}>{stage.name}</option>
-                                                )
-                                                )}
-                                        </Select>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="flex flex-shrink-0 justify-end px-4 py-4 w-full border-t absolute bottom-0 bg-white">
-
-                                <button
-                                    type="submit"
-                                    className="ml-4 inline-flex justify-center  rounded-md border border-transparent bg-red-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-                                    onClick={() => createDeal()}
-                                >
-                                    Save
-                                </button>
-                            </div>
+                            </form>
                         </SlideOver>
                     </div>
-                    <p className="text-sm w-20 mt-8 text-gray-500">Filter by</p>
+                    <div className="flex mt-2">
+                        <div className="grid grid-cols-1 gap-4 mt-2">
+                            <Select
+                                onChange={(e) => handleFilterChange(e)}
+                                className="w-60"
+                            >
+                                <option value="All">All Stages</option>
+                                {
+                                    dealStage.map((stage, index) => (
+                                        <option key={index} value={stage.id}>{stage.name}</option>
 
-                    <div className="grid grid-cols-4 gap-4 mt-2">
-                        <Select
-                            onChange={(e) => handleFilterChange(e)}
-
-                        >
-                            <option value="All">All Stages</option>
-                            {
-                                dealStage.map((stage, index) => (
-                                    <option key={index} value={stage.id}>{stage.name}</option>
-
-                                ))}
-                        </Select>
+                                    ))}
+                            </Select>
+                        </div>
                     </div>
                     <div className="mt-8 flex flex-col">
                         <div className="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
@@ -315,7 +385,7 @@ function Contacts({ modules, companies, workspace, deals, contacts, filters, tot
                                                     Close Date
                                                 </th>
                                                 <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                                                    Deal Owner
+                                                    Creator
                                                 </th>
                                                 <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                                                     Ass. Contact
@@ -337,21 +407,26 @@ function Contacts({ modules, companies, workspace, deals, contacts, filters, tot
                                                     <td className="whitespace-nowrap px-3 py-4 text-xs text-gray-500">{dealStage.find((d) => d.id === deal.dealStage)?.name}</td>
                                                     <td className="whitespace-nowrap px-3 py-4 text-xs text-gray-500">{parseFloat(deal.amount).toLocaleString()}</td>
                                                     <td className="whitespace-nowrap px-3 py-4 text-xs text-gray-500">{moment(deal.closeDate).format("DD MMM. YYYY")}</td>
-                                                    <td className="whitespace-nowrap px-3 py-4 text-xs text-gray-500">{deal.dealOwnerId}</td>
+                                                    <td className="whitespace-nowrap px-3 py-4 text-xs text-gray-500">{deal.user.name}</td>
                                                     <td className="whitespace-nowrap px-3 py-4 text-xs text-gray-500">
                                                         <Link href={`/account/${workspaceSlug}/modules/customer-cloud/contacts/card/${deal.contactId}`}>
-                                                            <div className="flex gap-2 items-center">
-                                                                <img src={contacts.find((com) => com.id === deal.contactId)?.photoUrl ? contacts.find((com) => com.id === deal.contactId)?.photoUrl : ""} className="h-6 w-6 rounded-full" />
-                                                                {contacts.find((com) => com.id === deal.contactId)?.firstName + ' ' + contacts.find((com) => com.id === deal.contactId)?.lastName}
-                                                            </div>
+                                                            {deal.linkContactId &&
+
+                                                                <div className="flex gap-2 items-center">
+                                                                    <img src={contacts.find((com) => com.id === deal.contactId)?.photoUrl ? contacts.find((com) => com.id === deal.contactId)?.photoUrl : ""} className="h-6 w-6 rounded-full" />
+                                                                    {contacts.find((com) => com.id === deal.contactId)?.firstName + ' ' + contacts.find((com) => com.id === deal.contactId)?.lastName}
+                                                                </div>
+                                                            }
                                                         </Link>
                                                     </td>
                                                     <td className="whitespace-nowrap px-3 py-4 text-xs text-gray-500 ">
                                                         <Link href={`/account/${workspaceSlug}/modules/customer-cloud/companies/card/${deal.companyId}`}>
-                                                            <div className="flex gap-2 items-center">
-                                                                <img src={companies.find((com) => com.id === deal.companyId)?.logoUrl ? companies.find((com) => com.id === deal.companyId)?.logoUrl : ""} className="h-6 w-6 rounded-full" />
-                                                                {companies.find((com) => com.id === deal.companyId)?.companyName}
-                                                            </div>
+                                                            {deal.linkCompanyId &&
+                                                                <div className="flex gap-2 items-center">
+                                                                    <img src={companies.find((com) => com.id === deal.companyId)?.logoUrl ? companies.find((com) => com.id === deal.companyId)?.logoUrl : ""} className="h-6 w-6 rounded-full" />
+                                                                    {companies.find((com) => com.id === deal.companyId)?.companyName}
+                                                                </div>
+                                                            }
                                                         </Link>
                                                     </td>
                                                     <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-xs font-medium sm:pr-6">
@@ -419,6 +494,9 @@ function Contacts({ modules, companies, workspace, deals, contacts, filters, tot
 }
 
 export default Contacts
+
+
+
 
 // This is an exported async function that takes in a single argument, context, which is an object containing information about the current request.
 export async function getServerSideProps(context) {

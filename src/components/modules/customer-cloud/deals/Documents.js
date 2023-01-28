@@ -11,7 +11,7 @@ import { uploadToGCS } from '@/lib/client/upload';
 import { contactActivity } from '@/lib/client/log';
 import toast from 'react-hot-toast';
 
-function Documents({ company, documents }) {
+function Documents({ company, documents, deal }) {
 
     documents = JSON.parse(documents ? documents : '[]')
     const router = useRouter()
@@ -35,10 +35,10 @@ function Documents({ company, documents }) {
         const res = await api(`/api/modules/document`, {
             method: 'PUT',
             body: {
-                id: company.id,
+                id: id,
                 formInput,
-                workspaceId: company.workspaceId,
-                moduleid: company.moduleid,
+                workspaceId: deal.workspaceId,
+                moduleid: deal.moduleid,
 
             }
         })

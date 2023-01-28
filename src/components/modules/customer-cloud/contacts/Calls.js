@@ -36,8 +36,6 @@ function Notes({ profile, calls }) {
     const { handleSubmit, control, formState: { errors } } = useForm({ defaultValues });
     const onSubmit = data => addCall(data);
 
-    console.log(defaultValues)
-
     const addCall = async (formInput) => {
 
         const res = await api(`/api/modules/call`, {

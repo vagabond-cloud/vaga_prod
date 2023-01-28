@@ -4,14 +4,30 @@ import Meta from '@/components/Meta/index';
 import { AccountLayout } from '@/layouts/index';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { getSession } from 'next-auth/react';
+import { getWorkspace, isWorkspaceOwner } from '@/prisma/services/workspace';
+import { getCompanies, getDeals, getDealContacts, getModule, getCRMSettings } from '@/prisma/services/modules';
+import { calculateTotal } from '@/lib/server/modules/custom-cloud/calculate';
 
 function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
 }
 
-function CustomerCloud() {
+function CustomerCloud({ deals, total, contacts, settings }) {
+    deals = JSON.parse(deals)
+    contacts = JSON.parse(contacts)
+    settings = JSON.parse(settings)
+
     const router = useRouter();
     const { workspaceSlug, id } = router.query;
+
+    console.log(settings)
+
+    const stats = [
+        { name: 'Total Sales', stat: total.toLocaleString() + ' ' + settings[0].currency },
+        { name: 'Total Deals', stat: deals.length },
+        { name: 'Total Clients', stat: contacts.length },
+    ]
 
     return (
         <AccountLayout>
@@ -22,6 +38,18 @@ function CustomerCloud() {
             />
             <Content.Divider />
             <Content.Container>
+
+                <div>
+                    <dl className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-3">
+                        {stats.map((item) => (
+                            <div key={item.name} className="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
+                                <dt className="truncate text-sm font-medium text-gray-500">{item.name}</dt>
+                                <dd className="mt-1 text-3xl font-semibold tracking-tight text-gray-900">{item.stat}</dd>
+                            </div>
+                        ))}
+                    </dl>
+                </div>
+
                 <div className="">
                     <p className="text-lg text-gray-800 mt-2">Overview</p>
                     <p className="text-sm text-gray-400 ">Module and Smart Contract information</p>
@@ -160,3 +188,70 @@ function CustomerCloud() {
 }
 
 export default CustomerCloud
+
+// This is an exported async function that takes in a single argument, context, which is an object containing information about the current request.
+export async function getServerSideProps(context) {
+
+    //This destructures the query property of the context object to extract the page and filter variables. 
+    //These variables are used to determine the current page number and the filter criteria for the data being retrieved.
+    const { page, filter } = context.query;
+
+    //This retrieves the current session using the getSession function and assigns it to the session variable.
+    const session = await getSession(context);
+
+    //These two variables are initialized as false and null respectively. 
+    //They are used to store whether the current user is a team owner and the current workspace.
+    let isTeamOwner = false;
+    let workspace = null;
+
+    //This retrieves the module data using the getModule function and assigns it to the modules variable. 
+    //It takes the id from the params property of the context object.
+    const modules = await getModule(context.params.id);
+
+    //This retrieves the companies data using the getCompanies function and assigns it to the companies variable. 
+    //It takes the id from the modules variable.
+    const companies = await getCompanies(modules.id)
+
+    //This retrieves the deals data using the getDealByStage function and assigns it to the deals variable. 
+    //It takes the current page number (or 1 if no page number is provided), the number of deals per page, the sorting criteria, the filter criteria and the id of the modules.
+    const deals = await getDeals(modules.id)
+
+    //This retrieves the contacts data using the getDealContacts function and assigns it to the contacts variable. 
+    //It takes the id of the modules.
+
+    const contacts = await getDealContacts(modules.id)
+
+    //If a session exists, it retrieves the workspace data using the getWorkspace function and assigns it to the workspace variable. 
+    //Then it checks if the current user is the owner of the workspace using the isWorkspaceOwner function and assigns it to the isTeamOwner variable.
+
+    if (session) {
+        workspace = await getWorkspace(
+            session.user.userId,
+            session.user.email,
+            context.params.workspaceSlug
+        );
+
+        if (workspace) {
+            isTeamOwner = isWorkspaceOwner(session.user.email, workspace);
+        }
+    }
+    const settings = await getCRMSettings(modules.id)
+
+    const total = await calculateTotal(deals)
+    //This returns an object that contains the props that will be passed to the component. 
+    //These props include isTeamOwner, workspace, modules, companies, deals, total and contacts. 
+    //These variables are all stringified before being returned.
+
+    return {
+        props: {
+            isTeamOwner,
+            workspace: JSON.stringify(workspace),
+            modules: JSON.stringify(modules),
+            companies: JSON.stringify(companies),
+            deals: JSON.stringify(deals),
+            contacts: JSON.stringify(contacts),
+            total,
+            settings: JSON.stringify(settings)
+        }
+    }
+}

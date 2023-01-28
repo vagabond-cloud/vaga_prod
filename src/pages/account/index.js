@@ -12,7 +12,7 @@ import api from '@/lib/common/api';
 import { useWorkspace } from '@/providers/workspace';
 
 const Welcome = ({ ip, location }) => {
-  console.log(location?.query)
+
   const router = useRouter();
   const { data: invitationsData, isLoading: isFetchingInvitations } =
     useInvitations();

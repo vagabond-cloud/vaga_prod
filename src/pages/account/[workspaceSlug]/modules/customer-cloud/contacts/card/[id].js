@@ -20,15 +20,17 @@ import { PencilIcon } from '@heroicons/react/24/outline';
 import moment from 'moment';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useRef, useState } from 'react';
+import { useRef, useState, useMemo } from 'react';
 import toast from 'react-hot-toast';
 import { useForm, Controller } from "react-hook-form";
+import { GoogleMap, MarkerF, useJsApiLoader } from '@react-google-maps/api';
+import { mapStyles, containerStyle } from '@/config/common/mapStyles';
 
 function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
 }
 
-function Contacts({ contact, notes, calls, tasks, activities, companies }) {
+function Contacts({ contact, notes, calls, tasks, activities, companies, lat, lng }) {
     contact = JSON.parse(contact)
     companies = JSON.parse(companies)
 
@@ -166,6 +168,7 @@ function Contacts({ contact, notes, calls, tasks, activities, companies }) {
             setBanner(false)
         }
     }
+
 
     return (
         <AccountLayout>
@@ -605,7 +608,7 @@ function Contacts({ contact, notes, calls, tasks, activities, companies }) {
                     <Overview profile={profile} />
                 }
                 {!tab &&
-                    <Overview profile={profile} />
+                    <Overview profile={profile} lat={lat} lng={lng} />
                 }
                 {tab === 'notes' &&
                     <Notes profile={profile} notes={notes} />
@@ -629,7 +632,22 @@ function Contacts({ contact, notes, calls, tasks, activities, companies }) {
 
 export default Contacts
 
-const Overview = ({ profile }) => {
+const Overview = ({ profile, lat, lng }) => {
+    const libraries = useMemo(() => ['places'], []);
+    const mapCenter = { lat, lng }
+
+    const onLoad = marker => {
+        console.log('marker')
+    }
+    console.log(process.env.GOOGLE_MAPS_API)
+    const { isLoaded } = useJsApiLoader({
+        id: 'google-map-script',
+        googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API
+    })
+    if (!isLoaded) {
+        return <p>Loading...</p>;
+    }
+
 
     return (
         <div className="mx-auto mt-6 w-full px-4 sm:px-6 lg:px-14">
@@ -640,8 +658,20 @@ const Overview = ({ profile }) => {
                         <dd className={`${field === "Lead" && "inline-flex items-center rounded-md bg-gray-100 px-2.5 py-1 text-sm text-gray-800"} ${field === "Stage" && "inline-flex items-center rounded-md bg-gray-100 px-2.5 py-1 text-sm text-gray-800"} mt-2 text-sm`}>{profile.fields[field]}</dd>
                     </div>
                 ))}
-
             </dl>
+            <div className="mt-20 w-full shadow">
+                {isLoaded &&
+                    <GoogleMap
+                        mapContainerStyle={containerStyle}
+                        center={mapCenter}
+                        zoom={5}
+                        options={{ styles: mapStyles }}
+                    >
+                        <MarkerF onLoad={onLoad} position={mapCenter} ></MarkerF>
+                        <></>
+                    </GoogleMap>
+                }
+            </div>
         </div>
     )
 }
@@ -658,7 +688,12 @@ export async function getServerSideProps(context) {
     const tasks = await getTask(context.params.id)
     const activities = await getActivity(context.params.id)
     const companies = await getCompanies()
+    const address = countries.find((c) => c.code === contact.country).name + ' ' + contact.city + ' ' + contact.street
+    const map = await api(`https://maps.googleapis.com/maps/api/geocode/json?address=${address}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API}`, {
+        method: 'GET',
+    })
 
+    const { lat, lng } = map.results[0].geometry.location
     return {
         props: {
             contact: JSON.stringify(contact),
@@ -666,7 +701,9 @@ export async function getServerSideProps(context) {
             calls: JSON.stringify(calls),
             tasks: JSON.stringify(tasks),
             activities: JSON.stringify(activities),
-            companies: JSON.stringify(companies)
+            companies: JSON.stringify(companies),
+            lat,
+            lng
         }
     }
 }

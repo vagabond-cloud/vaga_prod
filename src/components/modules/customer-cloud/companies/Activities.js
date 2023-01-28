@@ -22,17 +22,13 @@ function Activites({ activities }) {
             method: 'GET'
         })
         setActivitiy(res.log)
-        console.log(res)
     }
-    console.log(activities)
     const handlePageIndex = (number) => {
-        console.log(number)
         if (number < 1) return;
         if (number > activities?.allActivities?.length / 10 - 1) return;
         setPageIndex(number)
     }
 
-    console.log(pageIndex)
     return (
         <div className="w-full px-4 mt-10">
 

@@ -548,7 +548,6 @@ export async function getServerSideProps(context) {
             isTeamOwner = isWorkspaceOwner(session.user.email, workspace);
         }
     }
-    console.log(contacts.total)
     return {
         props: {
             isTeamOwner,

@@ -34,8 +34,6 @@ const Settings = ({ user }) => {
 
   const router = useRouter();
 
-  console.log(user)
-
   const copyToClipboard = () => toast.success('Copied to clipboard!');
   const hideContent = () => setHide(!hide);
   const changeName = (event) => {
@@ -384,7 +382,7 @@ const Settings = ({ user }) => {
 export const getServerSideProps = async (context) => {
   const session = await getSession(context);
   const { email, name, userCode, apikey, secret, company } = await getUser(session.user?.userId);
-  console.log(name)
+
   return {
     props: {
       user: {

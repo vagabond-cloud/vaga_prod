@@ -22,10 +22,10 @@
 </linearGradient>
 <path id="Path" style="opacity:0.2;fill:url(#Path_00000094577835738856846000000018368930974800697218_);enable-background:new    ;" d="
 	M212.4,236.9l-112.3-64.8v58.5l112.3,64.8V236.9z"/>
-<path id="Path-2" class="st1" d="M122.9,204.9c0,4.8-2.8,7.1-6.4,5c-3.5-2-6.4-7.6-6.4-12.4s2.8-7.1,6.4-5
+<path id="Path-2" className="st1" d="M122.9,204.9c0,4.8-2.8,7.1-6.4,5c-3.5-2-6.4-7.6-6.4-12.4s2.8-7.1,6.4-5
 	C120.1,194.5,122.9,200,122.9,204.9z"/>
-<path id="Path-3" class="st2" d="M128.8,201l41,23.6v9.1l-41-23.5V201z"/>
-<path id="Path-4" class="st2" d="M128.9,220.6l72,41.5v9.1l-72-41.5V220.6z"/>
+<path id="Path-3" className="st2" d="M128.8,201l41,23.6v9.1l-41-23.5V201z"/>
+<path id="Path-4" className="st2" d="M128.9,220.6l72,41.5v9.1l-72-41.5V220.6z"/>
 <linearGradient id="Path-5_00000062873495954873897090000008539231850509255053_" gradientUnits="userSpaceOnUse" x1="-658.0187" y1="840.9392" x2="-658.6973" y2="840.5094" gradientTransform="matrix(187.2 0 0 -511.3 123617.8984 430065.5938)">
 	<stop  offset="0" style="stop-color:#FFFFFF"/>
 	<stop  offset="1" style="stop-color:#FFFFFF;stop-opacity:0"/>
@@ -38,9 +38,9 @@
 </linearGradient>
 <path id="Path-6" style="opacity:0.3;fill:url(#Path-6_00000013895865477408775030000014841840446126852523_);enable-background:new    ;" d="
 	M271.6,72.5l125.9,72.7v271.2l-125.9-72.6V72.5z"/>
-<path id="Path-7" class="st2" d="M283.7,223.6L384.9,282v9.1l-101.2-58.4V223.6z"/>
-<path id="Path-8" class="st2" d="M290.8,245.8l87,50.2v9.1l-87-50.2V245.8z"/>
-<path id="Path-9" class="st5" d="M238.7,281.5v-30.3l74.3,42.9v30.3L238.7,281.5z"/>
+<path id="Path-7" className="st2" d="M283.7,223.6L384.9,282v9.1l-101.2-58.4V223.6z"/>
+<path id="Path-8" className="st2" d="M290.8,245.8l87,50.2v9.1l-87-50.2V245.8z"/>
+<path id="Path-9" className="st5" d="M238.7,281.5v-30.3l74.3,42.9v30.3L238.7,281.5z"/>
 <linearGradient id="Path-10_00000011751496874179926030000004957630198725333122_" gradientUnits="userSpaceOnUse" x1="-659.281" y1="841.2166" x2="-658.4315" y2="841.0787" gradientTransform="matrix(99.2154 0 0 -234.0256 65892.6172 197199.8125)">
 	<stop  offset="0" style="stop-color:#FFFFFF"/>
 	<stop  offset="1" style="stop-color:#FFFFFF;stop-opacity:0"/>
@@ -49,17 +49,17 @@
 	M498,275c-5.8-9.2-13.8-10.4-14.1-10.5c-0.8-0.1-1.3,0.6-1.3,1.7v24.3c0,8.3-2.8,13.6-8.4,15.9c-0.6,0.3-1,0.9-0.9,1.6
 	c0,11.7,0.2,61.9,0.3,77.6c0.1,2.8,1.6,5.4,4,7c12,6.9,46.3,26.8,46.3,26.8c9.1,5.3,15,2,16-8.9l0.1-48.2c0-7.3-1.3-14.9-5.3-21.1
 	c-2.3-3.6-5-6.3-7.8-7.9l-23.5-13.5v-22.6C503.5,288.3,501.6,280.9,498,275z"/>
-<path id="Path-11" class="st1" d="M441.9,287.3l26.2,15.1v85.8l-26.2-15.1V287.3z"/>
+<path id="Path-11" className="st1" d="M441.9,287.3l26.2,15.1v85.8l-26.2-15.1V287.3z"/>
 <linearGradient id="Path-12_00000003105677266829704900000007838517606082136753_" gradientUnits="userSpaceOnUse" x1="-657.9039" y1="840.7755" x2="-658.2516" y2="840.5447" gradientTransform="matrix(297.7 0 0 -350.6 196064.2812 294858.0938)">
 	<stop  offset="0" style="stop-color:#FFFFFF"/>
 	<stop  offset="1" style="stop-color:#FFFFFF;stop-opacity:0"/>
 </linearGradient>
 <path id="Path-12" style="opacity:0.3;fill:url(#Path-12_00000003105677266829704900000007838517606082136753_);enable-background:new    ;" d="
 	M249.9,124L49.8,8.4l0.1,104.3l182.5,105.3l17.7,26.2L249.9,124z"/>
-<path id="Path-13" class="st2" d="M198.5,119.6l-43.9-25.3v9.1l43.9,25.3V119.6z"/>
-<path id="Path-14" class="st2" d="M198.5,138L89.8,75.3v9.1l108.6,62.7V138z"/>
-<path id="Path-15" class="st2" d="M198.5,156.3l-131-75.7v9.1l131,75.7V156.3z"/>
-<path id="Path-16" class="st5" d="M209.2,135.4c0,8.6,5.1,18.5,11.4,22.1s11.4-0.4,11.4-9s-5.1-18.5-11.4-22.1
+<path id="Path-13" className="st2" d="M198.5,119.6l-43.9-25.3v9.1l43.9,25.3V119.6z"/>
+<path id="Path-14" className="st2" d="M198.5,138L89.8,75.3v9.1l108.6,62.7V138z"/>
+<path id="Path-15" className="st2" d="M198.5,156.3l-131-75.7v9.1l131,75.7V156.3z"/>
+<path id="Path-16" className="st5" d="M209.2,135.4c0,8.6,5.1,18.5,11.4,22.1s11.4-0.4,11.4-9s-5.1-18.5-11.4-22.1
 	S209.2,126.8,209.2,135.4z"/>
 <linearGradient id="Path-17_00000171678521098143263110000001499228560115259828_" gradientUnits="userSpaceOnUse" x1="-658.6097" y1="841.502" x2="-658.5222" y2="840.8597" gradientTransform="matrix(297.7 0 0 -326.9 196490.2031 275452.7188)">
 	<stop  offset="0" style="stop-color:#FFFFFF"/>
@@ -67,10 +67,10 @@
 </linearGradient>
 <path id="Path-17" style="opacity:0.3;fill:url(#Path-17_00000171678521098143263110000001499228560115259828_);enable-background:new    ;" d="
 	M336.2,362.4L536.4,478l0.1,104.3L353.9,476.9l-17.6,5.8L336.2,362.4z"/>
-<path id="Path-18" class="st2" d="M387.7,417.6l43.9,25.3v9.1l-43.9-25.3V417.6z"/>
-<path id="Path-19" class="st2" d="M387.7,435.9l79.2,45.7v9.1L387.7,445V435.9z"/>
-<path id="Path-20" class="st2" d="M387.7,454.2l102.4,59.1v9.1l-102.4-59.1V454.2z"/>
-<path id="Path-21" class="st1" d="M376.9,420.9c0,8.6-5.1,12.6-11.4,9s-11.4-13.5-11.4-22.1s5.1-12.6,11.4-9
+<path id="Path-18" className="st2" d="M387.7,417.6l43.9,25.3v9.1l-43.9-25.3V417.6z"/>
+<path id="Path-19" className="st2" d="M387.7,435.9l79.2,45.7v9.1L387.7,445V435.9z"/>
+<path id="Path-20" className="st2" d="M387.7,454.2l102.4,59.1v9.1l-102.4-59.1V454.2z"/>
+<path id="Path-21" className="st1" d="M376.9,420.9c0,8.6-5.1,12.6-11.4,9s-11.4-13.5-11.4-22.1s5.1-12.6,11.4-9
 	C371.8,402.4,376.8,412.2,376.9,420.9z"/>
 <linearGradient id="Path-22_00000080889305475013842960000014830311205378899636_" gradientUnits="userSpaceOnUse" x1="-657.5659" y1="842.1497" x2="-657.9877" y2="841.9055" gradientTransform="matrix(83.6 0 0 -113.9338 55253.5039 96320.0703)">
 	<stop  offset="0" style="stop-color:#FFFFFF"/>
@@ -86,5 +86,5 @@
 </linearGradient>
 <path id="Path-23" style="opacity:5.000000e-02;fill:url(#Path-23_00000070087485541104948920000013614855369500176035_);enable-background:new    ;" d="
 	M334.3,213.6c-57.7-75.1-15.9-102.2,0-58.2C350.3,130,392,205.8,334.3,213.6z"/>
-<path id="Path-24" class="st11" d="M320.8,227c-57.7-75.1-15.9-102.2,0-58.2C336.8,143.5,378.5,219.3,320.8,227z"/>
+<path id="Path-24" className="st11" d="M320.8,227c-57.7-75.1-15.9-102.2,0-58.2C336.8,143.5,378.5,219.3,320.8,227z"/>
 </svg>

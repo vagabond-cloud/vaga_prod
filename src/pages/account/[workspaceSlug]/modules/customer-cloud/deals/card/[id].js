@@ -4,7 +4,7 @@ import { dealStage } from '@/config/modules/crm';
 import { AccountLayout } from '@/layouts/index';
 import { log } from '@/lib/client/log';
 import api from '@/lib/common/api';
-import { getDeal } from '@/prisma/services/modules';
+import { getDeal, getActivity, getDocuments } from '@/prisma/services/modules';
 import { CheckIcon } from '@heroicons/react/24/solid';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -16,16 +16,24 @@ import { getSession } from 'next-auth/react';
 import { getWorkspace, isWorkspaceOwner } from '@/prisma/services/workspace';
 import { getMembers } from '@/prisma/services/membership';
 import Select from '@/components/Select';
+import Activity from '@/components/modules/customer-cloud/deals/Activities';
+import { contactActivity } from '@/lib/client/log';
+import Tickets from '@/components/modules/customer-cloud/deals/Tickets';
+import Documents from '@/components/modules/customer-cloud/deals/Documents';
+import Quotes from '@/components/modules/customer-cloud/deals/Quotes';
+import Finance from '@/components/modules/customer-cloud/deals/Finance';
+import Reports from '@/components/modules/customer-cloud/deals/Reports';
+
 
 function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
 }
 
-function Deal({ deal, team }) {
+function Deal({ deal, team, activities, documents }) {
     deal = JSON.parse(deal)
     team = JSON.parse(team)
+    activities = JSON.parse(activities)
 
-    console.log(deal)
     const [formInput, updateFormInput] = useState({
         dealName: '',
         pipeline: '',
@@ -40,7 +48,6 @@ function Deal({ deal, team }) {
         linkProjectId: '',
     })
 
-    const [assign, updateAssign] = useState("")
 
     const router = useRouter(false);
     const { workspaceSlug, id, tab } = router.query;
@@ -50,10 +57,11 @@ function Deal({ deal, team }) {
         { name: 'Activity', href: 'activity', current: tab === 'activity' ? true : false },
         { name: 'Tickets', href: 'tickets', current: tab === 'tickets' ? true : false },
         { name: 'Documents', href: 'documents', current: tab === 'documents' ? true : false },
-        { name: 'Quotes', href: 'quotes', current: tab === 'quotes' ? true : false },
+        { name: 'Invoices', href: 'quotes', current: tab === 'quotes' ? true : false },
         { name: 'Finance', href: 'finance', current: tab === 'tasks' ? true : false },
         { name: 'Reports', href: 'reports', current: tab === 'reports' ? true : false },
     ]
+
 
     const updateDeal = async () => {
         const res = await api(`/api/modules/deal`, {
@@ -74,30 +82,6 @@ function Deal({ deal, team }) {
         }
     }
 
-    //assigne deal to user
-    const assignDeal = async (userId) => {
-        console.log(userId)
-        const res = await api(`/api/modules/customer-cloud/deal`, {
-            method: 'POST',
-            body: {
-                dealId: id,
-                userId: assign
-            }
-        })
-        if (res.status === 200) {
-            toast.success('Deal assigned successfully')
-            writeLog()
-            router.replace(router.asPath)
-        } else {
-            toast.error('Error assigning Deal')
-        }
-    }
-
-
-    const writeLog = async () => {
-        const res = await log('Deal created', `Deal with the name ${formInput.dealName} created for Module: ${id} `, 'deal_created', '127.0.0.1');
-    }
-
     return (
         <AccountLayout>
             <Meta title={`Vagabond - Deals | Dashboard`} />
@@ -105,7 +89,6 @@ function Deal({ deal, team }) {
                 title="Deals"
                 subtitle="Overview of your deals"
             />
-            <Content.Divider />
             <Content.Container>
                 <nav aria-label="Progress">
                     <ol role="list" className="divide-y divide-gray-300 rounded-md border border-gray-300 md:flex md:divide-y-0">
@@ -186,132 +169,200 @@ function Deal({ deal, team }) {
                         </div>
                     </div>
                 </div>
-
-                <div className="grid grid-cols-2 gap-4 border p-4">
-                    <div className="mt-8 col-span-1">
-                        <h3 className="text-lg font-medium leading-6 text-gray-900">Deal Details</h3>
-                        <p className="mt-1 max-w-2xl text-sm text-gray-500">Overview of Deal.</p>
-                    </div>
-                    <div className="mt-5 col-span-2 border-t border-gray-200">
-                        <dl className="sm:divide-y sm:divide-gray-200">
-                            <Link href={`/account/${workspaceSlug}/modules/customer-cloud/contacts/card/${deal.contact.id}`}>
-                                <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-3">
-                                    <dt className="text-sm font-medium text-gray-500">Deal name</dt>
-
-                                    <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{deal.dealName}</dd>
-                                </div>
-                            </Link>
-                            <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-3">
-                                <dt className="text-sm font-medium text-gray-500">Deal Type</dt>
-                                <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{deal.dealType}</dd>
-                            </div>
-                            <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-3">
-                                <dt className="text-sm font-medium text-gray-500">Amount</dt>
-                                <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{parseFloat(deal.amount)?.toLocaleString()}</dd>
-                            </div>
-                            <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-3">
-                                <dt className="text-sm font-medium text-gray-500">Close Date</dt>
-                                <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{moment(deal.closeDate).format("DD MMM. YYYY")}</dd>
-                            </div>
-                            <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-3">
-                                <dt className="text-sm font-medium text-gray-500">Priority</dt>
-                                <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{deal.priority.toUpperCase()}</dd>
-                            </div>
-                            <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-3">
-                                <dt className="text-sm font-medium text-gray-500">Updated at</dt>
-                                <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{moment(deal.updatedAat).format("DD MMM. YYYY - hh:mm:ss")}</dd>
-                            </div>
-                        </dl>
-                    </div>
-                </div>
-                <div className="grid grid-cols-3 gap-4">
-                    <div className="py-4 items-center flex gap-4 col-span-2">
-                        <p className="w-20 text-xs">Assign to:</p>
-                        <Select
-                            onChange={(e) => updateAssign(e.target.value)}
-                        >
-                            {team.map((member, index) => (
-                                <option key={index} value={member.user.id} selected={deal.aassignedTo === member.user.id ? member.user.id : false}>
-                                    {member.user.name}
-                                </option>
-                            ))}
-
-                        </Select>
-                        <Button className="w-20 bg-red-600 text-white" onClick={() => assignDeal()}>Assign</Button>
-                    </div>
-                </div>
-                <div>
-                    <div className="grid grid-cols-2 gap-4 border p-4">
-                        <div className="mt-8 col-span-1">
-                            <h3 className="text-lg font-medium leading-6 text-gray-900">Contact Information</h3>
-                            <p className="mt-1 max-w-2xl text-sm text-gray-500">Personal details.</p>
-                        </div>
-                        <div className="mt-8 col-span-1">
-                            <h3 className="text-lg font-medium leading-6 text-gray-900">Company Information</h3>
-                            <p className="mt-1 max-w-2xl text-sm text-gray-500">Personal details.</p>
-                        </div>
-                        <div className="mt-5 border-t border-gray-200">
-                            <dl className="sm:divide-y sm:divide-gray-200">
-                                <Link href={`/account/${workspaceSlug}/modules/customer-cloud/contacts/card/${deal.contact.id}`}>
-                                    <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-3">
-                                        <dt className="text-sm font-medium text-gray-500">Full name</dt>
-
-                                        <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{deal.contact.firstName + ' ' + deal.contact.lastName}</dd>
-                                    </div>
-                                </Link>
-                                <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-3">
-                                    <dt className="text-sm font-medium text-gray-500">Street</dt>
-                                    <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{deal.contact.street}</dd>
-                                </div>
-                                <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-3">
-                                    <dt className="text-sm font-medium text-gray-500">Zip & City</dt>
-                                    <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{deal.contact.zip + ' ' + deal.contact.city}</dd>
-                                </div>
-                                <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-3">
-                                    <dt className="text-sm font-medium text-gray-500">Phone</dt>
-                                    <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{deal.contact.phone}</dd>
-                                </div>
-                                <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-3">
-                                    <dt className="text-sm font-medium text-gray-500">Email</dt>
-                                    <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{deal.contact.email}</dd>
-                                </div>
-
-                            </dl>
-                        </div>
-                        <div className="mt-5 border-t border-gray-200">
-                            <dl className="sm:divide-y sm:divide-gray-200">
-                                <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-3">
-                                    <dt className="text-sm font-medium text-gray-500">Company Name</dt>
-                                    <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{deal.company.companyName}</dd>
-                                </div>
-                                <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-3">
-                                    <dt className="text-sm font-medium text-gray-500">Street</dt>
-                                    <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{deal.company.street}</dd>
-                                </div>
-                                <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-3">
-                                    <dt className="text-sm font-medium text-gray-500">Zip & City</dt>
-                                    <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{deal.company.zip + ' ' + deal.company.city}</dd>
-                                </div>
-                                <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-3">
-                                    <dt className="text-sm font-medium text-gray-500">Phone</dt>
-                                    <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{deal.company.phone}</dd>
-                                </div>
-                                <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-3">
-                                    <dt className="text-sm font-medium text-gray-500">Email</dt>
-                                    <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{deal.company.email}</dd>
-                                </div>
-
-                            </dl>
-
-                        </div>
-                    </div>
-                </div>
+                {tab === undefined &&
+                    <Overview deal={deal} team={team} />
+                }
+                {tab === "activity" &&
+                    <>
+                        <Activity activities={activities} />
+                    </>
+                }
+                {tab === "tickets" &&
+                    <>
+                        <Tickets />
+                    </>
+                }
+                {tab === "documents" &&
+                    <Documents deal={deal} documents={documents} />
+                }
+                {tab === "quotes" &&
+                    <Quotes />
+                }
+                {tab === "finance" &&
+                    <Finance />
+                }
+                {tab === "reports" &&
+                    <Reports />
+                }
+                {tab === "overview" &&
+                    <Overview deal={deal} team={team} />
+                }
             </Content.Container >
         </AccountLayout >
     )
 }
 
 export default Deal
+
+
+const Overview = ({ deal, team }) => {
+    const router = useRouter()
+    const { workspaceSlug, id } = router.query
+    const [assign, updateAssign] = useState("")
+
+    //assigne deal to user
+    const assignDeal = async (userId) => {
+        const res = await api(`/api/modules/customer-cloud/deal`, {
+            method: 'POST',
+            body: {
+                dealId: id,
+                userId: assign
+            }
+        })
+        if (res.status === 200) {
+            toast.success('Deal assigned successfully')
+            await writeLog(`Reassigned to ${team.find((t) => t.user.id === assign)?.email}`, "assigned_to", new Date(), id)
+            router.replace(router.asPath)
+        } else {
+            toast.error('Error assigning Deal')
+        }
+    }
+
+
+    return (
+        <>
+            <div className="grid grid-cols-2 gap-4 border p-4">
+                <div className="mt-8 col-span-1">
+                    <h3 className="text-lg font-medium leading-6 text-gray-900">Deal Details</h3>
+                    <p className="mt-1 max-w-2xl text-sm text-gray-500">Overview of Deal.</p>
+                </div>
+                <div className="mt-5 col-span-2 border-t border-gray-200">
+                    <dl className="sm:divide-y sm:divide-gray-200">
+                        <Link href={`/account/${workspaceSlug}/modules/customer-cloud/contacts/card/${deal?.contact?.id}`}>
+                            <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-3">
+                                <dt className="text-sm font-medium text-gray-500">Deal name</dt>
+                                <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{deal.dealName}</dd>
+                            </div>
+                        </Link>
+                        <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-3">
+                            <dt className="text-sm font-medium text-gray-500">Deal Type</dt>
+                            <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{deal.dealType}</dd>
+                        </div>
+                        <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-3">
+                            <dt className="text-sm font-medium text-gray-500">Amount</dt>
+                            <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{parseFloat(deal.amount)?.toLocaleString()}</dd>
+                        </div>
+                        <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-3">
+                            <dt className="text-sm font-medium text-gray-500">Close Date</dt>
+                            <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{moment(deal.closeDate).format("DD MMM. YYYY")}</dd>
+                        </div>
+                        <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-3">
+                            <dt className="text-sm font-medium text-gray-500">Priority</dt>
+                            <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{deal.priority.toUpperCase()}</dd>
+                        </div>
+                        <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-3">
+                            <dt className="text-sm font-medium text-gray-500">Updated at</dt>
+                            <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{moment(deal.updatedAat).format("DD MMM. YYYY - hh:mm:ss")}</dd>
+                        </div>
+                    </dl>
+                </div>
+            </div>
+            <div className="grid grid-cols-3 gap-4">
+                <div className="py-4 items-center flex gap-4 col-span-2">
+                    <p className="w-20 text-xs">Assign to:</p>
+                    <Select
+                        onChange={(e) => updateAssign(e.target.value)}
+                    >
+                        {team.map((member, index) => (
+                            <option key={index} value={member.user.id} selected={deal.aassignedTo === member.user.id ? member.user.id : false}>
+                                {member.user.name}
+                            </option>
+                        ))}
+
+                    </Select>
+                    <Button className="w-20 bg-red-600 text-white" onClick={() => assignDeal()}>Assign</Button>
+                </div>
+            </div>
+            <div>
+                <div className="grid grid-cols-2 gap-4 border p-4">
+                    {deal?.contact &&
+                        <div className="mt-8 col-span-1">
+                            <h3 className="text-lg font-medium leading-6 text-gray-900">Contact Information</h3>
+                            <p className="mt-1 max-w-2xl text-sm text-gray-500">Personal details.</p>
+                        </div>
+                    }
+                    {deal?.company &&
+                        <div className="mt-8 col-span-1">
+                            <h3 className="text-lg font-medium leading-6 text-gray-900">Company Information</h3>
+                            <p className="mt-1 max-w-2xl text-sm text-gray-500">Personal details.</p>
+                        </div>
+                    }
+                    {deal?.contact &&
+                        <div className="mt-5 border-t border-gray-200">
+                            <dl className="sm:divide-y sm:divide-gray-200">
+                                <Link href={`/account/${workspaceSlug}/modules/customer-cloud/contacts/card/${deal?.contact?.id}`}>
+                                    <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-3">
+                                        <dt className="text-sm font-medium text-gray-500">Full name</dt>
+
+                                        <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{deal?.contact?.firstName + ' ' + deal?.contact?.lastName}</dd>
+                                    </div>
+                                </Link>
+                                <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-3">
+                                    <dt className="text-sm font-medium text-gray-500">Street</dt>
+                                    <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{deal?.contact?.street}</dd>
+                                </div>
+                                <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-3">
+                                    <dt className="text-sm font-medium text-gray-500">Zip & City</dt>
+                                    <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{deal?.contact?.zip + ' ' + deal?.contact?.city}</dd>
+                                </div>
+                                <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-3">
+                                    <dt className="text-sm font-medium text-gray-500">Phone</dt>
+                                    <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{deal?.contact?.phone}</dd>
+                                </div>
+                                <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-3">
+                                    <dt className="text-sm font-medium text-gray-500">Email</dt>
+                                    <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{deal?.contact?.email}</dd>
+                                </div>
+
+                            </dl>
+                        </div>
+                    }
+                    {deal?.company &&
+                        <div className="mt-5 border-t border-gray-200">
+                            <dl className="sm:divide-y sm:divide-gray-200">
+                                <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-3">
+                                    <dt className="text-sm font-medium text-gray-500">Company Name</dt>
+                                    <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{deal?.company?.companyName}</dd>
+                                </div>
+                                <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-3">
+                                    <dt className="text-sm font-medium text-gray-500">Street</dt>
+                                    <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{deal?.company?.street}</dd>
+                                </div>
+                                <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-3">
+                                    <dt className="text-sm font-medium text-gray-500">Zip & City</dt>
+                                    <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{deal?.company?.zip + ' ' + deal?.company?.city}</dd>
+                                </div>
+                                <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-3">
+                                    <dt className="text-sm font-medium text-gray-500">Phone</dt>
+                                    <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{deal?.company?.phone}</dd>
+                                </div>
+                                <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-3">
+                                    <dt className="text-sm font-medium text-gray-500">Email</dt>
+                                    <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{deal?.company?.email}</dd>
+                                </div>
+                            </dl>
+                        </div>
+                    }
+                </div>
+            </div>
+        </>
+    )
+}
+
+
+const writeLog = async (type, action, date, contactId) => {
+    const res = await contactActivity(`${type}`, `${type} at ${date}`, `${action.toLowerCase()}`, '127.0.0.1', contactId);
+}
 
 
 export async function getServerSideProps(context) {
@@ -336,13 +387,18 @@ export async function getServerSideProps(context) {
     }
 
     const team = await getMembers(context.query.workspaceSlug)
+    const activities = await getActivity(context.params.id)
+    const documents = await getDocuments(context.params.id)
 
     const deal = await getDeal(context.params.id);
-    console.log(team)
+
     return {
         props: {
             deal: JSON.stringify(deal),
             team: JSON.stringify(team),
+            activities: JSON.stringify(activities),
+            documents: JSON.stringify(documents),
+
         }
     }
 }

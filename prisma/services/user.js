@@ -161,3 +161,20 @@ export const getActivities = async (page, limit, sort, id) => {
   const total = await prisma.contact.count();
   return { activities, total }
 }
+
+export const getActivity = async (id, page) => {
+
+  const allActivities = await prisma.log.findMany({
+    where: { userId: id },
+  });
+
+  const activities = await prisma.log.findMany({
+    skip: page > 0 ? parseFloat(page) * 10 : 0,
+    take: 10,
+    orderBy: {
+      createdAt: "desc",
+    },
+    where: { userId: id },
+  });
+  return { activities, allActivities }
+}

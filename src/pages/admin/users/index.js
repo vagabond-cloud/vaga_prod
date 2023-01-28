@@ -26,8 +26,6 @@ function Users({ users, total }) {
         router.replace(`/admin/users?prompt=${prompt}`)
     }
 
-    console.log(users)
-
     return (
         <AdminLayout>
             <Content.Container>

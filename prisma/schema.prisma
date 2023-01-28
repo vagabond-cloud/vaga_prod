@@ -79,7 +79,7 @@ model Member {
   member    User?            @relation(fields: [email], references: [email], name: "membership")
   invitedBy User?            @relation(fields: [inviter], references: [email], name: "inviter")
   workspace Workspace        @relation(fields: [workspaceId], references: [id])
-  user      User?             @relation(fields: [email], references: [email], onDelete: Cascade)
+  user      User?            @relation(fields: [email], references: [email], onDelete: Cascade)
 
   @@unique([workspaceId, email])
   @@map("members")
@@ -161,12 +161,13 @@ model Workspace {
   deletedAt     DateTime?
   updatedAt     DateTime? @updatedAt
 
-  creator User      @relation(fields: [creatorId], references: [id], onDelete: Cascade)
-  members Member[]
-  domains Domain[]
-  Module  Module[]
-  Contact Contact[]
-  Company Company[]
+  creator     User          @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  members     Member[]
+  domains     Domain[]
+  Module      Module[]
+  Contact     Contact[]
+  Company     Company[]
+  CRMSettings Crmsettings[]
 
   @@unique([workspaceCode, inviteCode])
   @@map("workspaces")
@@ -200,11 +201,12 @@ model Module {
   currency    String?
   moduleType  String?   @db.ObjectId
 
-  user      User      @relation(fields: [addedById], references: [id], onDelete: Cascade)
-  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  contact   Contact[]
-  Company   Company[]
-  Deal      Deal[]
+  user        User          @relation(fields: [addedById], references: [id], onDelete: Cascade)
+  workspace   Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  contact     Contact[]
+  Company     Company[]
+  Deal        Deal[]
+  Crmsettings Crmsettings[]
 
   @@map("modules")
 }
@@ -427,7 +429,7 @@ model Document {
   Company Company? @relation(fields: [companyId], references: [id])
   contact Contact? @relation(fields: [contactId], references: [id])
 
-  @@fulltext([title])
+  @@fulltext([title, type])
   @@map("documents")
 }
 
@@ -439,7 +441,7 @@ model Deal {
   pipeline    String
   dealStage   String
   amount      String?
-  closeDate   DateTime?
+  closeDate   String?
   dealOwnerId String
   dealType    String?
   priority    String?
@@ -460,6 +462,25 @@ model Deal {
 
   @@fulltext([id, email, dealName, dealStage, dealType, priority])
   @@map("deals")
+}
+
+model Crmsettings {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  companyName String?
+  timezone    String?
+  language    String?
+  currency    String?
+  country     String?
+  workspaceId String    @db.ObjectId
+  moduleid    String    @db.ObjectId
+  createdAt   DateTime? @default(now())
+  updatedAt   DateTime? @updatedAt
+  deletedAt   DateTime?
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  module    Module    @relation(fields: [moduleid], references: [id], onDelete: Cascade)
+
+  @@map("crmSettings")
 }
 
 enum InvitationStatus {

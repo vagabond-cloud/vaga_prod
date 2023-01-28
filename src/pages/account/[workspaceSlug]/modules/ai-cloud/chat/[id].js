@@ -7,7 +7,7 @@ import { getSession } from 'next-auth/react';
 
 
 function AICloud({ session }) {
-    console.log(session)
+
     return (
         <AccountLayout footer={true}>
             <Meta title={`Vagabond - Contacts | Dashboard`} />

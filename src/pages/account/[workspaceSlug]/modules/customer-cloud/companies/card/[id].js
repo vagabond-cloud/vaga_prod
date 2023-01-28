@@ -108,8 +108,6 @@ function Contacts({ company, notes, calls, tasks, activities, documents }) {
     }
 
     const updateCompany = async (formInput) => {
-        console.log(formInput)
-
         const res = await api(`/api/modules/company`, {
             method: 'POST',
             body: {
@@ -603,8 +601,6 @@ const Overview = ({ profile }) => {
         </div>
     )
 }
-
-
 
 const writeLog = async (type, action, date, contactId) => {
     const res = await contactActivity(`${type}`, `${type} at ${date}`, `${action.toLowerCase()}`, '127.0.0.1', contactId);

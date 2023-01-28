@@ -304,7 +304,7 @@ export const deleteTask = async (id) => {
 }
 
 export const getActivity = async (id, page) => {
-    console.log(page)
+
     const allActivities = await prisma.contactActivity.findMany({
         where: { contactId: id },
     });
@@ -358,7 +358,6 @@ export const updateCompany = async (id, companyOwnerId, email, data, workspaceId
             id
         },
     });
-    console.log(data)
     const companies = await prisma.company.update({
         where: { id },
         data: {
@@ -479,6 +478,20 @@ export const getDocuments = async (id) =>
 
     });
 
+// search for documents by title and type
+export const searchDocuments = async (id, title, type) =>
+    await prisma.document.findMany({
+        where: {
+            OR: [
+                { title: { contains: title } },
+                { type: { contains: type } }
+            ],
+            AND: {
+                companyId: id
+            },
+        },
+    });
+
 
 export const createDeal = async (addedById, email, data, workspaceId, moduleid) => {
 
@@ -491,7 +504,7 @@ export const createDeal = async (addedById, email, data, workspaceId, moduleid) 
             dealStage: data.dealStage,
             amount: data.amount,
             closeDate: data.closeDate,
-            dealOwnerId: data.dealOwnerId,
+            dealOwnerId: addedById,
             dealType: data.dealType,
             priority: data.priority,
             contactId: data.contactId,
@@ -519,6 +532,7 @@ export const getDeal = async (id) =>
 
 export const getDeals = async (moduleid) =>
     await prisma.deal.findMany({
+        where: { moduleid },
         include: {
             module: true,
             user: true,
@@ -602,3 +616,36 @@ export const assignDeal = async (id, aassignedTo) => {
     return deal
 }
 
+export const createCRMSettings = async (workspaceId, moduleid, data) => {
+    console.log(workspaceId)
+    const deal = await prisma.crmsettings.createMany({
+        data: {
+            companyName: data.companyName,
+            timeZone: data.timeZone,
+            currency: data.currency,
+            language: data.language,
+            workspaceId,
+            moduleid
+        },
+    });
+    return deal
+}
+
+export const getCRMSettings = async (moduleid) =>
+    await prisma.crmsettings.findMany({
+        where: { moduleid },
+    });
+
+export const updateCRMSettings = async (workspaceId, moduleid, data, id) => {
+    const settings = await prisma.crmsettings.update({
+        where: { id },
+        data: {
+            companyName: data.companyName || undefined,
+            timeZone: data.timeZone || undefined,
+            currency: data.currency || undefined,
+            language: data.language || undefined,
+            country: data.country || undefined,
+        },
+    });
+    return settings
+}

@@ -13,7 +13,6 @@ const firstMessge = initialMessages[0].message
 
 // @TODO: unit test this. good case for unit testing
 const generatePromptFromMessages = (messages) => {
-    console.log('== INITIAL messages ==', messages)
 
     let prompt = ''
 
@@ -22,7 +21,6 @@ const generatePromptFromMessages = (messages) => {
 
     // remove first conversaiton (first 2 messages)
     const messagesWithoutFirstConvo = messages.slice(2)
-    console.log(' == messagesWithoutFirstConvo', messagesWithoutFirstConvo)
 
     // early return if no messages
     if (messagesWithoutFirstConvo.length == 0) {

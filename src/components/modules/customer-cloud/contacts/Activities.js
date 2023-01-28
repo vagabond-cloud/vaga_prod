@@ -32,7 +32,6 @@ function Activites({ activities }) {
         setPageIndex(number)
     }
 
-    console.log(activities?.allActivities?.length)
     return (
         <div className="w-full px-4 mt-10">
 
@@ -64,7 +63,7 @@ function Activites({ activities }) {
             <div className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
                 <div>
                     <p className="text-sm text-gray-700">
-                        Showing <span className="font-medium">{pageIndex === 1 ? 1 : pageIndex * 10}</span> to <span className="font-medium">{pageIndex === 1 ? pageIndex * 10 : pageIndex * 10 + 10} of{' '}</span>
+                        Showing <span className="font-medium">{pageIndex === 0 ? 1 : pageIndex * 10 + 1}</span> to <span className="font-medium">{pageIndex === 0 ? 10 : pageIndex * 10 + 10 > activities?.allActivities?.length ? activities?.allActivities?.length : pageIndex * 10 + 10} {' '}of {' '}</span>
                         <span className="font-medium">{activities?.allActivities?.length}</span> results
                     </p>
                 </div>

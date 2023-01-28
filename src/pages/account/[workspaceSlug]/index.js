@@ -18,12 +18,15 @@ import General from './settings/general';
 import Link from 'next/link'
 import { types } from '@/config/workspace-overview/module-types'
 import { activitydetails } from '@/config/activity'
+import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid'
+import { useState, useEffect } from 'react';
+import api from '@/lib/common/api'
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
-const Workspace = ({ activity, isTeamOwner, modules }) => {
+const Workspace = ({ activity, isTeamOwner, modules, session }) => {
   const router = useRouter();
   const { workspaceSlug, section } = router.query;
   let { workspace } = useWorkspace();
@@ -49,7 +52,7 @@ const Workspace = ({ activity, isTeamOwner, modules }) => {
             <Main workspace={workspace} modules={modules} />
           }
           {section === "activity" &&
-            <Activity activity={activity} />
+            <Activity activity={activity} session={session} />
           }
           {section === "settings" &&
             <Settings workspace={workspace} isTeamOwner={isTeamOwner} />
@@ -74,7 +77,6 @@ const Main = ({ workspace, modules }) => {
   const router = useRouter();
   const { workspaceSlug } = router.query;
 
-
   return (
     <>
       <Card>
@@ -82,7 +84,6 @@ const Main = ({ workspace, modules }) => {
           title="My Workspace"
           subtitle="Building on Vagabond allows you to fully control your Workspace and Apps. To get more full access subscribe a plan."
           className="grid grid-cols-2 gap-4 h-80 bg-white rounded-lg shadow-lg">
-
           <div className="h-10" />
           <div className="px-4 grid grid-cols-2 gap-4 col-span-2">
             <div className="grid grid-cols-4 gap-4 col-span-2">
@@ -117,7 +118,6 @@ const Main = ({ workspace, modules }) => {
       <div className="py-10">
         <Modules modules={modules} />
       </div>
-
       <div className="grid grid-cols-3 gap-4">
         <div className="my-6">
           <p className="text-md mb-4">Create something new</p>
@@ -173,13 +173,37 @@ const Main = ({ workspace, modules }) => {
   )
 }
 
-
-const Activity = ({ activity }) => {
+const Activity = ({ activity, session }) => {
   activity = JSON.parse(activity)
+  const router = useRouter();
+  const { workspaceSlug, id } = router.query;
+
+  const [active, setActivitiy] = useState(activity.activities)
+  const [pageIndex, setPageIndex] = useState(0);
+
+  useEffect(() => {
+    nextPage()
+  }, [pageIndex])
+
+  console.log(pageIndex)
+  const nextPage = async () => {
+    const res = await api(`/api/modules/workspaceActivities?id=${session?.user?.userId}&page=${pageIndex}`, {
+      method: 'GET'
+    })
+    setActivitiy(res.log)
+    console.log(res)
+  }
+
+  const handlePageIndex = (number) => {
+    console.log(number)
+    if (number < 0) return;
+    if (number > active?.allActivities?.length / 10) return;
+    setPageIndex(number)
+  }
 
   return (
     <>
-      {activity.sort((a, b) => { new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime() }).reverse().map((item, index) => (
+      {active?.activities?.map((item, index) => (
         <div key={index} className="pointer-events-auto w-full max-w-7xl overflow-hidden rounded-lg bg-white ring-1 ring-black ring-opacity-5">
           <div className="p-4">
             <div className="flex items-start">
@@ -190,15 +214,13 @@ const Activity = ({ activity }) => {
                 <p className="text-sm font-medium text-gray-900">{item.title}</p>
                 <p className="mt-1 text-sm text-gray-500">{item.description}</p>
                 <p className="mt-1 text-sm text-red-500">{activitydetails.find((a) => a.id === item.action)?.name}</p>
-                <p className="mt-1 text-xs text-gray-500">{item.createdAt}</p>
-
+                <p className="mt-1 text-xs text-gray-500">{moment(item.createdAt).format("DD MMM. YYYY - hh:mm:ss")}</p>
               </div>
               <div className="ml-4 flex flex-shrink-0">
                 <div className="block w-full">
                   <button
                     type="button"
                     className="inline-flex rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-
                   >
                     <span className="sr-only">Close</span>
                     <XMarkIcon className="h-5 w-5" aria-hidden="true" />
@@ -209,6 +231,53 @@ const Activity = ({ activity }) => {
           </div>
         </div>
       ))}
+      <div className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
+        <div>
+          <p className="text-sm text-gray-700">
+            Showing <span className="font-medium">{pageIndex === 0 ? 1 : pageIndex * 10 + 1}</span> to <span className="font-medium">{pageIndex === 0 ? 10 : pageIndex * 10 + 10 > active?.allActivities?.length ? activities?.allActivities?.length : pageIndex * 10 + 10} {' '}of {' '}</span>
+            <span className="font-medium">{activity?.allActivities?.length}</span> results
+          </p>
+        </div>
+        <div className="flex flex-1 justify-between sm:hidden">
+          <a
+            onClick={() => handlePageIndex(pageIndex - 1)}
+            className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          >
+            Previous
+          </a>
+          <a
+            onClick={() => handlePageIndex(pageIndex + 1)}
+            className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          >
+            Next
+          </a>
+        </div>
+        <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+          <div>
+
+          </div>
+          <div>
+            <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+              <a
+                onClick={() => handlePageIndex(pageIndex - 1)}
+                className="relative inline-flex items-center rounded-l-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-20"
+              >
+                <span className="sr-only">Previous</span>
+                <ChevronLeftIcon className="h-5 w-5" aria-hidden="true" />
+              </a>
+              {/* Current: "z-10 bg-indigo-50 border-indigo-500 text-indigo-600", Default: "bg-white border-gray-300 text-gray-500 hover:bg-gray-50" */}
+
+              <a
+                onClick={() => handlePageIndex(pageIndex + 1)}
+                className="relative inline-flex items-center rounded-r-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-20"
+              >
+                <span className="sr-only">Next</span>
+                <ChevronRightIcon className="h-5 w-5" aria-hidden="true" />
+              </a>
+            </nav>
+          </div>
+        </div>
+      </div>
     </>
   )
 }
@@ -223,14 +292,12 @@ const Settings = ({ workspace, isTeamOwner }) => {
   )
 }
 
-
 const Modules = ({ modules }) => {
   const router = useRouter()
   const { workspaceSlug } = router.query
   modules = modules.length > 0 ? JSON.parse(modules) : []
 
   return (
-
     <div>
       <h2 className="text-sm font-medium text-gray-500">Apps</h2>
       <ul role="list" className="mt-3 grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
@@ -285,7 +352,7 @@ export async function getServerSideProps(context) {
       isTeamOwner = isWorkspaceOwner(session.user.email, workspace);
     }
   }
-  const activity = await getActivities(session.user.userId,)
+  const activity = await getActivities(1, 10, { createdAt: "desc" }, session.user.userId,)
   const modules = await getModules(session.user.userId)
 
   return {
@@ -293,6 +360,7 @@ export async function getServerSideProps(context) {
       isTeamOwner,
       activity: JSON.stringify(activity),
       modules: modules.length === 0 ? [] : JSON.stringify(modules),
+      session
     }
   }
 }

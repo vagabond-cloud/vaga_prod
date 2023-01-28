@@ -15,11 +15,6 @@ export const activitydetails = [
         "icon": "␡"
     },
     {
-        "id": "module_deleted",
-        "name": "Module deleted",
-        "icon": "␡"
-    },
-    {
         "id": "contact_created",
         "name": "Contact created",
         "icon": "📇"
@@ -69,5 +64,14 @@ export const activitydetails = [
         "name": "Company Created",
         "icon": "🏢"
     },
-
+    {
+        "id": "deal_created",
+        "name": "Deal created",
+        "icon": "🤝"
+    },
+    {
+        "id": "deal_deleted",
+        "name": "Deal deleted",
+        "icon": "␡"
+    },
 ]

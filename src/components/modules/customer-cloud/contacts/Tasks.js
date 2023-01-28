@@ -10,7 +10,9 @@ import api from '@/lib/common/api'
 import { contactActivity } from '@/lib/client/log';
 import toast from 'react-hot-toast';
 import Select from '@/components/Select';
-import { leadStages, lifecycleStages, outcomes, taskTypes, dueDate } from '@/config/modules/crm';
+import { taskTypes, dueDate } from '@/config/modules/crm';
+import { Controller, useForm } from "react-hook-form";
+import Textarea from '@/components/Textarea';
 
 function Tasks({ profile, tasks }) {
     tasks = JSON.parse(tasks)
@@ -29,20 +31,33 @@ function Tasks({ profile, tasks }) {
     const [showOverlay, setShowOverlay] = useState(false)
     const [modalContent, setModalContent] = useState({})
 
-    const addTask = async () => {
-        if (!title || !note || !type || !priority) return toast.error("Please fill all the fields")
+    const defaultValues = {
+        note: "",
+        title: "",
+        reminder: "",
+        date: "",
+        type: "",
+        priority: "",
+        queue: "",
+        assigned: "",
+    }
+
+    const { handleSubmit, control, formState: { errors } } = useForm({ defaultValues });
+    const onSubmit = data => addTask(data);
+
+    const addTask = async (formInput) => {
         const res = await api(`/api/modules/task`, {
             method: "PUT",
             body: {
                 contactId: id,
-                note,
-                title,
-                reminder,
-                type,
-                priority,
-                queue,
-                assigned,
-                date: new Date(date),
+                note: formInput.note,
+                title: formInput.title,
+                reminder: formInput.reminder,
+                type: formInput.type,
+                priority: formInput.priority,
+                queue: formInput.queue,
+                assigned: formInput.assigned,
+                date: new Date(formInput.date),
             }
         })
         await writeLog("Task Created", "task_created", new Date(), id)
@@ -78,69 +93,131 @@ function Tasks({ profile, tasks }) {
                     title="Add Call"
                     buttonTitle={<PlusIcon className="w-5 h-5 text-white" />}
                 >
-                    <div className="px-4 my-6">
-                        <div className="mb-4">
-                            <Input type="text" placeholder="Enter your task" onChange={(e) => setTitle(e.target.value)} />
-                        </div>
-
-                        <div className="mb-4">
-                            <Select
-                                onChange={(e) => setDate(e.target.value)}
-                            >
-                                <option>Due Date</option>
-
-                                {
-                                    dueDate.map((stage, index) => (
-                                        <option key={index} value={stage.id}>{stage.name}</option>
-                                    )
+                    <form onSubmit={handleSubmit(onSubmit)}>
+                        <div className="px-4 my-6">
+                            <div className="mb-4">
+                                <Controller
+                                    name="title"
+                                    id="title"
+                                    control={control}
+                                    rules={{ required: true }}
+                                    render={({ field }) => (
+                                        <Input
+                                            type="text"
+                                            label="Title"
+                                            placeholder="Enter your task"
+                                            {...field}
+                                        />
                                     )}
-                            </Select>
-                        </div>
-                        <div className="mb-4">
-                            <Select
-                                onChange={(e) => setType(e.target.value)}
-                            >
-                                <option>Type</option>
+                                />
+                                <div className="text-red-600 mt-1 text-xs">{errors.title?.type === 'required' && <p role="alert">Title is required</p>}</div>
+                            </div>
 
-                                {
-                                    taskTypes.map((stage, index) => (
-                                        <option key={index} value={stage.id}>{stage.name}</option>
-                                    )
+                            <div className="mb-4">
+                                <Controller
+                                    name="date"
+                                    id="date"
+                                    control={control}
+                                    rules={{ required: true }}
+                                    render={({ field }) => (
+                                        <Input
+                                            type="date"
+                                            label="Due Date"
+                                            {...field}
+                                        />
                                     )}
-                            </Select>
+                                />
+                                <div className="text-red-600 mt-1 text-xs">{errors.date?.type === 'required' && <p role="alert">Date is required</p>}</div>
+                            </div>
+                            <div className="mb-4">
+                                <Controller
+                                    name="reminder"
+                                    id="reminder"
+                                    control={control}
+                                    rules={{ required: true }}
+                                    render={({ field }) => (
+                                        <Input
+                                            type="date"
+                                            label="Reminder Date"
+                                            placeholder="Enter your task"
+                                            {...field}
+                                        />
+                                    )}
+                                />
+                                <div className="text-red-600 mt-1 text-xs">{errors.reminder?.type === 'required' && <p role="alert">Reminder is required</p>}</div>
+
+                            </div>
+                            <div className="mb-4">
+                                <Controller
+                                    name="type"
+                                    id="type"
+                                    control={control}
+                                    rules={{ required: true }}
+                                    render={({ field }) => (
+                                        <Select
+                                            label="Type"
+                                            {...field}
+                                        >
+                                            {taskTypes.map((item, index) => (
+                                                <option key={index} value={item.id}>{item.name}</option>
+                                            ))}
+
+                                        </Select>
+                                    )}
+                                />
+                                <div className="text-red-600 mt-1 text-xs">{errors.type?.type === 'required' && <p role="alert">Type is required</p>}</div>
+                            </div>
+                            <div className="mb-4">
+                                <Controller
+                                    name="priority"
+                                    id="priority"
+                                    control={control}
+                                    rules={{ required: true }}
+                                    render={({ field }) => (
+                                        <Select
+                                            label="Priority"
+                                            {...field}
+                                        >
+                                            <option>Priority</option>
+                                            <option value="low">Low</option>
+                                            <option value="medium">Medium</option>
+                                            <option value="high">High</option>
+
+                                        </Select>
+                                    )}
+                                />
+                                <div className="text-red-600 mt-1 text-xs">{errors?.priority?.type === 'required' && <p role="alert">Priority is required</p>}</div>
+                            </div>
+                            <div className="mb-4">
+                                <Controller
+
+                                    name="note"
+                                    id="note"
+                                    control={control}
+                                    rules={{ required: true }}
+                                    render={({ field }) => (
+                                        <Textarea
+                                            type="textarea"
+                                            placeholder="Add Note"
+                                            label="Note"
+                                            className="w-full border border-gray-300 rounded-sm shadow-sm focus:ring-red-500 focus:border-red-500 sm:text-sm"
+                                            rows={18}
+                                            {...field}
+                                        />
+                                    )}
+                                />
+                                <div className="text-red-600 mt-1 text-xs">{errors.note?.type === 'required' && <p role="alert">Note is required</p>}</div>
+                            </div>
                         </div>
-                        <div className="mb-4">
-                            <Select
-                                onChange={(e) => setPriority(e.target.value)}
+                        <div className="flex flex-shrink-0 justify-end px-4 py-4 w-full border-t absolute bottom-0 bg-white">
+                            <Button
+                                type="submit"
+                                className="ml-4 inline-flex text-white justify-center rounded-md border border-transparent bg-red-600 py-2 px-4 text-xs font-medium text-white5shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
                             >
-                                <option>Priority</option>
-                                <option value="low">Low</option>
-                                <option value="medium">Medium</option>
-                                <option value="high">High</option>
-
-                            </Select>
+                                Save
+                            </Button>
                         </div>
-                        <textarea
-                            type="textarea"
-                            placeholder="Add Note"
-                            className="w-full border border-gray-300 rounded-sm shadow-sm focus:ring-red-500 focus:border-red-500 sm:text-sm"
-                            rows={18}
-                            onChange={(e) => setNote(e.target.value)}
-                        />
-
-                    </div>
-
-
-                    <div className="flex flex-shrink-0 justify-end px-4 py-4 w-full border-t absolute bottom-0 bg-white">
-
-                        <Button
-                            type="submit"
-                            className="ml-4 inline-flex text-white justify-center rounded-md border border-transparent bg-red-600 py-2 px-4 text-xs font-medium text-white5shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-                            onClick={() => addTask()}
-                        >
-                            Save
-                        </Button>
-                    </div>
+                    </form>
                 </SlideOver>
             </div>
             <div className="w-full px-4 mt-10">
@@ -150,7 +227,7 @@ function Tasks({ profile, tasks }) {
                             <div className="flex items-between">
                                 <div className="ml-3 w-0 flex-1 pt-0.5">
                                     <p className="text-sm font-medium text-gray-900">{item.title}</p>
-                                    <p className="text-xs text-gray-400 truncate pr-8 my-2">{taskTypes.find((t) => t.id === item.type).name}</p>
+                                    <p className="text-xs text-gray-400 truncate pr-8 my-2">{taskTypes.find((t) => t.id === item.type)?.name}</p>
                                     <p className="text-xs text-gray-400 truncate pr-8 my-2">{moment(item.createdAt).format("DD MMM. YYYY - hh:mm:ss")}</p>
 
                                 </div>

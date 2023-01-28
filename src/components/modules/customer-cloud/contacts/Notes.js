@@ -1,16 +1,14 @@
-import { useRouter } from 'next/router'
-import { useState } from 'react'
-import SlideOver from '@/components/SlideOver'
-import { PlusIcon, ChevronRightIcon } from '@heroicons/react/24/solid';
-import Input from '@/components/Input'
-import Button from '@/components/Button'
-import moment from 'moment'
-import Modal from '@/components/Modal'
-import api from '@/lib/common/api'
-import { contactActivity } from '@/lib/client/log';
+import Button from '@/components/Button';
+import Input from '@/components/Input';
+import Modal from '@/components/Modal';
+import SlideOver from '@/components/SlideOver';
+import Textarea from '@/components/Textarea';
+import { ChevronRightIcon, PlusIcon } from '@heroicons/react/24/solid';
+import moment from 'moment';
+import { useRouter } from 'next/router';
+import { useState } from 'react';
+import { Controller, useForm } from "react-hook-form";
 import toast from 'react-hot-toast';
-import { useForm, Controller } from "react-hook-form";
-import Textarea from '@/components/Textarea'
 
 function Notes({ profile, notes }) {
     notes = JSON.parse(notes)
@@ -18,40 +16,25 @@ function Notes({ profile, notes }) {
     const router = useRouter()
     const { id } = router.query
 
-    const [title, setTitle] = useState("")
-    const [note, setNote] = useState("")
     const [showOverlay, setShowOverlay] = useState(false)
     const [modalContent, setModalContent] = useState({})
-
 
     const defaultValues = {
         title: '',
         note: ''
     }
 
-
     const { handleSubmit, control, formState: { errors } } = useForm({ defaultValues });
     const onSubmit = data => addNote(data);
 
 
     const addNote = async (formInput) => {
-        const res = await api(`/api/modules/note`, {
-            method: "PUT",
-            body: {
-                contactId: id,
-                note: formInput.note,
-                title: formInput.title,
-            }
-        })
         await writeLog("Note Created", "note_created", new Date(), id)
         router.replace(router.asPath)
         toast.success("Note added successfully")
     }
 
     const deleteNote = async (cid) => {
-        const res = await api(`/api/modules/note?contactId=${cid}`, {
-            method: "DELETE"
-        })
         setShowOverlay(!showOverlay)
         await writeLog("Note Deleted", "note_deleted", new Date(), id)
 
@@ -64,8 +47,6 @@ function Notes({ profile, notes }) {
         setModalContent(item)
         setShowOverlay(!showOverlay)
     }
-
-
 
     return (
         <div className="px-6">
@@ -201,5 +182,4 @@ export default Notes
 
 
 const writeLog = async (type, action, date, contactId) => {
-    const res = await contactActivity(`${type}`, `${type} at ${date}`, `${action.toLowerCase()}`, '127.0.0.1', contactId);
 }

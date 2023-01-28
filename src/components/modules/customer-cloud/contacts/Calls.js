@@ -1,16 +1,18 @@
-import { useRouter } from 'next/router'
-import { useState } from 'react'
-import SlideOver from '@/components/SlideOver'
-import { PlusIcon, ChevronRightIcon } from '@heroicons/react/24/solid';
-import Input from '@/components/Input'
-import Button from '@/components/Button'
-import moment from 'moment'
-import Modal from '@/components/Modal'
-import api from '@/lib/common/api'
-import { contactActivity } from '@/lib/client/log';
-import toast from 'react-hot-toast';
+import Button from '@/components/Button';
+import Input from '@/components/Input';
+import Modal from '@/components/Modal';
 import Select from '@/components/Select';
-import { leadStages, lifecycleStages, outcomes, taskTypes, dueDate } from '@/config/modules/crm';
+import SlideOver from '@/components/SlideOver';
+import Textarea from '@/components/Textarea';
+import { outcomes } from '@/config/modules/crm';
+import { contactActivity } from '@/lib/client/log';
+import api from '@/lib/common/api';
+import { ChevronRightIcon, PlusIcon } from '@heroicons/react/24/solid';
+import moment from 'moment';
+import { useRouter } from 'next/router';
+import { useState } from 'react';
+import { Controller, useForm } from "react-hook-form";
+import toast from 'react-hot-toast';
 
 function Notes({ profile, calls }) {
     calls = JSON.parse(calls)
@@ -18,25 +20,35 @@ function Notes({ profile, calls }) {
     const router = useRouter()
     const { id } = router.query
 
-    const [note, setNote] = useState("")
-    const [outcome, setOutcome] = useState("")
-    const [direction, setDirection] = useState("")
-    const [date, setDate] = useState("")
-    const [time, setTime] = useState("")
     const [showOverlay, setShowOverlay] = useState(false)
     const [modalContent, setModalContent] = useState({})
 
-    const addCall = async () => {
-        if (!outcome || !note || !direction || !date) return toast.error("Please fill all the fields")
+
+    const defaultValues = {
+        note: '',
+        outcome: '',
+        direction: '',
+        date: '',
+        time: ''
+    }
+
+
+    const { handleSubmit, control, formState: { errors } } = useForm({ defaultValues });
+    const onSubmit = data => addCall(data);
+
+    console.log(defaultValues)
+
+    const addCall = async (formInput) => {
+
         const res = await api(`/api/modules/call`, {
             method: "PUT",
             body: {
                 contactId: id,
-                note,
-                outcome,
-                direction,
-                date: new Date(date),
-                time: new Date(time)
+                note: formInput.note,
+                outcome: formInput.outcome,
+                direction: formInput.direction,
+                date: new Date(formInput.date),
+                time: formInput.time
             }
         })
         await writeLog("Call Created", "call_created", new Date(), id)
@@ -70,63 +82,117 @@ function Notes({ profile, calls }) {
                     title="Add Call"
                     buttonTitle={<PlusIcon className="w-5 h-5 text-white" />}
                 >
-                    <div className="px-4 my-6">
-                        <div className="mb-4 flex gap-4">
-                            <p className="text-sm font-medium text-gray-500">Contacted</p>
-                            <p className="text-sm font-medium text-gray-500"> {profile.fields.Email}</p>
-                        </div>
+                    <form onSubmit={handleSubmit(onSubmit)}>
+                        <div className="px-4 my-6">
+                            <div className="mb-4 flex gap-4">
+                                <p className="text-sm font-medium text-gray-500">Contacted</p>
+                                <p className="text-sm font-medium text-gray-500"> {profile.fields.Email}</p>
+                            </div>
 
-                        <div className="mb-4">
-                            <Select
-
-                                onChange={(e) => setOutcome(e.target.value)}
-                            >
-                                {
-                                    outcomes.map((stage, index) => (
-                                        <option key={index} value={stage.stage}>{stage.stage}</option>
-                                    )
+                            <div className="mb-4">
+                                <Controller
+                                    name="outcome"
+                                    id="outcome"
+                                    control={control}
+                                    rules={{ required: true }}
+                                    render={({ field }) => (
+                                        <Select
+                                            label="Outcome"
+                                            {...field}
+                                        >
+                                            {
+                                                outcomes.map((stage, index) => (
+                                                    <option key={index} value={stage.stage}>{stage.stage}</option>
+                                                )
+                                                )}
+                                        </Select>
                                     )}
-                            </Select>
-                        </div>
-                        <div className="mb-4">
-                            <Select
+                                />
+                                <div className="text-red-600 mt-1 text-xs">{errors.outcome?.type === 'required' && <p role="alert">Outcome is required</p>}</div>
+                            </div>
+                            <div className="mb-4">
+                                <Controller
+                                    name="direction"
+                                    id="direction"
+                                    control={control}
+                                    rules={{ required: true }}
+                                    render={({ field }) => (
+                                        <Select
+                                            label="Direction"
+                                            {...field}
+                                        >
+                                            <option value="inbound">Inbound</option>
+                                            <option value="outbound">Outbound</option>
 
-                                onChange={(e) => setDirection(e.target.value)}
+                                        </Select>
+                                    )}
+                                />
+                                <div className="text-red-600 mt-1 text-xs">{errors.direction?.type === 'required' && <p role="alert">Direction is required</p>}</div>
+                            </div>
+                            <div className="mb-4">
+                                <Controller
+                                    name="date"
+                                    id="date"
+                                    control={control}
+                                    rules={{ required: true }}
+                                    render={({ field }) => (
+                                        <Input
+                                            type="date"
+                                            label="Date"
+                                            placeholder="Date"
+                                            {...field}
+                                        />
+                                    )}
+                                />
+                                <div className="text-red-600 mt-1 text-xs">{errors.date?.type === 'required' && <p role="alert">Date is required</p>}</div>
+                            </div>
+                            <div className="mb-4">
+                                <Controller
+                                    name="time"
+                                    id="time"
+                                    control={control}
+                                    rules={{ required: true }}
+                                    render={({ field }) => (
+                                        <Input
+                                            type="time"
+                                            label="Time"
+                                            placeholder="Date"
+                                            {...field}
+                                        />
+                                    )}
+                                />
+                                <div className="text-red-600 mt-1 text-xs">{errors.time?.type === 'required' && <p role="alert">Time is required</p>}</div>
+
+
+                            </div>
+                            <Controller
+                                name="note"
+                                id="note"
+                                control={control}
+                                render={({ field }) => (
+                                    <Textarea
+                                        type="textarea"
+                                        label="Note"
+                                        className="w-full border border-gray-300 rounded-sm shadow-sm focus:ring-red-500 focus:border-red-500 sm:text-sm"
+                                        rows={18}
+                                        {...field}
+                                    />
+                                )}
+                            />
+                        </div>
+
+                        <div className="flex flex-shrink-0 justify-end px-4 py-4 w-full border-t absolute bottom-0 bg-white">
+                            <Button
+                                type="submit"
+                                className="ml-4 inline-flex text-white justify-center rounded-md border border-transparent bg-red-600 py-2 px-4 text-xs font-medium text-white5shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
                             >
-                                <option value="inbound">Inbound</option>
-                                <option value="outbound">Outbound</option>
+                                Save
+                            </Button>
 
-                            </Select>
                         </div>
-                        <div className="mb-4">
-                            <Input type="date" placeholder="Date" onChange={(e) => setDate(e.target.value)} />
-                        </div>
-                        <div className="mb-4">
-                            <Input type="time" placeholder="Date" onChange={(e) => setTime(e.target.value)} />
-                        </div>
-                        <textarea
-                            type="textarea"
-                            placeholder="Add Note"
-                            className="w-full border border-gray-300 rounded-sm shadow-sm focus:ring-red-500 focus:border-red-500 sm:text-sm"
-                            rows={18}
-                            onChange={(e) => setNote(e.target.value)}
-                        />
-
-                    </div>
-
-
-                    <div className="flex flex-shrink-0 justify-end px-4 py-4 w-full border-t absolute bottom-0 bg-white">
-
-                        <Button
-                            type="submit"
-                            className="ml-4 inline-flex text-white justify-center rounded-md border border-transparent bg-red-600 py-2 px-4 text-xs font-medium text-white5shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-                            onClick={() => addCall()}
-                        >
-                            Save
-                        </Button>
-                    </div>
+                    </form>
                 </SlideOver>
-            </div>
+            </div >
             <div className="w-full px-4 mt-10">
                 {calls.sort((a, b) => { new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime() }).reverse().map((item, index) => (
                     <div key={index} className="cursor-pointer pointer-events-auto w-full max-w-7xl overflow-hidden rounded-lg bg-white ring-1 ring-black ring-opacity-5 my-4 hover:bg-gray-100" onClick={() => toggleModal(item)}>
@@ -166,6 +232,12 @@ function Notes({ profile, calls }) {
                             {modalContent.direction === "inbound" ? "Inbound" : "Outbound"}
                         </p>
                     </div>
+
+                    <div className="flex gap-4 mb-4">
+                        <p className="text-xs text-gray-500">{moment(modalContent.date).format("DD MMM. YYYY")}</p>
+                        <p className="text-xs text-gray-500">{modalContent.time}</p>
+
+                    </div>
                     <p className="text-sm text-gray-500">
                         {modalContent.note}
                     </p>
@@ -177,6 +249,7 @@ function Notes({ profile, calls }) {
                     <div className="flex gap-4">
                         <p className="text-xs text-gray-500">{moment(modalContent.createdBy).format("DD MMM. YYYY - hh:mm:ss")}</p>
                     </div>
+
                 </div>
                 <div className="flex w-full justify-end gap-4">
                     <Button
@@ -195,7 +268,7 @@ function Notes({ profile, calls }) {
                     </Button>
                 </div>
             </Modal >
-        </div>
+        </div >
     )
 }
 

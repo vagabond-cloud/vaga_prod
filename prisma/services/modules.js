@@ -76,8 +76,6 @@ export const updateContact = async (id, contactOwnerId, email, data, workspaceId
             id
         },
     });
-    console.log(contact)
-
 
     const contacts = await prisma.contact.update({
         where: { id },
@@ -111,6 +109,28 @@ export const updateContact = async (id, contactOwnerId, email, data, workspaceId
         },
     });
     return contacts
+}
+
+export const updatePhoto = async (id, photoUrl) => {
+
+    const userPhoto = await prisma.contact.update({
+        where: { id },
+        data: {
+            photoUrl: photoUrl || undefined,
+        },
+    });
+    return userPhoto
+}
+
+export const updateContactsBanner = async (id, bannerUrl) => {
+
+    const userBanner = await prisma.contact.update({
+        where: { id },
+        data: {
+            bannerUrl: bannerUrl || undefined,
+        },
+    });
+    return userBanner
 }
 
 export const getContact = async (id) =>

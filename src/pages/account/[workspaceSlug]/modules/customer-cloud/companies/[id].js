@@ -406,7 +406,8 @@ function Company({ modules, companies, workspace }) {
                                         <tbody className="divide-y divide-gray-200 bg-white">
                                             {companies.map((person, index) => (
                                                 <tr key={index} className="hover:bg-gray-100">
-                                                    <td className="whitespace-nowrap py-4 pl-4 pr-3 text-xs font-medium text-gray-900 sm:pl-6">
+                                                    <td className="whitespace-nowrap py-4 pl-4 pr-3 text-xs font-medium text-gray-900 sm:pl-6 flex gap-2 items-center">
+                                                        <img src={person.logoUrl ? person.logoUrl : "https://s3-us-west-2.amazonaws.com/procure-now-public/assets/unknown-business-logo.png"} className="w-8 h-8 rounded-full" alt="" />
                                                         {person.companyName}
                                                     </td>
                                                     <td className="whitespace-nowrap px-3 py-4 text-xs text-gray-500">{person.companyOwnerId}</td>

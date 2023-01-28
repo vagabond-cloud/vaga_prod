@@ -133,8 +133,31 @@ export const updateApi = async (id, email, previousEmail, apikey, secret) => {
 };
 
 
-export const getActivities = async (id) =>
-  await prisma.log.findMany({
+export const getActivities = async (page, limit, sort, id) => {
+  const skip = (page - 1) * limit;
 
-    where: { userId: id },
+  const activities = await prisma.log.findMany({
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      action: true,
+      createdAt: true,
+      user: {
+        select: {
+          name: true,
+          email: true,
+        },
+      },
+    },
+
+    where: {
+      userId: id,
+    },
+    skip,
+    take: limit,
+    orderBy: sort,
   });
+  const total = await prisma.contact.count();
+  return { activities, total }
+}

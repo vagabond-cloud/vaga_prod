@@ -452,7 +452,8 @@ function Contacts({ modules, contacts, workspace, total }) {
                                         <tbody className="divide-y divide-gray-200 bg-white">
                                             {contacts.map((person, index) => (
                                                 <tr key={index} className="hover:bg-gray-100">
-                                                    <td className="whitespace-nowrap py-4 pl-4 pr-3 text-xs font-medium text-gray-900 sm:pl-6">
+                                                    <td className="whitespace-nowrap py-4 pl-4 pr-3 text-xs font-medium text-gray-900 sm:pl-6 flex gap-2 items-center">
+                                                        <img src={person.photoUrl ? person.photoUrl : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSpSzm6trHP-RsKzrcPheEo7wpUO-Zlcle5ffnIZY7HesXZt-IZNAOn4xjD4yDRNeVTawU&usqp=CAU"} className="w-8 h-8 rounded-full" alt="" />
                                                         {person.firstName + ' ' + person.lastName}
                                                     </td>
                                                     <td className="whitespace-nowrap px-3 py-4 text-xs text-gray-500">{person.contactEmail}</td>

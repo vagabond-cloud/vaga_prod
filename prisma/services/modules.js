@@ -139,7 +139,19 @@ export const getContact = async (id) =>
             id
         },
         include: {
-            user: true
+            user: true,
+            note: true,
+            call: true,
+            task: true,
+            document: true,
+            deal: true,
+            ticket: {
+                include: {
+                    user: true,
+                    deal: true,
+                }
+            },
+            deal: true
         }
     });
 
@@ -153,6 +165,46 @@ export const getDealContacts = async (moduleid) =>
     });
 
 export const getContacts = async (page, limit, sort, moduleid) => {
+    const contacts = await prisma.contact.findMany({
+        select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            contactEmail: true,
+            jobTitle: true,
+            phone: true,
+            lifecycleStage: true,
+            leadStatus: true,
+            marketing: true,
+            city: true,
+            state: true,
+            country: true,
+            street: true,
+            zip: true,
+            website: true,
+            persona: true,
+            timeZone: true,
+            twitter_handle: true,
+            preferred_language: true,
+            workspaceId: true,
+            moduleid: true,
+            companyId: true,
+            photoUrl: true,
+            bannerUrl: true,
+            contactOwnerId: true,
+            email: true,
+            createdAt: true,
+            updatedAt: true,
+            user: true,
+            module: true,
+        },
+        where: { moduleid },
+    });
+
+    return contacts;
+};
+
+export const getAllContacts = async (page, limit, sort, moduleid) => {
     const skip = (page - 1) * limit;
     const contacts = await prisma.contact.findMany({
         select: {
@@ -417,7 +469,12 @@ export const getCompany = async (id) =>
         },
         include: {
             user: true,
-            contacts: true
+            contacts: true,
+            deal: true,
+            call: true,
+            task: true,
+            note: true,
+            document: true,
         }
     });
 
@@ -431,7 +488,7 @@ export const getCompanies = async (moduleid) =>
         },
     });
 
-export const getAllContacts = async (page, limit, sort, moduleid) => {
+export const getAllCompanies = async (page, limit, sort, moduleid) => {
     const skip = (page - 1) * limit;
     const companies = await prisma.company.findMany({
         select: {
@@ -525,7 +582,8 @@ export const getDeal = async (id) =>
         include: {
             user: true,
             contact: true,
-            company: true
+            company: true,
+            module: true,
         }
     });
 

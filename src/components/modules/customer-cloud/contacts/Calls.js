@@ -236,9 +236,11 @@ function Notes({ profile, calls }) {
                         <p className="text-xs text-gray-500">{modalContent.time}</p>
 
                     </div>
-                    <p className="text-sm text-gray-500">
-                        {modalContent.note}
-                    </p>
+                    <div className="my-8 w-96 h-96 overflow-y-auto">
+                        <p className="text-sm text-gray-500">
+                            {modalContent.note}
+                        </p>
+                    </div>
                 </div>
                 <div className="border-t py-2">
                     <div className="flex gap-4">

@@ -8,7 +8,7 @@ import { countries } from '@/config/common/countries';
 import { leadStages, lifecycleStages, outcomes, taskTypes, dueDate, industries, types } from '@/config/modules/crm';
 import { AccountLayout } from '@/layouts/index';
 import api from '@/lib/common/api';
-import { getCompany, getNote, getCall, getTask, getActivity, getDocuments } from '@/prisma/services/modules';
+import { getCompany, getActivity } from '@/prisma/services/modules';
 import { EnvelopeIcon, PhoneIcon, ChevronRightIcon } from '@heroicons/react/20/solid';
 import moment from 'moment';
 import Link from 'next/link';
@@ -26,6 +26,7 @@ import CContacts from '@/components/modules/customer-cloud/companies/Contacts';
 import Activities from '@/components/modules/customer-cloud/companies/Activities';
 import { useForm, Controller } from "react-hook-form";
 import Textarea from '@/components/Textarea';
+
 function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
 }
@@ -39,14 +40,9 @@ function Contacts({ company, notes, calls, tasks, activities, documents }) {
     const [logo, setLogo] = useState(null);
     const [banner, setBanner] = useState(null);
 
-    // const [formInput, updateFormInput] = useState({
-    //     firstName: '',
-    //     lastName: '',
-    //     contactEmail: '',
-    //     jobTitle: '',
-    //     phone: '',
-    //     logoUrl: '',
-    // })
+    const logoInput = useRef(null)
+    const bannerInput = useRef(null)
+
 
     const tabs = [
         { name: 'Overview', href: 'overview', current: tab === 'overview' || !tab ? true : false },
@@ -55,9 +51,6 @@ function Contacts({ company, notes, calls, tasks, activities, documents }) {
         { name: 'Projects', href: 'tasks', current: tab === 'tasks' ? true : false },
         { name: 'Documents', href: 'documents', current: tab === 'documents' ? true : false },
     ]
-
-    const logoInput = useRef(null)
-    const bannerInput = useRef(null)
 
     const defaultValues = {
         companyDomain: company.companyDomain,
@@ -80,7 +73,6 @@ function Contacts({ company, notes, calls, tasks, activities, documents }) {
         logoUrl: company.logoUrl,
         bannerUrl: company.bannerUrl,
     }
-
 
     const { handleSubmit, control, formState: { errors } } = useForm({ defaultValues });
     const onSubmit = data => updateCompany(data);
@@ -115,7 +107,6 @@ function Contacts({ company, notes, calls, tasks, activities, documents }) {
                 formInput,
                 workspaceId: company.workspaceId,
                 moduleid: company.moduleid,
-
             }
         })
         if (res.status === 200) {
@@ -148,7 +139,6 @@ function Contacts({ company, notes, calls, tasks, activities, documents }) {
         } else {
             toast.error('Logo update failed')
             setLogo(false)
-
         }
     };
 
@@ -205,7 +195,6 @@ function Contacts({ company, notes, calls, tasks, activities, documents }) {
                         <div className="-mt-12 sm:-mt-16 sm:flex sm:items-end sm:space-x-5">
                             <div className="flex relative cursor-pointer" >
                                 <input type="file" onChange={(e) => uploadLogo(e.target.files[0])} hidden ref={logoInput} />
-
                                 <div className="relative w-full m-auto">
                                     {logo ?
                                         <div className="w-1/2 h-1/2 absolute top-1/4 left-1/4 p-4">
@@ -222,14 +211,12 @@ function Contacts({ company, notes, calls, tasks, activities, documents }) {
                                         className="h-24 w-24 rounded-full ring-4 ring-white sm:h-32 sm:w-32"
                                         src={profile.imageUrl}
                                         alt=""
-
                                     />
                                 </div>
                             </div>
                             <div className="mt-6 sm:flex sm:min-w-0 sm:flex-1 sm:items-center sm:justify-end sm:space-x-6 sm:pb-1">
                                 <div className="mt-6 min-w-0 flex-1 sm:hidden 2xl:block">
                                     <h1 className="truncate text-2xl font-bold text-gray-900">{profile.name}</h1>
-
                                 </div>
                                 <div className="justify-stretch mt-4 flex flex-col space-y-3 sm:flex-row sm:space-y-0 sm:space-x-4">
                                     <Link href={`/account/${workspaceSlug}/modules/customer-cloud/companies/card/${id}?tab=emails`}>
@@ -609,11 +596,11 @@ const writeLog = async (type, action, date, contactId) => {
 export async function getServerSideProps(context) {
 
     const company = await getCompany(context.params.id)
-    const notes = await getNote(context.params.id)
-    const calls = await getCall(context.params.id)
-    const tasks = await getTask(context.params.id)
+    const notes = company.note
+    const calls = company.call
+    const tasks = company.task
     const activities = await getActivity(context.params.id)
-    const documents = await getDocuments(context.params.id)
+    const documents = company.document
     return {
         props: {
             company: JSON.stringify(company),

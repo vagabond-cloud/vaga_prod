@@ -1,6 +1,8 @@
 import Card from '@/components/Card/index';
 import Content from '@/components/Content/index';
 import Meta from '@/components/Meta/index';
+import Input from '@/components/Input';
+import Button from '@/components/Button';
 import Reload from '@/components/Reload';
 import TabsController from '@/components/Tabs';
 import { createNew, learnMore, vagachain } from '@/config/workspace-overview/items';
@@ -215,13 +217,13 @@ const Activity = ({ activity, session }) => {
               </div>
               <div className="ml-4 flex flex-shrink-0">
                 <div className="block w-full">
-                  <button
+                  <Button
                     type="button"
                     className="inline-flex rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
                   >
                     <span className="sr-only">Close</span>
                     <XMarkIcon className="h-5 w-5" aria-hidden="true" />
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>
@@ -317,13 +319,13 @@ const Modules = ({ modules }) => {
 
               </div>
               <div className="flex-shrink-0 pr-2">
-                <button
+                <Button
                   type="button"
                   className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white bg-transparent text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
                 >
                   <span className="sr-only">Open options</span>
                   <EllipsisVerticalIcon className="h-5 w-5" aria-hidden="true" />
-                </button>
+                </Button>
               </div>
             </div>
           </li>

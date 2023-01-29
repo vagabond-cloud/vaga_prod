@@ -8,7 +8,6 @@ export default function SlideOver({ children, title, subTitle, buttonTitle }) {
 
     const slideOverHandler = () => setOpen(!open)
 
-
     return (
         <>
             <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">

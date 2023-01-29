@@ -35,7 +35,6 @@ Content.Empty = ({ children }) => {
 
 Content.Title = ({ subtitle, title }) => {
 
-
   const handleBack = () => {
     window.history.back()
   };

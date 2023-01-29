@@ -12,17 +12,18 @@ import toast from 'react-hot-toast';
 import Select from '@/components/Select';
 import api from '@/lib/common/api';
 import { ticketStatus, ticketSource } from '@/config/modules/crm'
+import Link from 'next/link';
+import { contactActivity } from '@/lib/client/log';
 
 function Tickets({ tickets, deal, team }) {
     tickets = JSON.parse(tickets)
 
-    console.log(team)
     const router = useRouter()
-    const { id } = router.query
+    const { workspaceSlug, id } = router.query
 
     const [showOverlay, setShowOverlay] = useState(false)
     const [modalContent, setModalContent] = useState({})
-
+    console.log("1", modalContent)
     const defaultValues = {
         ticketName: '',
         ticketDescription: '',
@@ -32,8 +33,8 @@ function Tickets({ tickets, deal, team }) {
         ticketOwner: '',
         priority: '',
         createDate: '',
-        associatedContact: '',
-        associatedCompany: '',
+        associatedContact: deal?.contact?.id ? deal?.contact?.id : '',
+        associatedCompany: deal?.company?.id ? deal?.company?.id : '',
         associatedDeal: deal.id,
     }
 
@@ -52,9 +53,12 @@ function Tickets({ tickets, deal, team }) {
         toast.success("Ticket added successfully")
     }
 
-    const deleteTicket = async (cid) => {
+    const deleteTicket = async (cid, dealId) => {
+        const res = await api(`/api/modules/customer-cloud/ticket?ticketId=${cid}`, {
+            method: "DELETE"
+        })
         setShowOverlay(!showOverlay)
-        await writeLog("Ticket Deleted", "ticket_deleted", new Date(), id)
+        await writeLog("Ticket deleted", "ticket_deleted", new Date(), dealId)
 
         router.replace(router.asPath)
         toast.success("Ticket deleted successfully")
@@ -249,43 +253,22 @@ function Tickets({ tickets, deal, team }) {
                             </div>
                             <div className="px-4 my-10">
                                 <div className="mt-1">
-                                    <Controller
-                                        name="associatedContact"
-                                        id="associatedContact"
-                                        control={control}
-                                        render={({ field }) => (
-                                            <Select
-                                                label="Associated Contact"
-                                                {...field}
-                                            >
-                                                <option value="">Select priority</option>
-                                                <option value="low">Low</option>
-                                                <option value="medium">Medium</option>
-                                                <option value="high">High</option>
-                                            </Select>
-                                        )}
-                                    />
+                                    <p>
+                                        <span className="text-gray-700 text-sm">Associated Contact</span>
+                                    </p>
+                                    <p className="text-sm mt-2">{deal?.contact?.firstName ? deal?.contact?.firstName + ' ' + deal?.contact?.lastName : "No associated company"}</p>
                                 </div>
                             </div>
                             <div className="px-4 my-10">
-                                <div className="mt-1">
-                                    <Controller
-                                        name="associatedCompany"
-                                        id="associatedCompany"
-                                        control={control}
-                                        render={({ field }) => (
-                                            <Select
-                                                label="Associated Company"
-                                                {...field}
-                                            >
-                                                <option value="">Select priority</option>
-                                                <option value="low">Low</option>
-                                                <option value="medium">Medium</option>
-                                                <option value="high">High</option>
-                                            </Select>
-                                        )}
-                                    />
-                                </div>
+                                <Link href={`/account/${workspaceSlug}/modules/customer-cloud/companies/card/${deal?.company?.id}`}>
+
+                                    <div className="mt-1">
+                                        <p>
+                                            <span className="text-gray-700 text-sm">Associated Company</span>
+                                        </p>
+                                        <p className="text-sm mt-2">{deal?.company?.companyName ? deal?.company?.companyName : "No associated company"}</p>
+                                    </div>
+                                </Link>
                             </div>
                         </div>
                         <div className="flex flex-shrink-0 justify-end px-4 py-4 w-full border-t absolute bottom-0 bg-white">
@@ -316,7 +299,14 @@ function Tickets({ tickets, deal, team }) {
                             <p className="font-bold text-xs text-gray-500">{team.find((t) => t.id === modalContent.ticketOwner)?.user?.name}</p>
                         </div>
                     </div>
+                    <Link href={`/account/${workspaceSlug}/modules/customer-cloud/contacts/card/${modalContent?.contact?.id}`}>
+                        <div className="flex gap-4 border-t pt-5 mt-5">
+                            <p className="text-xs text-gray-500">Contact:</p>
+                            <p className="text-xs font-bold">{modalContent?.contact?.firstName + ' ' + modalContent?.contact?.lastName}</p>
+                        </div>
+                    </Link>
                 </div>
+
                 <div className="border-t border-b py-3">
                     <div className="grid grid-cols-2 gap-4">
                         <div className="py-2 flex gap-4">
@@ -328,8 +318,9 @@ function Tickets({ tickets, deal, team }) {
                             <p className="font-bold text-xs text-gray-500">{modalContent.pipeline}</p>
                         </div>
                     </div>
+
                 </div>
-                <div className="my-8 w-96">
+                <div className="my-8 w-96 h-96 overflow-y-auto">
                     <p className="text-sm text-gray-500">
                         {modalContent.ticketDescription}
                     </p>
@@ -349,7 +340,7 @@ function Tickets({ tickets, deal, team }) {
                     <Button
                         type="submit"
                         className="bg-gray-600 hover:bg-gray-700 focus:ring-red-500 text-white"
-                        onClick={() => deleteNote(modalContent.id)}
+                        onClick={() => deleteTicket(modalContent.id, id)}
                     >
                         Delete
                     </Button>
@@ -357,7 +348,7 @@ function Tickets({ tickets, deal, team }) {
                         type="submit"
                         className="bg-red-600 hover:bg-red-700 focus:ring-red-500 text-white"
                     >
-                        Close
+                        Details
                     </Button>
                 </div>
             </Modal >
@@ -390,7 +381,7 @@ function Tickets({ tickets, deal, team }) {
                     </div>
                 ))}
             </div>
-        </div>
+        </div >
     )
 }
 
@@ -398,4 +389,5 @@ export default Tickets
 
 
 const writeLog = async (type, action, date, contactId) => {
+    const res = await contactActivity(`${type}`, `${type} at ${date}`, `${action.toLowerCase()}`, '127.0.0.1', contactId);
 }

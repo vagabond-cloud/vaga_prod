@@ -274,15 +274,15 @@ model Contact {
   user            User              @relation(fields: [contactOwnerId], references: [id], onDelete: Cascade)
   workspace       Workspace         @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   module          Module?           @relation(fields: [moduleid], references: [id])
-  Note            Note[]
-  Call            Call[]
-  Task            Task[]
-  ContactActivity ContactActivity[]
-  Company         Company?          @relation(fields: [companyId], references: [id])
+  note            Note[]
+  call            Call[]
+  task            Task[]
+  contactActivity ContactActivity[]
+  company         Company?          @relation(fields: [companyId], references: [id])
   companyId       String?           @db.ObjectId
-  Document        Document[]
-  Deal            Deal[]
-  Ticket          Ticket[]
+  document        Document[]
+  deal            Deal[]
+  ticket          Ticket[]
 
   @@map("contacts")
 }
@@ -404,13 +404,13 @@ model Company {
   user      User       @relation(fields: [companyOwnerId], references: [id], onDelete: Cascade)
   workspace Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   module    Module?    @relation(fields: [moduleid], references: [id])
-  Note      Note[]
-  Call      Call[]
-  Task      Task[]
+  note      Note[]
+  call      Call[]
+  task      Task[]
   contacts  Contact[]
-  Document  Document[]
-  Deal      Deal[]
-  Ticket    Ticket[]
+  document  Document[]
+  deal      Deal[]
+  ticket    Ticket[]
 
   @@map("companies")
 }
@@ -464,7 +464,7 @@ model Deal {
   company Company? @relation(fields: [companyId], references: [id])
   contact Contact? @relation(fields: [contactId], references: [id])
   module  Module?  @relation(fields: [moduleid], references: [id])
-  Ticket  Ticket[]
+  ticket  Ticket[]
 
   @@fulltext([id, email, dealName, dealStage, dealType, priority])
   @@map("deals")

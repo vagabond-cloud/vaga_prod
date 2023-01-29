@@ -5,7 +5,7 @@ import { getSession, signOut } from 'next-auth/react';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import toast from 'react-hot-toast';
 import isEmail from 'validator/lib/isEmail';
-
+import Input from '@/components/Input';
 import Button from '@/components/Button/index';
 import Card from '@/components/Card/index';
 import Content from '@/components/Content/index';
@@ -179,7 +179,7 @@ const Settings = ({ user }) => {
               title="Your Name"
               subtitle="Please enter your full name, or a display name you are comfortable with"
             >
-              <input
+              <Input
                 className="px-3 py-2 border rounded md:w-1/2"
                 disabled={isSubmitting}
                 onChange={handleNameChange}
@@ -206,7 +206,7 @@ const Settings = ({ user }) => {
               subtitle="Please enter the email address you want to use to log in with
               Vagabond"
             >
-              <input
+              <Input
                 className="px-3 py-2 border rounded md:w-1/2"
                 disabled={isSubmitting}
                 onChange={handleEmailChange}
@@ -232,7 +232,7 @@ const Settings = ({ user }) => {
               title="Company"
               subtitle="Please enter your full company name"
             >
-              <input
+              <Input
                 className="px-3 py-2 border rounded md:w-1/2"
                 disabled={isSubmitting}
                 onChange={handleCompanyChange}
@@ -355,7 +355,7 @@ const Settings = ({ user }) => {
               <label className="text-sm text-gray-400">
                 Enter <strong>{user.email}</strong> to continue:
               </label>
-              <input
+              <Input
                 className="px-3 py-2 border rounded"
                 disabled={isSubmitting}
                 onChange={handleVerifyEmailChange}

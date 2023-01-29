@@ -251,8 +251,8 @@ function Tasks({ profile, tasks }) {
             </div>
             <Modal show={showOverlay} title={modalContent.title} toggle={toggleModal}>
                 <div className="my-8 w-96">
-                    <div className='flex justify-between'>
-                        <p className="text-sm text-gray-500 mb-4">
+                    <div className='flex justify-between items-center'>
+                        <p className="text-sm text-gray-500 mb-4 pt-4">
                             {taskTypes.find((t) => t.id === modalContent.type)?.name}
                         </p>
                         <p className={`inline-flex items-center rounded-md bg-green-100 px-2.5 py-0.5 text-sm font-medium text-green-800`}>
@@ -260,9 +260,11 @@ function Tasks({ profile, tasks }) {
 
                         </p>
                     </div>
-                    <p className="text-sm text-gray-500">
-                        {modalContent.note}
-                    </p>
+                    <div className="my-8 w-96 h-96 overflow-y-auto">
+                        <p className="text-sm text-gray-500">
+                            {modalContent.note}
+                        </p>
+                    </div>
                 </div>
                 <div className="border-t py-2">
                     <div className="flex gap-4">

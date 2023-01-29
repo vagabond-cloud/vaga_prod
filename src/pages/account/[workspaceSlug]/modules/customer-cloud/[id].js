@@ -16,7 +16,7 @@ function classNames(...classes) {
 function CustomerCloud({ deals, total, contacts, settings }) {
     deals = JSON.parse(deals)
     contacts = JSON.parse(contacts)
-    settings = JSON.parse(settings)
+    settings = JSON.parse(settings)[0]
 
     const router = useRouter();
     const { workspaceSlug, id } = router.query;
@@ -24,7 +24,7 @@ function CustomerCloud({ deals, total, contacts, settings }) {
     console.log(settings)
 
     const stats = [
-        { name: 'Total Sales', stat: total.toLocaleString() + ' ' + settings[0].currency },
+        { name: 'Total Sales', stat: total.toLocaleString(settings.language) + ' ' + settings.currency },
         { name: 'Total Deals', stat: deals.length },
         { name: 'Total Clients', stat: contacts.length },
     ]

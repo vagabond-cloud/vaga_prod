@@ -146,22 +146,23 @@ function Documents({ company, documents }) {
                                         </circle>
                                     </svg>
                                 }
-                                {formInput.documentUrl ?
-                                    <button className="bg-red-600 text-white w-40 h-10" onClick={() => updateContact()}>Save</button>
-                                    :
-                                    <></>
+                                {formInput.documentUrl &&
+                                    <p className="text-xs text-gray-500 mt-2 px-2">Uploaded</p>
                                 }
                             </div>
                         </div>
-                        <div className="flex flex-shrink-0 justify-end px-4 py-4 w-full border-t absolute bottom-0 bg-white resize-y">
-
-                            <Button
-                                type="submit"
-                                className="ml-4 inline-flex text-white justify-center rounded-md border border-transparent bg-red-600 py-2 px-4 text-xs font-medium text-white5shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-                                onClick={() => updateContact()}
-                            >
-                                Save
-                            </Button>
+                        <div className="flex flex-shrink-0 min-h-20 justify-end px-4 py-4 w-full border-t absolute bottom-0 bg-white resize-y">
+                            {formInput.documentUrl ?
+                                <Button
+                                    type="submit"
+                                    className="ml-4 inline-flex text-white justify-center rounded-md border border-transparent bg-red-600 py-2 px-4 text-xs font-medium text-white5shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                                    onClick={() => updateContact()}
+                                >
+                                    Save
+                                </Button>
+                                :
+                                <></>
+                            }
                         </div>
 
                     </SlideOver>

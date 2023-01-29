@@ -7,7 +7,7 @@ import { countries } from '@/config/common/countries';
 import { leadStages, lifecycleStages } from '@/config/modules/crm';
 import { AccountLayout } from '@/layouts/index';
 import api from '@/lib/common/api';
-import { getContacts, getModule } from '@/prisma/services/modules';
+import { getAllContacts, getModule } from '@/prisma/services/modules';
 import { getWorkspace, isWorkspaceOwner } from '@/prisma/services/workspace';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid';
 import { ArrowRightCircleIcon } from '@heroicons/react/24/outline';
@@ -535,7 +535,7 @@ export async function getServerSideProps(context) {
     let workspace = null;
 
     const modules = await getModule(context.params.id);
-    const contacts = await getContacts(!page ? 1 : page, 10, { id: 'asc' }, modules.id)
+    const contacts = await getAllContacts(!page ? 1 : page, 10, { id: 'asc' }, modules.id)
 
     if (session) {
         workspace = await getWorkspace(

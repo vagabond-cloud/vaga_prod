@@ -9,6 +9,8 @@ import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { Controller, useForm } from "react-hook-form";
 import toast from 'react-hot-toast';
+import { contactActivity } from '@/lib/client/log';
+import api from '@/lib/common/api'
 
 function Notes({ profile, notes }) {
     notes = JSON.parse(notes)
@@ -24,23 +26,52 @@ function Notes({ profile, notes }) {
         note: ''
     }
 
-    const { handleSubmit, control, formState: { errors } } = useForm({ defaultValues });
+    const { handleSubmit, control, resetField, formState: { errors } } = useForm({ defaultValues });
     const onSubmit = data => addNote(data);
 
 
     const addNote = async (formInput) => {
-        await writeLog("Note Created", "note_created", new Date(), id)
-        router.replace(router.asPath)
-        toast.success("Note added successfully")
+        try {
+            const res = await api(`/api/modules/note`, {
+                method: "POST",
+                body: {
+                    contactId: id,
+                    note: formInput.note,
+                    title: formInput.title
+                }
+            })
+
+            resetField("title")
+            resetField("note")
+
+            await writeLog("Note Created", "note_created", new Date(), id)
+
+            router.replace(router.asPath)
+            toast.success("Note added successfully")
+        } catch (error) {
+            console.log("ERROR", error)
+        }
     }
 
     const deleteNote = async (cid) => {
-        setShowOverlay(!showOverlay)
-        await writeLog("Note Deleted", "note_deleted", new Date(), id)
+        try {
+            const res = await api(`/api/modules/note?noteId=${cid}`, {
+                method: "DELETE"
+            })
+            console.log("DELETE", res)
+            setShowOverlay(!showOverlay)
 
-        router.replace(router.asPath)
-        toast.success("Note deleted successfully")
+            await writeLog("Note Deleted", "note_deleted", new Date(), id)
+
+            router.replace(router.asPath)
+            toast.success("Note deleted successfully")
+        }
+        catch (error) {
+            console.log("ERROR", error)
+        }
     }
+
+
 
     const toggleModal = (item) => {
 
@@ -145,7 +176,7 @@ function Notes({ profile, notes }) {
                 ))}
             </div>
             <Modal show={showOverlay} title={modalContent.title} toggle={toggleModal}>
-                <div className="my-8 w-96">
+                <div className="my-8 w-96 h-96 overflow-y-auto">
                     <p className="text-sm text-gray-500">
                         {modalContent.note}
                     </p>
@@ -182,4 +213,5 @@ export default Notes
 
 
 const writeLog = async (type, action, date, contactId) => {
+    const res = await contactActivity(`${type}`, `${type} at ${date}`, `${action.toLowerCase()}`, '127.0.0.1', contactId);
 }

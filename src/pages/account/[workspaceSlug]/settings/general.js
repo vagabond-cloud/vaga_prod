@@ -120,7 +120,7 @@ const General = ({ isTeamOwner, workspace }) => {
         >
           <div className="flex items-center space-x-3">
             <Input
-              className="px-3 py-2 border rounded md:w-1/2"
+              className="px-3 py-2 border rounded md:w-96"
               disabled={isSubmitting || !isTeamOwner}
               onChange={handleSlugChange}
               type="text"

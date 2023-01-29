@@ -14,7 +14,7 @@ import { AccountLayout } from '@/layouts/index';
 import { contactActivity } from '@/lib/client/log';
 import { uploadToGCS } from '@/lib/client/upload';
 import api from '@/lib/common/api';
-import { getActivity, getCall, getCompanies, getContact, getNote, getTask } from '@/prisma/services/modules';
+import { getActivity, getCompanies, getContact } from '@/prisma/services/modules';
 import { EnvelopeIcon, PhoneIcon } from '@heroicons/react/20/solid';
 import { PencilIcon } from '@heroicons/react/24/outline';
 import moment from 'moment';
@@ -26,6 +26,7 @@ import { useForm, Controller } from "react-hook-form";
 import { GoogleMap, MarkerF, useJsApiLoader, InfoBox } from '@react-google-maps/api';
 import { mapStyles, containerStyle } from '@/config/common/mapStyles';
 import { getMap } from '@/lib/server/map'
+import Tickets from '@/components/modules/customer-cloud/Tickets';
 
 function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
@@ -75,6 +76,7 @@ function Contacts({ contact, notes, calls, tasks, activities, companies, lat, ln
         { name: 'Calls', href: 'calls', current: tab === 'calls' ? true : false },
         { name: 'Tasks', href: 'tasks', current: tab === 'tasks' ? true : false },
         { name: 'Projects', href: 'projects', current: tab === 'projects' ? true : false },
+        { name: 'Tickets', href: 'tickets', current: tab === 'tickets' ? true : false },
     ]
 
     const photoInput = useRef(null)
@@ -169,7 +171,6 @@ function Contacts({ contact, notes, calls, tasks, activities, companies, lat, ln
             setBanner(false)
         }
     }
-
 
     return (
         <AccountLayout>
@@ -606,7 +607,7 @@ function Contacts({ contact, notes, calls, tasks, activities, companies, lat, ln
 
                 {/* Add Tabs here */}
                 {tab === 'overview' &&
-                    <Overview profile={profile} />
+                    <Overview profile={profile} lat={lat} lng={lng} />
                 }
                 {!tab &&
                     <Overview profile={profile} lat={lat} lng={lng} />
@@ -624,6 +625,9 @@ function Contacts({ contact, notes, calls, tasks, activities, companies, lat, ln
                 {tab === 'activity' &&
                     <Activities activities={activities} />
                 }
+                {tab === 'tickets' &&
+                    <Tickets contact={contact} />
+                }
                 {/* Tabs End */}
 
             </Content.Container>
@@ -636,7 +640,7 @@ export default Contacts
 const Overview = ({ profile, lat, lng }) => {
     const libraries = useMemo(() => ['places'], []);
     const mapCenter = { lat, lng }
-
+    console.log(mapCenter)
     const onLoad = marker => {
         console.log('marker')
     }
@@ -648,9 +652,6 @@ const Overview = ({ profile, lat, lng }) => {
     if (!isLoaded) {
         return <p>Loading...</p>;
     }
-
-    console.log(profile.fields)
-
     return (
         <div className="mx-auto mt-6 w-full px-4 sm:px-6 lg:px-14">
             <dl className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2 pt-4">
@@ -705,14 +706,16 @@ const writeLog = async (type, action, date, contactId) => {
 export async function getServerSideProps(context) {
 
     const contact = await getContact(context.params.id)
-    const notes = await getNote(context.params.id)
-    const calls = await getCall(context.params.id)
-    const tasks = await getTask(context.params.id)
+    const notes = contact.note
+    const calls = contact.call
+    const tasks = contact.task
     const activities = await getActivity(context.params.id)
     const companies = await getCompanies()
-    const address = countries.find((c) => c.code === contact.country)?.name + ' ' + contact.city + ' ' + contact.street
+
+    const address = contact?.country ? countries.find((c) => c.code === contact?.country)?.name + ' ' + contact.city + ' ' + contact.street : ""
 
     const location = await getMap(address)
+
     return {
         props: {
             contact: JSON.stringify(contact),
@@ -726,4 +729,5 @@ export async function getServerSideProps(context) {
         }
     }
 }
+
 

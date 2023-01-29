@@ -545,7 +545,6 @@ export async function getServerSideProps(context) {
         }
     }
 
-    //This returns an object that contains the props that will be passed to the component. 
     //These props include isTeamOwner, workspace, modules, companies, deals, total and contacts. 
     //These variables are all stringified before being returned.
 

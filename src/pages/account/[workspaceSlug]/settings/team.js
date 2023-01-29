@@ -13,7 +13,9 @@ import CopyToClipboard from 'react-copy-to-clipboard';
 import toast from 'react-hot-toast';
 import isEmail from 'validator/lib/isEmail';
 
-import Button from '@/components/Button/index';
+import Button from '@/components/Button';
+import Input from '@/components/Input';
+import Select from '@/components/Select';
 import Card from '@/components/Card/index';
 import Content from '@/components/Content/index';
 import Meta from '@/components/Meta/index';
@@ -138,8 +140,8 @@ const Team = ({ isTeamOwner, workspace }) => {
               title="Add New Members"
               subtitle="Invite Team members using email address"
             >
-              <div className="flex flex-col space-y-3">
-                <div className="flex flex-row space-x-5">
+              <div className="flex flex-col space-y-3 ">
+                <div className="flex flex-row space-x-5 ">
                   <div className="w-1/2">
                     <label className="text-sm font-bold text-gray-400">
                       Email
@@ -153,17 +155,17 @@ const Team = ({ isTeamOwner, workspace }) => {
                 </div>
                 {members.map((member, index) => (
                   <div key={index} className="flex flex-row space-x-5">
-                    <input
-                      className="w-1/2 px-3 py-2 border rounded"
+                    <Input
+                      className="w-[696px] px-3 py-2 "
                       disabled={isSubmitting}
                       onChange={(event) => handleEmailChange(event, index)}
                       placeholder="name@email.com"
                       type="text"
                       value={member.email}
                     />
-                    <div className="relative inline-block w-1/2 border rounded md:w-1/4 ">
-                      <select
-                        className="w-full px-3 py-2 capitalize rounded appearance-none"
+                    <div className="relative inline-block w-full">
+                      <Select
+                        className="w-[600px] px-3 py-2 capitalize rounded appearance-none"
                         disabled={isSubmitting}
                         onChange={(event) => handleRoleChange(event, index)}
                       >
@@ -172,10 +174,8 @@ const Team = ({ isTeamOwner, workspace }) => {
                             {TeamRole[`${key}`].toLowerCase()}
                           </option>
                         ))}
-                      </select>
-                      <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                        <ChevronDownIcon className="w-5 h-5" />
-                      </div>
+                      </Select>
+
                     </div>
                     {index !== 0 && (
                       <button

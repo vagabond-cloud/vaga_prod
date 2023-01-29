@@ -9,7 +9,7 @@ import { leadStages, lifecycleStages, industries, types } from '@/config/modules
 import { AccountLayout } from '@/layouts/index';
 import { log } from '@/lib/client/log';
 import api from '@/lib/common/api';
-import { getAllContacts, getModule } from '@/prisma/services/modules';
+import { getAllCompanies, getModule } from '@/prisma/services/modules';
 import { getWorkspace, isWorkspaceOwner } from '@/prisma/services/workspace';
 import { ArrowRightCircleIcon } from '@heroicons/react/24/outline';
 import moment from 'moment';
@@ -442,7 +442,7 @@ export async function getServerSideProps(context) {
     let workspace = null;
 
     const modules = await getModule(context.params.id);
-    const companies = await getAllContacts(!page ? 1 : page, 10, { id: 'asc' }, modules.id)
+    const companies = await getAllCompanies(!page ? 1 : page, 10, { id: 'asc' }, modules.id)
 
     if (session) {
         workspace = await getWorkspace(

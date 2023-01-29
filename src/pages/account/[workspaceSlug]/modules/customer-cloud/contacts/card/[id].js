@@ -23,8 +23,9 @@ import { useRouter } from 'next/router';
 import { useRef, useState, useMemo } from 'react';
 import toast from 'react-hot-toast';
 import { useForm, Controller } from "react-hook-form";
-import { GoogleMap, MarkerF, useJsApiLoader } from '@react-google-maps/api';
+import { GoogleMap, MarkerF, useJsApiLoader, InfoBox } from '@react-google-maps/api';
 import { mapStyles, containerStyle } from '@/config/common/mapStyles';
+import { getMap } from '@/lib/server/map'
 
 function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
@@ -93,7 +94,7 @@ function Contacts({ contact, notes, calls, tasks, activities, companies, lat, ln
             Phone: contact.phone,
             City: contact.city,
             State: contact.state,
-            Country: countries.find((c) => c.code === contact.country).name,
+            Country: countries.find((c) => c.code === contact.country)?.name,
             Street: contact.street,
             Zip: contact.zip,
             Website: contact.website,
@@ -639,7 +640,7 @@ const Overview = ({ profile, lat, lng }) => {
     const onLoad = marker => {
         console.log('marker')
     }
-    console.log(process.env.GOOGLE_MAPS_API)
+    console.log(process.env.NEXT_PUBLIC_GOOGLE_MAPS_API)
     const { isLoaded } = useJsApiLoader({
         id: 'google-map-script',
         googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API
@@ -648,6 +649,7 @@ const Overview = ({ profile, lat, lng }) => {
         return <p>Loading...</p>;
     }
 
+    console.log(profile.fields)
 
     return (
         <div className="mx-auto mt-6 w-full px-4 sm:px-6 lg:px-14">
@@ -659,19 +661,39 @@ const Overview = ({ profile, lat, lng }) => {
                     </div>
                 ))}
             </dl>
-            <div className="mt-20 w-full shadow">
-                {isLoaded &&
-                    <GoogleMap
-                        mapContainerStyle={containerStyle}
-                        center={mapCenter}
-                        zoom={5}
-                        options={{ styles: mapStyles }}
-                    >
-                        <MarkerF onLoad={onLoad} position={mapCenter} ></MarkerF>
-                        <></>
-                    </GoogleMap>
-                }
-            </div>
+            {lat && lng &&
+                <div className="mt-20 w-full ">
+                    <Content.Divider />
+
+                    <p className="my-6 text-lg font-bold">Map</p>
+                    {isLoaded &&
+                        <GoogleMap
+                            mapContainerStyle={containerStyle}
+                            center={mapCenter}
+                            zoom={13}
+                            options={{ styles: mapStyles }}
+                        >
+                            <MarkerF onLoad={onLoad} icon={"http://maps.google.com/mapfiles/ms/icons/red.png"}
+                                position={mapCenter} ></MarkerF>
+                            <InfoBox position={mapCenter} options={{ closeBoxURL: ``, enableEventPropagation: true }}>
+                                <div style={{ backgroundColor: `white`, opacity: 0.75, padding: `12px`, width: '200px' }}>
+                                    <div style={{ fontSize: `12px`, fontColor: `#08233B` }}>
+                                        {Object.keys(profile.fields).slice(3, 9).map((field) => (
+                                            <div key={field} className="sm:col-span-1 mt-2">
+                                                <dt className="text-xs font-medium text-gray-500">{field}</dt>
+                                                <dd className={`${field === "Lead" && "inline-flex items-center rounded-md bg-gray-100 px-2.5 py-1 text-sm text-gray-800"} ${field === "Stage" && "inline-flex items-center rounded-md bg-gray-100 px-2.5 py-1 text-sm text-gray-800"} mt-2 text-sm`}>{profile.fields[field]}</dd>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </InfoBox>
+
+                            <></>
+                        </GoogleMap>
+                    }
+
+                </div>
+            }
         </div>
     )
 }
@@ -688,12 +710,9 @@ export async function getServerSideProps(context) {
     const tasks = await getTask(context.params.id)
     const activities = await getActivity(context.params.id)
     const companies = await getCompanies()
-    const address = countries.find((c) => c.code === contact.country).name + ' ' + contact.city + ' ' + contact.street
-    const map = await api(`https://maps.googleapis.com/maps/api/geocode/json?address=${address}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API}`, {
-        method: 'GET',
-    })
+    const address = countries.find((c) => c.code === contact.country)?.name + ' ' + contact.city + ' ' + contact.street
 
-    const { lat, lng } = map.results[0].geometry.location
+    const location = await getMap(address)
     return {
         props: {
             contact: JSON.stringify(contact),
@@ -702,8 +721,8 @@ export async function getServerSideProps(context) {
             tasks: JSON.stringify(tasks),
             activities: JSON.stringify(activities),
             companies: JSON.stringify(companies),
-            lat,
-            lng
+            lat: location.lat,
+            lng: location.lng
         }
     }
 }

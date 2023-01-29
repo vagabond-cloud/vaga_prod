@@ -134,6 +134,7 @@ model User {
   Document         Document[]
   Deal             Deal[]
   Member           Member?
+  Ticket           Ticket[]
 
   @@unique([userCode, email])
   @@fulltext([id, email, name, vaga_address])
@@ -168,6 +169,7 @@ model Workspace {
   Contact     Contact[]
   Company     Company[]
   CRMSettings Crmsettings[]
+  Ticket      Ticket[]
 
   @@unique([workspaceCode, inviteCode])
   @@map("workspaces")
@@ -207,6 +209,7 @@ model Module {
   Company     Company[]
   Deal        Deal[]
   Crmsettings Crmsettings[]
+  Ticket      Ticket[]
 
   @@map("modules")
 }
@@ -279,6 +282,7 @@ model Contact {
   companyId       String?           @db.ObjectId
   Document        Document[]
   Deal            Deal[]
+  Ticket          Ticket[]
 
   @@map("contacts")
 }
@@ -406,6 +410,7 @@ model Company {
   contacts  Contact[]
   Document  Document[]
   Deal      Deal[]
+  Ticket    Ticket[]
 
   @@map("companies")
 }
@@ -459,6 +464,7 @@ model Deal {
   company Company? @relation(fields: [companyId], references: [id])
   contact Contact? @relation(fields: [contactId], references: [id])
   module  Module?  @relation(fields: [moduleid], references: [id])
+  Ticket  Ticket[]
 
   @@fulltext([id, email, dealName, dealStage, dealType, priority])
   @@map("deals")
@@ -481,6 +487,38 @@ model Crmsettings {
   module    Module    @relation(fields: [moduleid], references: [id], onDelete: Cascade)
 
   @@map("crmSettings")
+}
+
+model Ticket {
+  id                String    @id @default(auto()) @map("_id") @db.ObjectId
+  addedById         String    @db.ObjectId
+  email             String    @unique
+  ticketName        String
+  ticketDescription String
+  pipeline          String?
+  ticketStatus      String
+  source            String
+  ticketOwner       String
+  priority          String?
+  createDate        String
+  associatedContact String?   @db.ObjectId
+  associatedCompany String?   @db.ObjectId
+  associatedDeal    String?   @db.ObjectId
+  dealId            String?   @db.ObjectId
+  createdAt         DateTime? @default(now())
+  updatedAt         DateTime? @updatedAt
+  deletedAt         DateTime?
+
+  contact     Contact?   @relation(fields: [associatedContact], references: [id])
+  company     Company?   @relation(fields: [associatedCompany], references: [id])
+  deal        Deal?      @relation(fields: [associatedDeal], references: [id])
+  Workspace   Workspace? @relation(fields: [workspaceId], references: [id])
+  workspaceId String?    @db.ObjectId
+  Module      Module?    @relation(fields: [moduleId], references: [id])
+  moduleId    String?    @db.ObjectId
+  user        User       @relation(fields: [addedById], references: [id], onDelete: Cascade)
+
+  @@map("tickets")
 }
 
 enum InvitationStatus {

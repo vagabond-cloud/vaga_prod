@@ -649,3 +649,67 @@ export const updateCRMSettings = async (workspaceId, moduleid, data, id) => {
     });
     return settings
 }
+
+export const createTicket = async (addedById, email, data) => {
+    console.log(data)
+    const ticket = await prisma.ticket.createMany({
+        data: {
+            addedById,
+            email,
+            ticketName: data.ticketName,
+            ticketDescription: data.ticketDescription,
+            pipeline: data.pipeline,
+            ticketStatus: data.ticketStatus,
+            source: data.source,
+            ticketOwner: data.ticketOwner,
+            priority: data.priority,
+            createDate: data.createDate,
+            associatedContact: data.associatedContact || undefined,
+            associatedCompany: data.associatedCompany || undefined,
+            associatedDeal: data.associatedDeal,
+        },
+    });
+    return ticket
+}
+
+export const updateTicket = async (addedById, email, data) => {
+
+    const ticket = await prisma.ticket.update({
+        data: {
+            addedById,
+            email,
+            ticketName: data.ticketName || undefined,
+            ticketDescription: data.ticketDescription || undefined,
+            pipeline: data.pipeline || undefined,
+            ticketStatus: data.ticketStatus || undefined,
+            source: data.source || undefined,
+            ticketOwner: data.ticketOwner || undefined,
+            priority: data.priority || undefined,
+            createDate: data.createDate || undefined,
+            associatedContact: data.associatedContact || undefined,
+            associatedCompany: data.associatedCompany || undefined,
+            associatedDeal: data.associatedDeal || undefined,
+
+        },
+    });
+    return ticket
+}
+
+
+export const getTicket = async (associatedDeal) =>
+    await prisma.ticket.findMany({
+        where: { associatedDeal },
+        include: {
+            deal: true,
+            contact: true,
+            company: true,
+            user: true
+        },
+    });
+
+export const deleteTicket = async (id) => {
+    const ticket = await prisma.ticket.delete({
+        where: { id },
+    });
+    return ticket
+}

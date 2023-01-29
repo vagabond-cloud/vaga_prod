@@ -483,5 +483,46 @@ export const dealStage = [
         id: "10",
         name: "Deal Closed/Lost"
     },
+]
 
+export const ticketStatus = [
+    {
+        id: "1",
+        label: "New"
+    },
+    {
+        id: "2",
+        label: "Wait on contact"
+    },
+    {
+        id: "3",
+        label: "Wait on us"
+    },
+    {
+        id: "4",
+        label: "Closed"
+    },
+]
+
+export const ticketSource = [
+    {
+        id: "1",
+        label: "Email"
+    },
+    {
+        id: "2",
+        label: "Phone"
+    },
+    {
+        id: "3",
+        label: "Chat"
+    },
+    {
+        id: "4",
+        label: "Social"
+    },
+    {
+        id: "5",
+        label: "Other"
+    },
 ]

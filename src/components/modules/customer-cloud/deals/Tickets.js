@@ -10,10 +10,13 @@ import { useState } from 'react';
 import { Controller, useForm } from "react-hook-form";
 import toast from 'react-hot-toast';
 import Select from '@/components/Select';
+import api from '@/lib/common/api';
+import { ticketStatus, ticketSource } from '@/config/modules/crm'
 
-function Tickets({ }) {
-    // notes = JSON.parse(notes)
+function Tickets({ tickets, deal, team }) {
+    tickets = JSON.parse(tickets)
 
+    console.log(team)
     const router = useRouter()
     const { id } = router.query
 
@@ -31,25 +34,30 @@ function Tickets({ }) {
         createDate: '',
         associatedContact: '',
         associatedCompany: '',
-        associatedDeal: id,
+        associatedDeal: deal.id,
     }
 
     const { handleSubmit, control, formState: { errors } } = useForm({ defaultValues });
-    const onSubmit = data => console.log(data);
+    const onSubmit = data => addTicket(data);
 
 
-    const addNote = async (formInput) => {
-        await writeLog("Note Created", "note_created", new Date(), id)
+    const addTicket = async (formInput) => {
+        console.log(formInput)
+        const res = await api(`/api/modules/customer-cloud/ticket`, {
+            method: 'POST',
+            body: { formInput },
+        })
+        await writeLog("Ticket Created", "ticket_created", new Date(), id)
         router.replace(router.asPath)
-        toast.success("Note added successfully")
+        toast.success("Ticket added successfully")
     }
 
-    const deleteNote = async (cid) => {
+    const deleteTicket = async (cid) => {
         setShowOverlay(!showOverlay)
-        await writeLog("Note Deleted", "note_deleted", new Date(), id)
+        await writeLog("Ticket Deleted", "ticket_deleted", new Date(), id)
 
         router.replace(router.asPath)
-        toast.success("Note deleted successfully")
+        toast.success("Ticket deleted successfully")
     }
 
     const toggleModal = (item) => {
@@ -64,6 +72,7 @@ function Tickets({ }) {
                 <div className="w-full px-4">
                     <p className="text-lg text-gray-800">Tickets</p>
                 </div>
+
                 <SlideOver
                     title="Add Ticket"
                     subTitle="Add a new ticket"
@@ -101,10 +110,11 @@ function Tickets({ }) {
                                                 {...field}
                                             >
                                                 <option value="">Set status</option>
-                                                <option value="new">New</option>
-                                                <option value="wait_contact">Wait on contact</option>
-                                                <option value="wait_us">Wait on us</option>
-                                                <option value="closed">Closed</option>
+                                                {ticketStatus.map((status, index) => (
+
+                                                    <option key={index} value={status.id}>{status.label}</option>
+                                                ))}
+
                                             </Select>
                                         )}
                                     />
@@ -124,10 +134,11 @@ function Tickets({ }) {
                                                 {...field}
                                             >
                                                 <option value="">Select source</option>
-                                                <option value="chat">Chat</option>
-                                                <option value="email">Email</option>
-                                                <option value="form">Form</option>
-                                                <option value="phone">Phone</option>
+                                                {ticketSource.map((source, index) => (
+
+                                                    <option key={index} value={source.id}>{source.label}</option>
+                                                ))}
+
                                             </Select>
                                         )}
                                     />
@@ -182,11 +193,12 @@ function Tickets({ }) {
                                                 label="Ticket Owner"
                                                 {...field}
                                             >
-                                                <option value="">Set status</option>
-                                                <option value="new">New</option>
-                                                <option value="wait_contact">Wait on contact</option>
-                                                <option value="wait_us">Wait on us</option>
-                                                <option value="closed">Closed</option>
+                                                <option value="">Select Owner</option>
+
+                                                {team.map((owner, index) => (
+                                                    <option key={index} value={owner.id}>{owner.user.name}</option>
+                                                ))}
+
                                             </Select>
                                         )}
                                     />
@@ -241,7 +253,6 @@ function Tickets({ }) {
                                         name="associatedContact"
                                         id="associatedContact"
                                         control={control}
-                                        rules={{ required: true }}
                                         render={({ field }) => (
                                             <Select
                                                 label="Associated Contact"
@@ -254,7 +265,6 @@ function Tickets({ }) {
                                             </Select>
                                         )}
                                     />
-                                    <div className="text-red-600 mt-1 text-xs">{errors.associatedContact?.type === 'required' && <p role="alert">Ticket name is required</p>}</div>
                                 </div>
                             </div>
                             <div className="px-4 my-10">
@@ -263,7 +273,6 @@ function Tickets({ }) {
                                         name="associatedCompany"
                                         id="associatedCompany"
                                         control={control}
-                                        rules={{ required: true }}
                                         render={({ field }) => (
                                             <Select
                                                 label="Associated Company"
@@ -276,7 +285,6 @@ function Tickets({ }) {
                                             </Select>
                                         )}
                                     />
-                                    <div className="text-red-600 mt-1 text-xs">{errors.associatedCompany?.type === 'required' && <p role="alert">Ticket name is required</p>}</div>
                                 </div>
                             </div>
                         </div>
@@ -292,10 +300,38 @@ function Tickets({ }) {
                 </SlideOver>
             </div>
 
-            <Modal show={showOverlay} title={modalContent.title} toggle={toggleModal}>
+            <Modal show={showOverlay} title={modalContent.ticketName} toggle={toggleModal}>
+                <div className="my-8 min-w-3xl">
+                    <div className="grid grid-cols-3 gap-4 ">
+                        <div className="py-2 px-4 bg-yellow-100 rounded-lg">
+                            <p className=" text-xs text-gray-500">Status</p>
+                            <p className="font-bold text-xs text-gray-500">{ticketStatus.find((t) => t.id === modalContent.ticketStatus)?.label}</p>
+                        </div>
+                        <div className="py-2 px-4 bg-gray-200 rounded-lg">
+                            <p className=" text-xs text-gray-500">Priority</p>
+                            <p className="font-bold text-xs text-gray-500">{modalContent.priority?.toUpperCase()}</p>
+                        </div>
+                        <div className="py-2 px-4 bg-orange-200 rounded-lg">
+                            <p className=" text-xs text-gray-500">Owner</p>
+                            <p className="font-bold text-xs text-gray-500">{team.find((t) => t.id === modalContent.ticketOwner)?.user?.name}</p>
+                        </div>
+                    </div>
+                </div>
+                <div className="border-t border-b py-3">
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="py-2 flex gap-4">
+                            <p className=" text-xs text-gray-500">Source:</p>
+                            <p className="font-bold text-xs text-gray-500">{ticketSource.find((t) => t.id === modalContent.source)?.label}</p>
+                        </div>
+                        <div className="py-2 px-4 flex gap-4">
+                            <p className=" text-xs text-gray-500">Pipeline:</p>
+                            <p className="font-bold text-xs text-gray-500">{modalContent.pipeline}</p>
+                        </div>
+                    </div>
+                </div>
                 <div className="my-8 w-96">
                     <p className="text-sm text-gray-500">
-                        {modalContent.note}
+                        {modalContent.ticketDescription}
                     </p>
                 </div>
                 <div className="border-t py-2">
@@ -303,6 +339,9 @@ function Tickets({ }) {
                         <p className="text-xs text-gray-500">{modalContent?.user?.name}</p>
                     </div>
                     <div className="flex gap-4">
+                        <p className="text-xs text-gray-500">{modalContent?.email}</p>
+                    </div>
+                    <div className="flex gap-4 mt-3">
                         <p className="text-xs text-gray-500">{moment(modalContent.createdBy).format("DD MMM. YYYY - hh:mm:ss")}</p>
                     </div>
                 </div>
@@ -322,6 +361,35 @@ function Tickets({ }) {
                     </Button>
                 </div>
             </Modal >
+            <div className="w-full px-4 mt-10">
+                {tickets.map((item, index) => (
+                    <div key={index} className="cursor-pointer pointer-events-auto w-full max-w-7xl overflow-hidden rounded-lg bg-white ring-1 ring-black ring-opacity-5 my-4 hover:bg-gray-100" onClick={() => toggleModal(item)}>
+                        <div className="p-4">
+                            <div className="flex items-between">
+                                <div className="ml-3 w-0 flex-1 pt-0.5">
+                                    <p className="text-sm font-medium text-gray-900">{item.ticketName}</p>
+                                    <p className="text-xs text-gray-400 truncate pr-8 my-2">{ticketStatus.find((t) => t.id === item.ticketStatus)?.label}</p>
+                                    <p className="text-xs text-gray-400 truncate pr-8 my-2">{moment(item.createdAt).format("DD MMM. YYYY - hh:mm:ss")}</p>
+
+                                </div>
+                                <div className="flex pt-0.5 items-center justify-end">
+                                    <ChevronRightIcon className="h-5 w-5 text-gray-800" />
+                                </div>
+                                <div className="ml-4 flex flex-shrink-0">
+                                    <div className="block w-full">
+                                        <button
+                                            type="button"
+                                            className="inline-flex rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                                        >
+                                            <span className="sr-only">Close</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
         </div>
     )
 }

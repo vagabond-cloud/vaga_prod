@@ -4,7 +4,7 @@ import { dealStage } from '@/config/modules/crm';
 import { AccountLayout } from '@/layouts/index';
 import { log } from '@/lib/client/log';
 import api from '@/lib/common/api';
-import { getDeal, getActivity, getDocuments } from '@/prisma/services/modules';
+import { getDeal, getActivity, getDocuments, getTicket } from '@/prisma/services/modules';
 import { CheckIcon } from '@heroicons/react/24/solid';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -29,7 +29,7 @@ function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
 }
 
-function Deal({ deal, team, activities, documents }) {
+function Deal({ deal, team, activities, documents, workspace, tickets }) {
     deal = JSON.parse(deal)
     team = JSON.parse(team)
     activities = JSON.parse(activities)
@@ -86,13 +86,13 @@ function Deal({ deal, team, activities, documents }) {
         <AccountLayout>
             <Meta title={`Vagabond - Deals | Dashboard`} />
             <Content.Title
-                title="Deals"
-                subtitle="Overview of your deals"
+                title={deal.dealName}
+                subtitle={dealStage.find((d) => d.id === deal.dealStage)?.name}
             />
             <Content.Container>
                 <nav aria-label="Progress">
                     <ol role="list" className="divide-y divide-gray-300 rounded-md border border-gray-300 md:flex md:divide-y-0">
-                        {dealStage.slice(parseFloat(deal.dealStage) - 2, parseFloat(deal.dealStage) + 4).map((step, stepIdx) => (
+                        {dealStage.slice(parseFloat(deal.dealStage) - 1, parseFloat(deal.dealStage) + 5).map((step, stepIdx) => (
                             <li key={step.name} className="relative md:flex md:flex-1">
                                 {step.id < deal.dealStage ? (
                                     <a href={step.href} className="group flex w-full items-center">
@@ -179,7 +179,7 @@ function Deal({ deal, team, activities, documents }) {
                 }
                 {tab === "tickets" &&
                     <>
-                        <Tickets />
+                        <Tickets deal={deal} tickets={tickets} team={team} />
                     </>
                 }
                 {tab === "documents" &&
@@ -389,15 +389,18 @@ export async function getServerSideProps(context) {
     const team = await getMembers(context.query.workspaceSlug)
     const activities = await getActivity(context.params.id)
     const documents = await getDocuments(context.params.id)
-
     const deal = await getDeal(context.params.id);
+    const tickets = await getTicket(context.params.id)
 
+    console.log(tickets)
     return {
         props: {
             deal: JSON.stringify(deal),
             team: JSON.stringify(team),
             activities: JSON.stringify(activities),
             documents: JSON.stringify(documents),
+            workspace: JSON.stringify(workspace),
+            tickets: JSON.stringify(tickets),
 
         }
     }

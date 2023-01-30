@@ -89,7 +89,7 @@ function Settings({ modules, workspace, settings }) {
     }
 
     const writeLog = async () => {
-        const res = await log('Deal created', `Settings for ${defaultValues.companyName} created for Module: ${id} `, 'settings_created', '127.0.0.1');
+        const res = await log('CRM Settings Updated', `Settings for ${defaultValues.companyName} created for Module: ${id} `, 'settings_created', '127.0.0.1');
     }
 
     return (

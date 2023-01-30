@@ -23,6 +23,7 @@ import Documents from '@/components/modules/customer-cloud/deals/Documents';
 import Quotes from '@/components/modules/customer-cloud/deals/Quotes';
 import Finance from '@/components/modules/customer-cloud/deals/Finance';
 import Reports from '@/components/modules/customer-cloud/deals/Reports';
+import { useForm, Controller } from "react-hook-form";
 
 
 function classNames(...classes) {
@@ -33,22 +34,6 @@ function Deal({ deal, team, activities, documents, workspace, tickets, settings 
     deal = JSON.parse(deal)
     team = JSON.parse(team)
     activities = JSON.parse(activities)
-
-
-    const [formInput, updateFormInput] = useState({
-        dealName: '',
-        pipeline: '',
-        dealStage: '',
-        amount: '',
-        closeDate: '',
-        dealOwnerId: '',
-        dealType: '',
-        priority: '',
-        linkContactId: '',
-        linkCompanyId: '',
-        linkProjectId: '',
-    })
-
 
     const router = useRouter(false);
     const { workspaceSlug, id, tab } = router.query;
@@ -64,7 +49,8 @@ function Deal({ deal, team, activities, documents, workspace, tickets, settings 
     ]
 
 
-    const updateDeal = async () => {
+
+    const updateDeal = async (formInput) => {
         const res = await api(`/api/modules/deal`, {
             method: 'POST',
             body: {
@@ -187,7 +173,7 @@ function Deal({ deal, team, activities, documents, workspace, tickets, settings 
                     <Documents deal={deal} documents={documents} />
                 }
                 {tab === "quotes" &&
-                    <Quotes />
+                    <Quotes settings={settings} />
                 }
                 {tab === "finance" &&
                     <Finance />
@@ -212,13 +198,21 @@ const Overview = ({ deal, team, settings }) => {
     const { workspaceSlug, id } = router.query
     const [assign, updateAssign] = useState("")
 
+    const defaultValues = {
+        userId: deal?.aassignedTo ? deal?.aassignedTo : '',
+        dealId: id
+    }
+
+    const { handleSubmit, control, setValue, formState: { errors } } = useForm({ defaultValues });
+    const onSubmit = data => assignDeal(data);
+
     //assigne deal to user
-    const assignDeal = async (userId) => {
+    const assignDeal = async (data) => {
         const res = await api(`/api/modules/customer-cloud/deal`, {
             method: 'POST',
             body: {
                 dealId: id,
-                userId: assign
+                userId: data.assign
             }
         })
         if (res.status === 200) {
@@ -267,21 +261,29 @@ const Overview = ({ deal, team, settings }) => {
                 </div>
             </div>
             <div className="grid grid-cols-3 gap-4">
-                <div className="py-4 items-center flex gap-4 col-span-2">
+                <form onSubmit={handleSubmit(onSubmit)} className="py-4 items-center flex gap-4 col-span-2" >
                     <p className="w-20 text-xs">Assign to:</p>
-                    <Select
-                        onChange={(e) => updateAssign(e.target.value)}
-                    >
-                        {team.map((member, index) => (
-                            <option key={index} value={member.user.id} selected={deal.aassignedTo === member.user.id ? member.user.id : false}>
-                                {member.user.name}
-                            </option>
-                        ))}
+                    <Controller
+                        name="userId"
+                        id="userId"
+                        control={control}
+                        rules={{ required: true }}
+                        render={({ field }) => (
+                            <Select
+                                {...field}                            >
+                                {team.map((member, index) => (
+                                    <option key={index} value={member.user.id} >
+                                        {member.user.name}
+                                    </option>
+                                ))}
 
-                    </Select>
-                    <Button className="w-20 bg-red-600 text-white" onClick={() => assignDeal()}>Assign</Button>
-                </div>
-            </div>
+                            </Select>
+                        )}
+                    />
+
+                    <Button className="w-20 bg-red-600 text-white" type="submit">Assign</Button>
+                </form>
+            </div >
             <div>
                 <div className="grid grid-cols-2 gap-4 border-gray-200 border p-4">
                     {deal?.contact &&

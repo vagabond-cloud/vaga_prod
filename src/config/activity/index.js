@@ -74,4 +74,10 @@ export const activitydetails = [
         "name": "Deal deleted",
         "icon": "␡"
     },
+    {
+        "id": "settings_created",
+        "name": "Settings updated",
+        "icon": "⚙️"
+    },
+
 ]

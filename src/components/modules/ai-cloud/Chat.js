@@ -14,7 +14,7 @@ const COOKIE_NAME = 'vaga-ai chat'
 export const initialMessages = [
     {
         who: 'bot',
-        message: 'Hi! I’m A Vaga AI. Ask me anything!',
+        message: `Hi! I’m A Vaga AI. Ask me anything!`,
     },
 ]
 
@@ -36,14 +36,17 @@ const InputMessage = ({ input, setInput, sendMessage }) => (
             }}
         />
         <Button
-            className="ml-4 flex-none"
+            className="ml-2 mt-1 flex-none bg-red-600 hover:bg-gray-200 hover:text-gray-800 text-gray-100"
             onClick={() => {
                 sendMessage(input)
                 setInput('')
-                scrollToBottom()
             }}
         >
-            <PaperAirplaneIcon className="w-6 h-6 text-gray-500 hover:text-red-600 " />
+            <div className=" ">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-send" viewBox="0 0 16 16">
+                    <path d="M15.854.146a.5.5 0 0 1 .11.54l-5.819 14.547a.75.75 0 0 1-1.329.124l-3.178-4.995L.643 7.184a.75.75 0 0 1 .124-1.33L15.314.037a.5.5 0 0 1 .54.11ZM6.636 10.07l2.761 4.338L14.13 2.576 6.636 10.07Zm6.787-8.201L1.591 6.602l4.339 2.76 7.494-7.493Z" />
+                </svg>
+            </div>
         </Button>
     </div>
 )
@@ -62,6 +65,7 @@ function Chat({ name }) {
 
     useEffect(() => {
         scrollToBottom();
+        console.log(messagesEndRef.current)
     }, [messages, loading]);
 
     useEffect(() => {
@@ -74,40 +78,29 @@ function Chat({ name }) {
 
     // send message to API /api/chat endpoint
     const sendMessage = async (message) => {
-        setLoading(true)
+        setLoading(true);
 
-        const newMessages = [
-            ...messages,
-            { message, who: 'user' },
-        ]
-        setMessages(newMessages)
+        const newMessages = [...messages, { message, who: "user" }];
+        setMessages(newMessages);
 
-        const last10messages = newMessages.slice(-10)
-
-
-        const response = await fetch('/api/chat', {
-            method: 'POST',
+        const response = await fetch("/api/chat", {
+            method: "POST",
             headers: {
-                'Content-Type': 'application/json',
+                "Content-Type": "application/json",
             },
             body: JSON.stringify({
-                messages: last10messages,
+                messages: [...newMessages.slice(-10), { message, who: "user" }],
                 user: cookie[COOKIE_NAME],
-            })
-        })
-        const data = await response.json();
+            }),
+        });
+        const { text } = await response.json();
+        const botNewMessage = text.trim();
 
-        // strip out white spaces from the bot message
-        const botNewMessage = data.text.trim();
-        scrollToBottom();
-
-        setMessages([
-            ...newMessages,
-            { message: botNewMessage, who: 'bot' }
-        ]);
+        setMessages([...newMessages, { message: botNewMessage, who: "bot" }]);
         scrollToBottom();
         setLoading(false);
-    }
+    };
+
 
     return (
         <div className="relative h-full  px-8">
@@ -117,19 +110,21 @@ function Chat({ name }) {
                         return (
                             <div key={index} className="py-10 " >
                                 <ChatLine key={index} who={who} message={message} name={name} />
+                                <div style={{ marginBottom: 50 }} ref={messagesEndRef} />
+
                             </div>
                         )
                     })}
-                    <div style={{ marginBottom: 100 }} ref={messagesEndRef} />
 
                 </div>
                 {loading &&
                     <>
                         <LoadingChatLine />
+
                     </>
                 }
-                <div style={{ marginBottom: 100 }} ref={messagesEndRef} />
             </div>
+
             <div className="relative bottom-0 right-0 h-[10%]  xs:w-full p-4 mt-4  bg-white">
                 <InputMessage
                     input={input}

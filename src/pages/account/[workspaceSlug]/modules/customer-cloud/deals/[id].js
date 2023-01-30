@@ -54,7 +54,6 @@ function Contacts({ modules, companies, workspace, deals, contacts, filters, tot
         linkProjectId: '',
     }
 
-    console.log(contacts)
     const { handleSubmit, control, setValue, formState: { errors } } = useForm({ defaultValues });
     const onSubmit = data => createDeal(data);
 

@@ -200,11 +200,13 @@ function Documents({ company, documents, deal }) {
                                         {docs.map((item, index) => (
 
                                             <tr key={index}>
-                                                <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 md:pl-0">
-                                                    {item.title}
-                                                </td>
-                                                <td className="whitespace-nowrap py-4 px-3 text-sm text-gray-500">{fileType.find((f) => f.type === item.type)?.name}</td>
+                                                <a key={index} href={item.documentUrl} target="_blank" rel="noreferrer">
+                                                    <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 md:pl-0">
+                                                        {item.title}
+                                                    </td>
+                                                </a>
                                                 <td className="whitespace-nowrap py-4 px-3 text-sm text-gray-500">{parseFloat(item.size / 1000000).toLocaleString()} MB</td>
+                                                <td td className="whitespace-nowrap py-4 px-3 text-sm text-gray-500">{fileType.find((f) => f.type === item.type)?.name}</td>
                                                 <td className="whitespace-nowrap py-4 px-3 text-sm text-gray-500">{moment(item.lastModified).format("DD MMM. YYYY - hh:mm:ss")}</td>
                                                 <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6 md:pr-0">
                                                     <a key={index} href={item.documentUrl} target="_blank" rel="noreferrer">
@@ -239,8 +241,8 @@ function Documents({ company, documents, deal }) {
                         ))}
                     </ul>
                 }
-            </div>
-        </div>
+            </div >
+        </div >
     )
 }
 

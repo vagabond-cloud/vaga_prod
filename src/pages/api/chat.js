@@ -58,7 +58,7 @@ export default async function handler(req) {
             : 200,
         top_p: 1,
         frequency_penalty: 0,
-        presence_penalty: 0,
+        presence_penalty: 0.6,
         stop: [`${botName}:`, `${userName}:`],
         user: body?.user,
     }

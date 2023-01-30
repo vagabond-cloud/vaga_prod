@@ -48,8 +48,7 @@ function ChatLine({ who = 'bot', message, name }) {
             }
         >
             <BalancerWrapper>
-
-                <div className="float-right pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5">
+                <div className="my-4 float-right pointer-events-auto w-full max-w-2xl overflow-hidden rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5">
                     <div className=" bg-white px-4 py-5  sm:px-6">
                         <div className="flex space-x-3">
                             <div className="flex-1 gap-4">

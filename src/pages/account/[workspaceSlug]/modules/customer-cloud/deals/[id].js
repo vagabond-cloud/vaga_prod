@@ -34,6 +34,8 @@ function Contacts({ modules, companies, workspace, deals, contacts, filters, tot
     deals = JSON.parse(deals)
     contacts = JSON.parse(contacts)
 
+    const settings = modules.Crmsettings[0]
+
     const router = useRouter(false);
     const { workspaceSlug, id, page } = router.query;
 
@@ -52,7 +54,7 @@ function Contacts({ modules, companies, workspace, deals, contacts, filters, tot
         linkProjectId: '',
     }
 
-
+    console.log(contacts)
     const { handleSubmit, control, setValue, formState: { errors } } = useForm({ defaultValues });
     const onSubmit = data => createDeal(data);
 
@@ -106,7 +108,7 @@ function Contacts({ modules, companies, workspace, deals, contacts, filters, tot
         }
     };
 
-
+    console.log(deals)
     return (
         <AccountLayout>
             <Meta title={`Vagabond - Deals | Dashboard`} />
@@ -312,30 +314,6 @@ function Contacts({ modules, companies, workspace, deals, contacts, filters, tot
                                             )}
                                         />
                                     </div>
-
-
-                                    {/*
-                                   
-                                    
-                                   
-                                    <div className="px-4 my-6">
-                                        <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                                            Project
-                                        </label>
-                                        <div className="mt-1">
-                                            <Select
-                                                onChange={(e) => updateFormInput({ ...formInput, projectId: e.target.value })}
-                                            >
-                                                <option value="" className="text-gray-400">Choose a Project</option>
-
-                                                {
-                                                    types.map((stage, index) => (
-                                                        <option key={index} value={stage.id}>{stage.name}</option>
-                                                    )
-                                                    )}
-                                            </Select>
-                                        </div>
-                                    </div> */}
                                 </div>
                                 <div className="flex flex-shrink-0 justify-end px-4 py-4 w-full border-t absolute bottom-0 bg-white">
                                     <Button
@@ -405,26 +383,26 @@ function Contacts({ modules, companies, workspace, deals, contacts, filters, tot
                                                         {deal.dealName}
                                                     </td>
                                                     <td className="whitespace-nowrap px-3 py-4 text-xs text-gray-500">{dealStage.find((d) => d.id === deal.dealStage)?.name}</td>
-                                                    <td className="whitespace-nowrap px-3 py-4 text-xs text-gray-500">{parseFloat(deal.amount).toLocaleString()}</td>
+                                                    <td className="whitespace-nowrap px-3 py-4 text-xs text-gray-500">{parseFloat(deal.amount).toLocaleString(settings.language, { style: 'currency', currency: settings.currency })}</td>
                                                     <td className="whitespace-nowrap px-3 py-4 text-xs text-gray-500">{moment(deal.closeDate).format("DD MMM. YYYY")}</td>
                                                     <td className="whitespace-nowrap px-3 py-4 text-xs text-gray-500">{deal.user.name}</td>
                                                     <td className="whitespace-nowrap px-3 py-4 text-xs text-gray-500">
                                                         <Link href={`/account/${workspaceSlug}/modules/customer-cloud/contacts/card/${deal.contactId}`}>
-                                                            {deal.linkContactId &&
+                                                            {deal.contact &&
 
                                                                 <div className="flex gap-2 items-center">
-                                                                    <img src={contacts.find((com) => com.id === deal.contactId)?.photoUrl ? contacts.find((com) => com.id === deal.contactId)?.photoUrl : ""} className="h-6 w-6 rounded-full" />
-                                                                    {contacts.find((com) => com.id === deal.contactId)?.firstName + ' ' + contacts.find((com) => com.id === deal.contactId)?.lastName}
+                                                                    <img src={deal?.contact?.photoUrl} className="h-6 w-6 rounded-full" />
+                                                                    {deal?.contact?.firstName + ' ' + deal?.contact?.lastName}
                                                                 </div>
                                                             }
                                                         </Link>
                                                     </td>
                                                     <td className="whitespace-nowrap px-3 py-4 text-xs text-gray-500 ">
                                                         <Link href={`/account/${workspaceSlug}/modules/customer-cloud/companies/card/${deal.companyId}`}>
-                                                            {deal.linkCompanyId &&
+                                                            {deal.company &&
                                                                 <div className="flex gap-2 items-center">
-                                                                    <img src={companies.find((com) => com.id === deal.companyId)?.logoUrl ? companies.find((com) => com.id === deal.companyId)?.logoUrl : ""} className="h-6 w-6 rounded-full" />
-                                                                    {companies.find((com) => com.id === deal.companyId)?.companyName}
+                                                                    <img src={deal?.company?.logoUrl} className="h-6 w-6 rounded-full" />
+                                                                    {deal?.company?.companyName}
                                                                 </div>
                                                             }
                                                         </Link>
@@ -547,6 +525,8 @@ export async function getServerSideProps(context) {
 
     //These props include isTeamOwner, workspace, modules, companies, deals, total and contacts. 
     //These variables are all stringified before being returned.
+
+
 
     return {
         props: {

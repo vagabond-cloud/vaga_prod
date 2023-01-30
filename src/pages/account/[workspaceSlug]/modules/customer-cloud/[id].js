@@ -24,7 +24,7 @@ function CustomerCloud({ deals, total, contacts, settings }) {
     console.log(settings)
 
     const stats = [
-        { name: 'Total Sales', stat: total.toLocaleString(settings.language) + ' ' + settings.currency },
+        { name: 'Total Sales', stat: total.toLocaleString(settings.language, { style: 'currency', currency: settings.currency }) },
         { name: 'Total Deals', stat: deals.length },
         { name: 'Total Clients', stat: contacts.length },
     ]

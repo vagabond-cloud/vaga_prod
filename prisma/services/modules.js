@@ -23,6 +23,7 @@ export const getModule = async (moduleCode) =>
         },
         include: {
             workspace: true,
+            Crmsettings: true,
         },
     });
 
@@ -648,9 +649,11 @@ export const getDealByStage = async (page, limit, sort, dealStage, moduleid) => 
             module: true,
             user: true,
             contact: true,
-            company: true
+            company: true,
+            module: true
         },
         where: { dealStage, moduleid },
+
         skip,
         take: limit,
         orderBy: sort,

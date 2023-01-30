@@ -5,7 +5,7 @@ import {
 
 const Content = ({ children }) => {
   return (
-    <div className="flex flex-col min-h-screen p-5 space-y-5 overflow-y-auto md:p-10 md:w-3/4">
+    <div className="flex flex-col min-h-full p-5 space-y-5 overflow-y-auto md:p-10 md:w-3/4">
       {children}
     </div>
   );
@@ -14,6 +14,7 @@ const Content = ({ children }) => {
 Content.Container = ({ children }) => {
   return <div className="flex flex-col pb-10 space-y-5">{children}</div>;
 };
+
 
 Content.Divider = ({ thick }) => {
   return thick ? (

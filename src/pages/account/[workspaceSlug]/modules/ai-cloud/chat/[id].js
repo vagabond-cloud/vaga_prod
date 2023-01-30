@@ -9,19 +9,16 @@ import { getSession } from 'next-auth/react';
 function AICloud({ session }) {
 
     return (
-        <AccountLayout footer={true}>
-            <Meta title={`Vagabond - Contacts | Dashboard`} />
+        <div className="h-screen p-10 ">
             <Content.Title
                 title="Vagabond AI Cloud"
                 subtitle="Vagabond Assistant"
             />
             <Content.Divider />
-            <Content.Container>
-                <div className=" w-full px-10">
-                    <Chat name={!session.user.name ? session.user.email : session.user.name} />
-                </div>
-            </Content.Container>
-        </AccountLayout>
+            <div className="py-8 h-full">
+                <Chat name={!session.user.name ? session.user.email : session.user.name} />
+            </div>
+        </div>
     )
 }
 

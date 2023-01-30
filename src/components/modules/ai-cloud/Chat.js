@@ -40,6 +40,7 @@ const InputMessage = ({ input, setInput, sendMessage }) => (
             onClick={() => {
                 sendMessage(input)
                 setInput('')
+                scrollToBottom()
             }}
         >
             <PaperAirplaneIcon className="w-6 h-6 text-gray-500 hover:text-red-600 " />
@@ -59,6 +60,9 @@ function Chat({ name }) {
         messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
 
+    useEffect(() => {
+        scrollToBottom();
+    }, [messages, loading]);
 
     useEffect(() => {
         if (!cookie[COOKIE_NAME]) {
@@ -71,11 +75,13 @@ function Chat({ name }) {
     // send message to API /api/chat endpoint
     const sendMessage = async (message) => {
         setLoading(true)
+
         const newMessages = [
             ...messages,
             { message, who: 'user' },
         ]
         setMessages(newMessages)
+
         const last10messages = newMessages.slice(-10)
 
 
@@ -101,32 +107,30 @@ function Chat({ name }) {
         ]);
         scrollToBottom();
         setLoading(false);
-
     }
 
     return (
-        <>
-            <div className="rounded-2xl border-zinc-100">
-                <div className="h-full mb-20">
+        <div className="relative h-full  px-8">
+            <div className="rounded-2xl border-zinc-100 h-5/6 overflow-y-scroll overscroll-none px-8 mb-10 scroll-hidden ">
+                <div className="my-8 ">
                     {messages.map(({ message, who }, index) => {
                         return (
-                            <div key={index} className="" >
+                            <div key={index} className="py-10 " >
                                 <ChatLine key={index} who={who} message={message} name={name} />
-
                             </div>
                         )
                     })}
+                    <div style={{ marginBottom: 100 }} ref={messagesEndRef} />
 
                 </div>
                 {loading &&
                     <>
                         <LoadingChatLine />
-                        <div ref={messagesEndRef} className="min-h-20 mb-96" />
-
                     </>
                 }
+                <div style={{ marginBottom: 100 }} ref={messagesEndRef} />
             </div>
-            <div className="fixed bottom-0 right-0 md:w-4/5 xs:w-full p-4 mt-4  bg-white">
+            <div className="relative bottom-0 right-0 h-[10%]  xs:w-full p-4 mt-4  bg-white">
                 <InputMessage
                     input={input}
                     setInput={setInput}
@@ -134,9 +138,8 @@ function Chat({ name }) {
                     placeholder={messages.length < 2 && "Type a message to start the conversation"}
                 />
             </div>
-            <div ref={messagesEndRef} className="min-h-20 mb-96" />
 
-        </>
+        </div>
     );
 
 }

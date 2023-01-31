@@ -4,39 +4,35 @@ import Input from '@/components/Input'
 import Select from '@/components/Select'
 import Button from '@/components/Button'
 import FilesDiscovery from '@hubspot/api-client/lib/src/discovery/files/FilesDiscovery';
+import { grandTotal } from '@/lib/client/modules/customer-cloud/invoiceTotal'
 
 function Quotes({ settings }) {
     settings = JSON.parse(settings)[0]
-    console.log(settings)
+
     const id = () => Math.random().toString(36).substr(2, 9);
 
 
     const defaultValues = {
-        clientName: "",
-        quoteId: "",
-        street: "",
-        clientId: "",
-        zip: "",
-        city: "",
-        date: "",
-        country: "",
-        validUntil: "",
-        subject: "",
-        intro: "",
-        item: [{
-            id: id(),
-            name: '',
-            item: '',
-            amount: '',
-            price: '',
-            vat: '',
-            discount: '',
-            total: '',
-        }]
+        clientName: '',
+        quoteId: '',
+        street: '',
+        clientId: '',
+        zip: '',
+        city: '',
+        date: '',
+        country: '',
+        validUntil: '',
+        subject: '',
+        intro: '',
+        item: [],
+        footer: '',
+        note: '',
     };
 
-    const { register, getValues, watch, handleSubmit, control, formState: { errors } } = useForm({ defaultValues });
-    const onSubmit = data => console.log(data);
+
+    const form = useForm({ defaultValues });
+    const { register, getValues, watch, handleSubmit, control, formState: { errors } } = form;
+    const onSubmit = data => console.log("Data", data);
 
     const { fields, append, prepend, remove } = useFieldArray({
         name: "item",
@@ -51,13 +47,30 @@ function Quotes({ settings }) {
         name: "item"
     })
 
-    console.log("FILEDS", calcItems)
+
+    // Calculate the total price of each item row
+    const total = (index) => {
+        const item = calcItems[index];
+        if (!item) return 0;
+
+        const amount = parseFloat(item.amount) || 0;
+        const price = parseFloat(item.price) || 0;
+        const vat = parseFloat(item.vat) || 0;
+        const discount = parseFloat(item.discount) || 0;
+
+        const itemTotal = (amount * price) + (amount * price * vat / 100) - discount;
+
+        return parseFloat(itemTotal).toLocaleString(settings.country, { style: 'currency', currency: settings.currency });
+    };
+
 
     return (
         <div>
             <form onSubmit={handleSubmit(onSubmit)}>
                 <div className="">
                     <div className="grid grid-cols-3 gap-4 rounded-lg shadow px-2 py-4">
+                        <p className="px-4 font-bold my-4 col-span-3">Client Information</p>
+
                         <div className="px-4 my-0">
                             <Controller
                                 name="clientName"
@@ -190,6 +203,8 @@ function Quotes({ settings }) {
                         </div>
                     </div>
                     <div className="grid grid-cols-1 gap-4 rounded-lg shadow px-2 py-4 mt-10">
+                        <p className="px-4 font-bold my-4 col-span-1">Header</p>
+
                         <div className="px-4 my-0">
                             <Controller
                                 name="subject"
@@ -221,19 +236,20 @@ function Quotes({ settings }) {
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 gap-4 rounded-lg shadow px-2 py-4 mt-10">
-                        <div className="grid grid-cols-9 gap-2 text-sm">
+                    <div className="grid grid-cols-1 gap-3 rounded-lg shadow px-2 py-4 mt-10">
+                        <div className="grid md:grid-cols-4 xs:grid-cols-1 lg:grid-cols-9 gap-2 text-xs">
+
                             <div className="px-4 my-0 col-span-3">
                                 Product/Service
                             </div>
                             <div className="px-4 my-0 col-span-1">
                                 Amount
                             </div>
-                            <div className="px-4 my-0 col-span-1">
-                                Price ({settings.currency})
+                            <div className="px-4 my-0 col-span-1 flex">
+                                Price <span className="md:hidden lg:flex ml-1">({settings.currency})</span>
                             </div>
                             <div className="px-4 my-0 col-span-1">
-                                VAT
+                                VAT (%)
                             </div>
                             <div className="px-4 my-0 col-span-1">
                                 Discount
@@ -244,7 +260,7 @@ function Quotes({ settings }) {
                         </div>
                         {fields.map((field, index) => {
                             return (
-                                <section key={field.id} className="grid grid-cols-9 gap-2">
+                                <section key={field.id} className="grid md:grid-cols-4 xs:grid-cols-1 lg:grid-cols-9 gap-1">
                                     <div className="px-4 my-0 col-span-3">
                                         <Controller
                                             name={`item.${index}.name`}
@@ -316,27 +332,10 @@ function Quotes({ settings }) {
                                             )}
                                         />
                                     </div>
-                                    <div className="px-4 my-0 col-span-1">
-                                        <Controller
-                                            name={`item.${index}.discount`}
-                                            id={`item.${index}.discount`}
-                                            control={control}
-                                            render={({ field }) => (
-                                                <Input
-                                                    {...field}
-                                                    type="number"
-                                                    placeholder={parseFloat((calcItems[index]?.amount ? parseFloat(calcItems[index]?.amount) : 0 * parseFloat(calcItems[index]?.price))
-                                                        - (calcItems[index]?.discount ? parseFloat(calcItems[index]?.discount) : 0
-                                                        )).toLocaleString(settings.country, { style: 'currency', currency: settings.currency })}
-                                                />
-                                            )}
-                                        />
+                                    <div className="px-4 my-4 col-span-1">
+                                        <p className="text-end font-bold">{total(index)}</p>
                                     </div>
-                                    {/* <div className="px-4 my-4 col-span-1 font-bold">
-                                        {parseFloat((calcItems[index]?.amount ? parseFloat(calcItems[index]?.amount) : 0 * calcItems[index]?.price ? parseFloat(calcItems[index]?.price) : 0)
-                                            - (calcItems[index]?.discount ? parseFloat(calcItems[index]?.discount) : 0
-                                            )).toLocaleString(settings.country, { style: 'currency', currency: settings.currency })}
-                                    </div> */}
+
                                     <Button type="button" className="bg-red-600 text-white mt-1 w-16" onClick={() => remove(index)}>
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-x-lg" viewBox="0 0 16 16">
                                             <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z" />
@@ -345,9 +344,21 @@ function Quotes({ settings }) {
                                 </section>
                             );
                         })}
-                        <div className="flex flex-row px-4">
-                            <TotalAmout control={control} />
-                        </div>
+                        <section className="grid grid-cols-9 gap-2 mt-4 border-t pt-6">
+                            <div className="px-4 col-span-6"></div>
+                            <div className="col-span-1">VAT</div>
+                            <p className="text-end pr-4 font-bold">{grandTotal(calcItems, settings).gradVat}</p>
+                        </section>
+                        <section className="grid grid-cols-9 gap-2 my-2">
+                            <div className="px-4 col-span-6"></div>
+                            <div className="col-span-1">Discount</div>
+                            <p className="text-end pr-4 font-bold">{grandTotal(calcItems, settings).grandDiscount}</p>
+                        </section>
+                        <section className="grid grid-cols-9 gap-2 my-2">
+                            <div className="px-4 col-span-6"></div>
+                            <div className="col-span-1">Total</div>
+                            <p className="text-end pr-4 font-bold">{grandTotal(calcItems, settings).grandTotal}</p>
+                        </section>
                         <section className="px-4">
                             <Button
                                 className="bg-red-600 text-white hover:bg-red-700"
@@ -367,31 +378,47 @@ function Quotes({ settings }) {
                         </section>
                     </div>
                 </div>
-                <div className="mt-10">
+
+                <div className="grid grid-cols-1 gap-4 rounded-lg shadow px-2 py-4 mt-10">
+                    <p className="px-4 font-bold my-4">Footer</p>
+                    <div className="px-4 my-0">
+                        <Controller
+                            name="footer"
+                            id="footer"
+                            control={control}
+                            render={({ field }) => (
+                                <Input
+                                    {...field}
+                                    type="text"
+                                    label="Subject"
+                                />
+                            )}
+                        />
+                    </div>
+                    <div />
+                    <div className="px-4 my-0">
+                        <Controller
+                            name="note"
+                            id="note"
+                            control={control}
+                            render={({ field }) => (
+                                <Input
+                                    {...field}
+                                    type="text"
+                                    label="Intro"
+                                />
+                            )}
+                        />
+                    </div>
+                </div>
+                <div className="mt-10 flex w-full justify-end">
                     <Button
                         type="submit"
                         className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
                     >
-                        Save
+                        Create
                     </Button>
                 </div>
-                {/* <section>
-                    <button
-                        type="button"
-                        onClick={() => {
-                            append();
-                        }}
-                    >
-                        append
-                    </button>
-                    <button type="button" onClick={() => prepend()}>
-                        prepend
-                    </button>
-                    <input name="at" ref={register} placeholder="Insert index" />
-                    <button type="button" onClick={() => insert(parseInt(at, 10))}>
-                        insert at
-                    </button>
-                </section> */}
             </form >
 
         </div >
@@ -402,21 +429,3 @@ export default Quotes
 
 
 
-function getTotal(payload) {
-    let total = 0;
-
-    for (const item of payload) {
-        total = total + (Number.isNaN(item.amount) ? 0 : item.amount);
-    }
-
-    return total;
-}
-
-function TotalAmout({ control }) {
-    const cartValues = useWatch({
-        control,
-        name: "item"
-    });
-
-    return <p>{getTotal(cartValues)}</p>;
-}

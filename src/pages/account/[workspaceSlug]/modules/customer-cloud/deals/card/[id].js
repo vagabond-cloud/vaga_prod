@@ -173,7 +173,7 @@ function Deal({ deal, team, activities, documents, workspace, tickets, settings 
                     <Documents deal={deal} documents={documents} />
                 }
                 {tab === "quotes" &&
-                    <Quotes settings={settings} />
+                    <Quotes settings={settings} deal={deal} />
                 }
                 {tab === "finance" &&
                     <Finance />
@@ -243,7 +243,7 @@ const Overview = ({ deal, team, settings }) => {
                         </div>
                         <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-4">
                             <dt className="text-sm font-medium text-gray-500">Amount</dt>
-                            <dd className="mt-1 text-sm text-gray-500 sm:col-span-2 sm:mt-0">{parseFloat(deal.amount)?.toLocaleString(settings.language) + ' ' + settings.currency} </dd>
+                            <dd className="mt-1 text-sm text-gray-500 sm:col-span-2 sm:mt-0">{parseFloat(deal.amount)?.toLocaleString(settings.country, { style: "currency", currency: settings.currency })}</dd>
                         </div>
                         <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-4">
                             <dt className="text-sm font-medium text-gray-500">Close Date</dt>

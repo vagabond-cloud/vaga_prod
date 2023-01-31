@@ -283,6 +283,7 @@ model Contact {
   document        Document[]
   deal            Deal[]
   ticket          Ticket[]
+  Quote           Quote[]
 
   @@map("contacts")
 }
@@ -411,6 +412,7 @@ model Company {
   document  Document[]
   deal      Deal[]
   ticket    Ticket[]
+  Quote     Quote[]
 
   @@map("companies")
 }
@@ -465,6 +467,7 @@ model Deal {
   contact Contact? @relation(fields: [contactId], references: [id])
   module  Module?  @relation(fields: [moduleid], references: [id])
   ticket  Ticket[]
+  Quote   Quote[]
 
   @@fulltext([id, email, dealName, dealStage, dealType, priority])
   @@map("deals")
@@ -479,6 +482,7 @@ model Crmsettings {
   country     String?
   workspaceId String    @db.ObjectId
   moduleid    String    @db.ObjectId
+  vat         String?
   createdAt   DateTime? @default(now())
   updatedAt   DateTime? @updatedAt
   deletedAt   DateTime?
@@ -519,6 +523,37 @@ model Ticket {
   user        User       @relation(fields: [addedById], references: [id], onDelete: Cascade)
 
   @@map("tickets")
+}
+
+model Quote {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  addedById   String    @db.ObjectId
+  dealId      String    @db.ObjectId
+  email       String    @unique
+  clientName  String
+  quoteNumber String
+  quoteDate   String
+  quoteStatus String?
+  street      String?
+  clientId    String    @db.ObjectId
+  zip         String?
+  city        String?
+  country     String?
+  validUntil  String?
+  subject     String?
+  intro       String?
+  item        Json?
+  footer      String?
+  note        String?
+  createdAt   DateTime? @default(now())
+  updatedAt   DateTime? @updatedAt
+  deletedAt   DateTime?
+
+  contact Contact @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  company Company @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  deal    Deal    @relation(fields: [dealId], references: [id])
+
+  @@map("quote")
 }
 
 enum InvitationStatus {

@@ -52,7 +52,6 @@ function Contacts({ modules, contacts, workspace, total }) {
     const onSubmit = data => createContact(data);
 
     const createContact = async (formInput) => {
-
         try {
             const res = await api(`/api/modules/contact`, {
                 method: 'PUT',
@@ -61,22 +60,17 @@ function Contacts({ modules, contacts, workspace, total }) {
                     workspaceId: workspace[0].id,
                     moduleId: modules.id
                 }
-            })
-            // Check the status of the response
+            });
             if (res.status === 200) {
-                // If the status is 200, show a success message and call the writeLog function
-                writeLog()
-                // Refresh the current page
-                router.replace(router.asPath)
+                writeLog();
+                router.replace(router.asPath);
             } else {
-                // If the status is not 200, show an error message
-                toast.error('Error creating contact')
+                toast.error('Error creating contact');
             }
-        } catch (err) {
-            const message = error.response ? error.response.data.message : error.message;
-            toast.error(`Error creating contact: ${message}`);
+        } catch (error) {
+            toast.error(`Error creating contact: ${error.response ? error.response.data.message : error.message}`);
         }
-    }
+    };
 
     const writeLog = async () => {
         toast.success('Contact created successfully')
@@ -107,25 +101,20 @@ function Contacts({ modules, contacts, workspace, total }) {
                             <form onSubmit={handleSubmit(onSubmit)}>
                                 <div className="overflow-scroll h-full pb-20">
                                     <div className="px-4 my-10">
-                                        <div className="mt-1">
-                                            <Controller
-                                                name="salutation"
-                                                id="salutation"
-                                                control={control}
-                                                render={({ field }) => (
-                                                    <Select
-                                                        label="Salutation"
-                                                        {...field}
-                                                    >
-                                                        <option value="Mr.">Mr.</option>
-                                                        <option value="Mrs.">Mrs.</option>
-                                                        <option value="Ms.">Ms.</option>
-
-                                                    </Select>
-                                                )}
-                                            />
-                                        </div>
+                                        <Controller
+                                            name="salutation"
+                                            id="salutation"
+                                            control={control}
+                                            render={({ field }) => (
+                                                <Select label="Salutation" {...field}>
+                                                    <option value="Mr.">Mr.</option>
+                                                    <option value="Mrs.">Mrs.</option>
+                                                    <option value="Ms.">Ms.</option>
+                                                </Select>
+                                            )}
+                                        />
                                     </div>
+
                                     <div className="px-4 my-10">
                                         <div className="mt-1">
                                             <Controller

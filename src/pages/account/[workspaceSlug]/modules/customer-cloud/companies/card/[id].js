@@ -417,7 +417,7 @@ function Contacts({ company, notes, calls, tasks, activities, documents }) {
                                                                 >
                                                                     {
                                                                         countries.map((stage, index) => (
-                                                                            <option key={index} value={stage.id}>{stage.name}</option>
+                                                                            <option key={index} value={stage.code}>{stage.name}</option>
                                                                         ))}
                                                                 </Select>
                                                             )}

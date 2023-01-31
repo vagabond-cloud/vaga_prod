@@ -685,6 +685,7 @@ export const createCRMSettings = async (workspaceId, moduleid, data) => {
             timeZone: data.timeZone,
             currency: data.currency,
             language: data.language,
+            vat: data.vat,
             workspaceId,
             moduleid
         },
@@ -706,6 +707,7 @@ export const updateCRMSettings = async (workspaceId, moduleid, data, id) => {
             currency: data.currency || undefined,
             language: data.language || undefined,
             country: data.country || undefined,
+            vat: data.vat || undefined,
         },
     });
     return settings
@@ -774,3 +776,87 @@ export const deleteTicket = async (id) => {
     });
     return ticket
 }
+
+
+// create a quote for a deal 
+export const createQuote = async (addedById, email, data) => {
+    console.log(data)
+    const quote = await prisma.quote.createMany({
+        data: {
+            addedById,
+            email,
+            clientName: data.clientName,
+            quoteNumber: data.quoteNumber,
+            dealId: data.dealId,
+            quoteDate: data.quoteDate,
+            quoteStatus: data.quoteStatus,
+            street: data.street,
+            clientId: data.clientId,
+            zip: data.zip,
+            city: data.city,
+            country: data.country,
+            validUntil: data.validUntil,
+            subject: data.subject,
+            intro: data.intro,
+            item: data.item,
+            footer: data.footer,
+            note: data.note,
+        },
+    });
+    return quote
+}
+
+
+// update a quote for a deal
+export const updateQuote = async (id, addedById, email, data) => {
+    const quote = await prisma.quote.update({
+        where: { id },
+        data: {
+            addedById,
+            email,
+            clientName: data.clientName || undefined,
+            quoteNumber: data.quoteNumber || undefined,
+            dealId: data.dealId || undefined,
+            quoteDate: data.quoteDate || undefined,
+            quoteStatus: data.quoteStatus || undefined,
+            street: data.street || undefined,
+            clientId: data.clientId || undefined,
+            zip: data.zip || undefined,
+            city: data.city || undefined,
+            country: data.country || undefined,
+            validUntil: data.validUntil || undefined,
+            subject: data.subject || undefined,
+            intro: data.intro || undefined,
+            item: data.item || undefined,
+            footer: data.footer || undefined,
+            note: data.note || undefined,
+
+        },
+    });
+    return quote
+}
+
+// get quote by deal
+export const getQuote = async (id, dealId) => {
+    const quotes = await prisma.quote.findMany({
+        where: { id, dealId },
+    });
+    console.log(quotes)
+    return quotes
+}
+
+export const getQuotes = async (dealId) => {
+    const quotes = await prisma.quote.findMany({
+        where: { dealId },
+    });
+    console.log(quotes)
+    return quotes
+}
+
+// delete quote by deal
+export const deleteQuote = async (id) => {
+    const quote = await prisma.quote.delete({
+        where: { id },
+    });
+    return quote
+}   

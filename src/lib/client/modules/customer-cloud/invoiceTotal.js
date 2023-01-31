@@ -7,7 +7,7 @@ export const grandTotal = (items, settings) => {
     items.forEach(item => {
         const amount = parseFloat(item.amount) || 0;
         const price = parseFloat(item.price) || 0;
-        const itemVat = parseFloat(item.vat) || 0;
+        const itemVat = parseFloat(item.vat) || settings.vat || 0;
         const itemDiscount = parseFloat(item.discount) || 0;
 
         total += (amount * price) + (amount * price * itemVat / 100) - itemDiscount;

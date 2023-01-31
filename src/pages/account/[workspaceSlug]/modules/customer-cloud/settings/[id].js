@@ -42,6 +42,7 @@ function Settings({ modules, workspace, settings }) {
         language: settings[0]?.language || '',
         currency: settings[0]?.currency || '',
         country: settings[0]?.country || '',
+        vat: settings[0]?.vat || '',
     }
 
     const { handleSubmit, control, formState: { errors } } = useForm({ defaultValues });
@@ -208,7 +209,22 @@ function Settings({ modules, workspace, settings }) {
                                 />
                             </div>
                         </div>
-
+                        <div className="px-4 my-4">
+                            <div className="mt-1">
+                                <Controller
+                                    name="vat"
+                                    id="vat"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <Input
+                                            type="text"
+                                            label="VAT (%)"
+                                            {...field}
+                                        />
+                                    )}
+                                />
+                            </div>
+                        </div>
                         <div className="w-full px-4 flex justify-end col-span-2">
                             <Button
                                 type="submit"

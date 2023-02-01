@@ -389,8 +389,6 @@ export async function getServerSideProps(context) {
         }
     }
 
-
-
     //This retrieves the module data using the getModule function and assigns it to the modules variable. 
     //It takes the id from the params property of the context object.
 

@@ -1,12 +1,11 @@
-import { useState, useEffect } from 'react'
-import api from '@/lib/common/api'
-import { useRouter } from 'next/router'
-import { ChevronRightIcon, PlusIcon } from '@heroicons/react/24/solid';
+import Select from '@/components/Select';
+import api from '@/lib/common/api';
+import { ChevronRightIcon } from '@heroicons/react/24/solid';
 import moment from 'moment';
-import Link from 'next/link'
-import { useFieldArray, useForm, useWatch, Controller } from "react-hook-form";
-import Select from '@/components/Select'
-import Button from '@/components/Button'
+import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
+import { Controller, useForm } from "react-hook-form";
 
 function Quotes({ settings, deal }) {
     settings = JSON.parse(settings)[0]
@@ -32,21 +31,20 @@ function Quotes({ settings, deal }) {
     const getQuotes = async () => {
         try {
             const res = await api(`/api/modules/customer-cloud/${category}?dealId=${id}&all=1`, {
-                method: 'GET',
-            })
-            console.log(res)
-            setQuotes(res.quote)
+                method: 'GET'
+            });
+            setQuotes(res.quote);
         } catch (err) {
-            console.log("err", err)
+            console.error("Error in getQuotes:", err);
         }
-    }
+    };
 
-
-    const handleCategory = (e) => {
-        console.log(e.target.value)
-        setCategory(e.target.value)
+    const handleCategory = ({ target: { value } }) => {
+        console.log(value)
+        setCategory(value)
         getQuotes()
-    }
+    };
+
     return (
         <>
             <div className="flex justify-between gap-4 items-center">

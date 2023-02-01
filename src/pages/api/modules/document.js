@@ -21,15 +21,17 @@ const handler = async (req, res) => {
         const session = await validateSession(req, res);
 
         const { id, formInput, workspaceId, moduleid } = req.body;
+        try {
+            const document = await updateContact(id, session.user.userId, session.user.email, formInput, workspaceId, moduleid);
 
-        const modules = await updateContact(id, session.user.userId, session.user.email, formInput, workspaceId, moduleid);
-
-        if (modules) {
-            res.status(200).json({ modules });
-        } else {
-            res.status(400).json({ error: "Bad request - Error Code: 400" });
+            if (document) {
+                res.status(200).json({ document });
+            } else {
+                res.status(400).json({ error: "Bad request - Error Code: 400" });
+            }
+        } catch (err) {
+            console.log(err);
         }
-
     }
 };
 

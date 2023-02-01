@@ -1,40 +1,22 @@
+import { AccountLayout } from '@/layouts/index';
 import Content from '@/components/Content/index';
 import Input from '@/components/Input';
 import Meta from '@/components/Meta/index';
 import Select from '@/components/Select';
-import SlideOver from '@/components/SlideOver';
+import Button from '@/components/Button/index';
+import Textarea from '@/components/Textarea';
+import { useForm, Controller } from "react-hook-form";
 import { countries } from '@/config/common/countries';
 import { timezones } from '@/config/common/timezones';
 import { languages } from '@/config/common/languages';
-import { dealStage, industries, types } from '@/config/modules/crm';
-import { AccountLayout } from '@/layouts/index';
-import { log } from '@/lib/client/log';
-import api from '@/lib/common/api';
 import { getModule, getCRMSettings } from '@/prisma/services/modules';
 import { getWorkspace, isWorkspaceOwner } from '@/prisma/services/workspace';
-import { ArrowRightCircleIcon } from '@heroicons/react/24/outline';
-import moment from 'moment';
 import { getSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
 import toast from 'react-hot-toast';
-import Link from 'next/link'
-import { ArrowDownIcon, ArrowUpIcon } from '@heroicons/react/20/solid'
-import { useForm, Controller } from "react-hook-form";
-import Button from '@/components/Button';
 
-function classNames(...classes) {
-    return classes.filter(Boolean).join(' ')
-}
+export default function Settings({ modules, workspace, settings }) {
 
-
-function Settings({ modules, workspace, settings }) {
-    modules = JSON.parse(modules)
-    workspace = JSON.parse(workspace)
-    settings = JSON.parse(settings)
-    console.log(settings)
-    const router = useRouter(false);
-    const { workspaceSlug, id } = router.query;
 
     const defaultValues = {
         companyName: settings[0]?.companyName || '',
@@ -47,8 +29,6 @@ function Settings({ modules, workspace, settings }) {
 
     const { handleSubmit, control, formState: { errors } } = useForm({ defaultValues });
     const onSubmit = data => updateSettings(data);
-
-
 
     const updateSettings = async (formInput) => {
         if (settings.length === 0) {
@@ -93,6 +73,7 @@ function Settings({ modules, workspace, settings }) {
         const res = await log('CRM Settings Updated', `Settings for ${defaultValues.companyName} created for Module: ${id} `, 'settings_created', '127.0.0.1');
     }
 
+
     return (
         <AccountLayout>
             <Meta title={`Vagabond - Settings | Dashboard`} />
@@ -103,144 +84,276 @@ function Settings({ modules, workspace, settings }) {
             <Content.Divider />
             <Content.Container>
                 <form onSubmit={handleSubmit(onSubmit)}>
+                    <div className="space-y-8 ">
+                        <div className="space-y-6 sm:space-y-5">
 
-                    <div className="grid grid-cols-2 gap-4 pb-20">
-                        <div className="px-4 my-4">
-                            <div className="mt-1">
-                                <Controller
-                                    name="companyName"
-                                    id="companyName"
-                                    control={control}
-                                    render={({ field }) => (
+                            <div className="space-y-6 sm:space-y-5">
+                                <div className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:pt-5">
+                                    <label htmlFor="username" className="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                                        Company Name
+                                    </label>
+                                    <div className="mt-1 sm:col-span-2 sm:mt-0 ">
+                                        <div className="flex gap-4 mt-1  rounded-md shadow-sm">
+                                            <Input
+                                                type="text"
+                                                name="companyName"
+                                                id="companyName"
+                                                autoComplete="companyName"
+                                            />
+                                            <Button
+                                                className="bg-red-600 text-white mt-1 w-20">
+                                                Verify
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+                                    <label htmlFor="description" className="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                                        About
+                                    </label>
+                                    <div className="mt-1 sm:col-span-2 sm:mt-0">
+                                        <Textarea
+                                            id="description"
+                                            name="description"
+                                            rows={3}
+                                            defaultValue={''}
+                                        />
+                                        <p className="mt-2 text-sm text-gray-500">Write a few sentences about your company.</p>
+                                    </div>
+                                </div>
+
+                                <div className="sm:grid sm:grid-cols-3 sm:items-center sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+                                    <label htmlFor="photo" className="block text-sm font-medium text-gray-700">
+                                        Logo
+                                    </label>
+                                    <div className="mt-1 sm:col-span-2 sm:mt-0">
+                                        <div className="flex items-center">
+                                            <span className="h-12 w-12 overflow-hidden rounded-full bg-gray-100">
+                                                <svg className="h-full w-full text-gray-300" fill="currentColor" viewBox="0 0 24 24">
+                                                    <path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
+                                                </svg>
+                                            </span>
+                                            <Button
+                                                type="button"
+                                                className="ml-5 rounded-md border border-gray-300 bg-white py-2 px-3 text-sm font-medium leading-4 text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                                            >
+                                                Change
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                            </div>
+                        </div>
+
+                        <div className="space-y-6 pt-8 sm:space-y-5 sm:pt-10">
+                            <div>
+                                <h3 className="text-lg font-medium leading-6 text-gray-900">Company Information</h3>
+                                <p className="mt-1 max-w-2xl text-sm text-gray-500">Use a permanent address where you can receive mail.</p>
+                            </div>
+                            <div className="space-y-6 sm:space-y-5">
+
+
+                                <div className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+                                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                                        Email address
+                                    </label>
+                                    <div className="mt-1 sm:col-span-2 sm:mt-0">
+                                        <Input
+                                            id="email"
+                                            name="email"
+                                            type="email"
+                                            autoComplete="email"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+                                    <label htmlFor="country" className="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                                        Country
+                                    </label>
+                                    <div className="mt-1 sm:col-span-2 sm:mt-0">
+                                        <Select
+                                            id="country"
+                                            name="country"
+                                            autoComplete="country-name"
+                                        >
+                                            <option>United States</option>
+                                            <option>Canada</option>
+                                            <option>Mexico</option>
+                                        </Select>
+                                    </div>
+                                </div>
+
+                                <div className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+                                    <label htmlFor="street-address" className="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                                        Street address
+                                    </label>
+                                    <div className="mt-1 sm:col-span-2 sm:mt-0">
                                         <Input
                                             type="text"
-                                            label="Company Name"
-                                            {...field}
+                                            name="street-address"
+                                            id="street-address"
+                                            autoComplete="street-address"
                                         />
-                                    )}
-                                />
-                            </div>
-                        </div>
-                        <div className="px-4 my-4">
-                            <div className="mt-1">
-                                <Controller
+                                    </div>
+                                </div>
 
-                                    name="timezone"
-                                    id="timezone"
-                                    control={control}
-                                    render={({ field }) => (
-                                        <Select
-                                            label="Timezone"
-                                            {...field}
-                                        >
-                                            {timezones.map((timezone, index) => (
-                                                <option key={index} value={timezone.abbr}>
-                                                    {timezone.text}
-                                                </option>
-                                            ))}
-                                        </Select>
-                                    )}
-                                />
-                            </div>
-                        </div>
-                        <div className="px-4 my-4">
-                            <div className="mt-1">
-                                <Controller
-
-                                    name="language"
-                                    id="language"
-                                    control={control}
-                                    render={({ field }) => (
-                                        <Select
-                                            label="Language"
-                                            {...field}
-                                        >
-                                            {languages.map((language, index) => (
-                                                <option key={index} value={language.value}>
-                                                    {language.name}
-                                                </option>
-                                            ))}
-                                        </Select>
-                                    )}
-                                />
-                            </div>
-                        </div>
-                        <div className="px-4 my-4">
-                            <div className="mt-1">
-                                <Controller
-
-                                    name="currency"
-                                    id="currency"
-                                    control={control}
-                                    render={({ field }) => (
-                                        <Select
-                                            label="Currency"
-                                            {...field}
-                                        >
-                                            {countries.map((country, index) => (
-                                                <option key={index} value={country.currency.code}>
-                                                    {country.currency.name}
-                                                </option>
-                                            ))}
-                                        </Select>
-                                    )}
-                                />
-
-                            </div>
-                        </div>
-                        <div className="px-4 my-4">
-                            <div className="mt-1">
-                                <Controller
-                                    name="country"
-                                    id="country"
-                                    control={control}
-                                    render={({ field }) => (
-                                        <Select
-                                            label="Country"
-                                            {...field}
-                                        >
-                                            {countries.map((country, index) => (
-                                                <option key={index} value={country.code}>
-                                                    {country.name}
-                                                </option>
-                                            ))}
-                                        </Select>
-                                    )}
-                                />
-                            </div>
-                        </div>
-                        <div className="px-4 my-4">
-                            <div className="mt-1">
-                                <Controller
-                                    name="vat"
-                                    id="vat"
-                                    control={control}
-                                    render={({ field }) => (
+                                <div className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+                                    <label htmlFor="city" className="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                                        City
+                                    </label>
+                                    <div className="mt-1 sm:col-span-2 sm:mt-0">
                                         <Input
                                             type="text"
-                                            label="VAT (%)"
-                                            {...field}
+                                            name="city"
+                                            id="city"
+                                            autoComplete="address-level2"
+                                            className="block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:max-w-xs sm:text-sm"
                                         />
-                                    )}
-                                />
+                                    </div>
+                                </div>
+
+                                <div className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+                                    <label htmlFor="region" className="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                                        State
+                                    </label>
+                                    <div className="mt-1 sm:col-span-2 sm:mt-0">
+                                        <Input
+                                            type="text"
+                                            name="region"
+                                            id="region"
+                                            autoComplete="address-level1"
+                                            className="block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:max-w-xs sm:text-sm"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+                                    <label htmlFor="postal-code" className="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                                        ZIP
+                                    </label>
+                                    <div className="mt-1 sm:col-span-2 sm:mt-0">
+                                        <Input
+                                            type="text"
+                                            name="postal-code"
+                                            id="postal-code"
+                                            autoComplete="postal-code"
+                                            className="block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:max-w-xs sm:text-sm"
+                                        />
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div className="w-full px-4 flex justify-end col-span-2">
+
+                        <div className="space-y-6 divide-y divide-gray-200 pt-8 sm:space-y-5 sm:pt-10">
+                            <div>
+                                <h3 className="text-lg font-medium leading-6 text-gray-900">Notifications</h3>
+                                <p className="mt-1 max-w-2xl text-sm text-gray-500">
+                                    We'll always let you know about important changes, but you pick what else you want to hear about.
+                                </p>
+                            </div>
+                            <div className="space-y-6 divide-y divide-gray-200 sm:space-y-5">
+                                <div className="pt-6 sm:pt-5">
+                                    <div role="group" aria-labelledby="label-email">
+                                        <div className="sm:grid sm:grid-cols-3 sm:items-baseline sm:gap-4">
+                                            <div>
+                                                <div className="text-base font-medium text-gray-900 sm:text-sm sm:text-gray-700" id="label-email">
+                                                    By Email
+                                                </div>
+                                            </div>
+
+                                            <div className="mt-4 sm:col-span-2 sm:mt-0">
+                                                <div className="max-w-lg space-y-4">
+                                                    <div className="relative flex items-start">
+                                                        <div className="flex h-5 items-center">
+                                                            <Controller
+                                                                name="companyName"
+                                                                id="companyName"
+                                                                control={control}
+                                                                render={({ field }) => (
+                                                                    <Input
+                                                                        {...field}
+                                                                        id="comments"
+                                                                        name="comments"
+                                                                        type="checkbox"
+                                                                    />
+                                                                )}
+                                                            />
+
+                                                        </div>
+                                                        <div className="ml-3 text-sm">
+                                                            <label htmlFor="comments" className="font-medium text-gray-700">
+                                                                Comments
+                                                            </label>
+                                                            <p className="text-gray-500">Get notified when someones posts a comment on a posting.</p>
+                                                        </div>
+                                                    </div>
+                                                    <div className="relative flex items-start">
+                                                        <div className="flex h-5 items-center">
+                                                            <Input
+                                                                id="candidates"
+                                                                name="candidates"
+                                                                type="checkbox"
+                                                                className="h-4 w-4 rounded border-gray-300 text-red-600 focus:ring-red-500"
+                                                            />
+                                                        </div>
+                                                        <div className="ml-3 text-sm">
+                                                            <label htmlFor="candidates" className="font-medium text-gray-700">
+                                                                Candidates
+                                                            </label>
+                                                            <p className="text-gray-500">Get notified when a candidate applies for a job.</p>
+                                                        </div>
+                                                    </div>
+                                                    <div className="relative flex items-start">
+                                                        <div className="flex h-5 items-center">
+                                                            <Input
+                                                                id="offers"
+                                                                name="offers"
+                                                                type="checkbox"
+                                                                className="h-4 w-4 rounded border-gray-300 text-red-600 focus:ring-red-500"
+                                                            />
+                                                        </div>
+                                                        <div className="ml-3 text-sm">
+                                                            <label htmlFor="offers" className="font-medium text-gray-700">
+                                                                Offers
+                                                            </label>
+                                                            <p className="text-gray-500">Get notified when a candidate accepts or rejects an offer.</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="pt-5">
+                        <div className="flex justify-end">
+                            <Button
+                                type="button"
+                                className="rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                            >
+                                Cancel
+                            </Button>
                             <Button
                                 type="submit"
-                                className="bg-red-600 hover:bg-red-700 text-white"
+                                className="ml-3 inline-flex justify-center rounded-md border border-transparent bg-red-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
                             >
                                 Save
                             </Button>
                         </div>
                     </div>
                 </form>
-            </Content.Container >
-        </AccountLayout >
+            </Content.Container>
+        </AccountLayout>
     )
 }
 
-export default Settings
 
 
 export async function getServerSideProps(context) {

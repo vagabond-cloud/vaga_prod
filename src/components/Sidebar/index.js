@@ -7,6 +7,7 @@ import sidebarMenu from '@/config/menu/sidebar-static';
 import { useWorkspaces } from '@/hooks/data';
 import { useWorkspace } from '@/providers/workspace';
 import { Bars3Icon } from '@heroicons/react/24/solid';
+import { useRouter } from 'next/router';
 
 const staticMenu = sidebarMenu();
 
@@ -16,9 +17,13 @@ const Sidebar = ({ menu }) => {
   const { data, isLoading } = useWorkspaces();
   const { workspace } = useWorkspace();
 
+  const router = useRouter();
+  const { workspaceSlug, id } = router.query;
+  console.log(workspace)
+
   const renderMenu = () => {
     return (
-      workspace &&
+      workspaceSlug &&
       menu.map((item, index) => (
         <Menu
           key={index}

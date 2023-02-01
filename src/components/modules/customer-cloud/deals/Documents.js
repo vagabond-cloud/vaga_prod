@@ -10,6 +10,7 @@ import api from '@/lib/common/api'
 import { uploadToGCS } from '@/lib/client/upload';
 import { contactActivity } from '@/lib/client/log';
 import toast from 'react-hot-toast';
+import { useFieldArray, useForm, useWatch, Controller } from "react-hook-form";
 
 function Documents({ company, documents, deal }) {
 
@@ -21,44 +22,58 @@ function Documents({ company, documents, deal }) {
     const [list, setList] = useState(true)
     const [docs, setDocs] = useState(documents)
     const [keyword, setKeyword] = useState('')
+    const [uploaded, setUploaded] = useState(false)
 
-    const [formInput, updateFormInput] = useState({
+
+    const defaultValues = {
+        file: '',
         title: '',
         documentUrl: '',
         companyId: id,
         fileSize: '',
         type: '',
         lastModified: '',
-    })
-
-    const updateContact = async () => {
-        const res = await api(`/api/modules/document`, {
-            method: 'PUT',
-            body: {
-                id: id,
-                formInput,
-                workspaceId: deal.workspaceId,
-                moduleid: deal.moduleid,
-
-            }
-        })
-        if (res.status === 200) {
-            //TODO - add to api call
-            await writeLog("Document Uploaded", "document_uploaded", new Date(), id)
-            updateFormInput([])
-            router.replace(router.asPath)
-            toast.success('Document uploaded successfully')
-        } else {
-            toast.error('Document upload failed')
-        }
     }
 
+    const { register, setValue, getValues, watch, handleSubmit, control, formState: { errors, touchedFields } } = useForm({ defaultValues });
+    const onSubmit = data => updateContact(data);
+
+
+    const updateContact = async (formInput) => {
+        console.log(formInput)
+        try {
+            const res = await api(`/api/modules/document`, {
+                method: 'PUT',
+                body: {
+                    id,
+                    formInput,
+                    workspaceId: deal.workspaceId,
+                    moduleid: deal.moduleid,
+                }
+            });
+            console.log(res)
+            if (res.status === 200) {
+                await writeLog("Document Uploaded", "document_uploaded", new Date(), id);
+
+                router.replace(router.asPath);
+                toast.success('Document uploaded successfully');
+            } else {
+                throw new Error();
+            }
+        } catch (err) {
+            toast.error('Document upload failed');
+        }
+    };
 
     const uploadDocument = async (file) => {
         setSubmit(true)
         const getDocument = await uploadToGCS(file)
-        updateFormInput({ ...formInput, documentUrl: getDocument, fileSize: file.size, type: file.type, lastModified: file.lastModified })
+        setValue("documentUrl", getDocument)
+        setValue("fileSize", file.size)
+        setValue("type", file.type)
+        setValue("lastModified", file.lastModified)
         setSubmit(false)
+        setUploaded(true)
     }
 
     const searchDocuments = async (e) => {
@@ -112,9 +127,27 @@ function Documents({ company, documents, deal }) {
                         subTitle="Upload Documents"
                         state={false}
                     >
-                        <div className=" h-auto pb-20">
-                            <div className="px-4 my-6">
-                                <label htmlFor="email" className="block text-xs font-medium text-gray-500">
+                        <form onSubmit={handleSubmit(onSubmit)}>
+
+                            <div className=" h-auto pb-20">
+                                <div className="px-4 my-6">
+                                    <div className="px-4 my-0 col-span-2">
+                                        <Controller
+                                            name="title"
+                                            id="title"
+                                            control={control}
+                                            rules={{ required: true }}
+                                            render={({ field }) => (
+                                                <Input
+                                                    {...field}
+                                                    label="Title"
+                                                    type="text"
+                                                />
+                                            )}
+                                        />
+                                    </div>
+                                    <div className="px-4 my-0 col-span-2">{errors.title && <span className="text-red-500 text-xs">This field is required</span>}</div>
+                                    {/* <label htmlFor="email" className="block text-xs font-medium text-gray-500">
                                     Title
                                 </label>
                                 <div className="mt-1">
@@ -122,52 +155,70 @@ function Documents({ company, documents, deal }) {
                                         defaultValue={""}
                                         onChange={(e) => updateFormInput({ ...formInput, title: e.target.value })}
                                     />
+                                </div> */}
                                 </div>
-                            </div>
-                            <div className="px-4 my-6 flex justify-between mt-10">
-
-                                <input
+                                <div className="px-4 my-6 flex justify-between mt-10">
+                                    <div className="px-4 my-0 col-span-2">
+                                        <Controller
+                                            name="file"
+                                            id="file"
+                                            control={control}
+                                            render={({ field }) => (
+                                                <Input
+                                                    {...field}
+                                                    label="File"
+                                                    type="file"
+                                                    onChange={(e) => {
+                                                        field.onChange(e),
+                                                            uploadDocument(e.target.files[0])
+                                                    }}
+                                                    ref={documentsRef}
+                                                    accept=".jpeg,.jpg,.png,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.pdf,.txt,.rtf,.mp4,.mov"
+                                                />
+                                            )}
+                                        />
+                                    </div>
+                                    {/* <input
                                     type="file"
                                     ref={documentsRef}
                                     className=""
                                     onChange={(e) => uploadDocument(e.target.files[0])}
                                     accept=".jpeg,.jpg,.png,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.pdf,.txt,.rtf,.mp4,.mov"
-                                />
-                                {submit &&
-                                    <svg width="24" height="24" viewBox="0 0 24 24" className="text-gray-400" xmlns="http://www.w3.org/2000/svg">
-                                        <circle cx="4" cy="12" r="3">
-                                            <animate id="spinner_jObz" begin="0;spinner_vwSQ.end-0.25s" attributeName="r" dur="0.75s" values="3;.2;3" />
-                                        </circle>
-                                        <circle cx="12" cy="12" r="3">
-                                            <animate begin="spinner_jObz.end-0.6s" attributeName="r" dur="0.75s" values="3;.2;3" />
-                                        </circle>
-                                        <circle cx="20" cy="12" r="3">
-                                            <animate id="spinner_vwSQ" begin="spinner_jObz.end-0.45s" attributeName="r" dur="0.75s" values="3;.2;3" />
-                                        </circle>
-                                    </svg>
-                                }
-                                {formInput.documentUrl &&
-                                    <p className="text-xs text-gray-500 mt-2 px-2">Uploaded</p>
+                                /> */}
+                                    {submit &&
+                                        <svg width="24" height="24" viewBox="0 0 24 24" className="text-gray-400" xmlns="http://www.w3.org/2000/svg">
+                                            <circle cx="4" cy="12" r="3">
+                                                <animate id="spinner_jObz" begin="0;spinner_vwSQ.end-0.25s" attributeName="r" dur="0.75s" values="3;.2;3" />
+                                            </circle>
+                                            <circle cx="12" cy="12" r="3">
+                                                <animate begin="spinner_jObz.end-0.6s" attributeName="r" dur="0.75s" values="3;.2;3" />
+                                            </circle>
+                                            <circle cx="20" cy="12" r="3">
+                                                <animate id="spinner_vwSQ" begin="spinner_jObz.end-0.45s" attributeName="r" dur="0.75s" values="3;.2;3" />
+                                            </circle>
+                                        </svg>
+                                    }
+                                    {uploaded &&
+                                        <p className="text-xs text-gray-500 mt-2 px-2">Uploaded</p>
+                                    }
+                                </div>
+                            </div>
+                            <div className="flex flex-shrink-0 min-h-20 justify-end px-4 py-4 w-full border-t absolute bottom-0 bg-white resize-y">
+                                {uploaded ?
+                                    <Button
+                                        type="submit"
+                                        className="ml-4 inline-flex text-white justify-center rounded-md border border-transparent bg-red-600 py-2 px-4 text-xs font-medium text-white5shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                                    >
+                                        Save
+                                    </Button>
+                                    :
+                                    <></>
                                 }
                             </div>
-                        </div>
-                        <div className="flex flex-shrink-0 min-h-20 justify-end px-4 py-4 w-full border-t absolute bottom-0 bg-white resize-y">
-                            {formInput.documentUrl ?
-                                <Button
-                                    type="submit"
-                                    className="ml-4 inline-flex text-white justify-center rounded-md border border-transparent bg-red-600 py-2 px-4 text-xs font-medium text-white5shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-                                    onClick={() => updateContact()}
-                                >
-                                    Save
-                                </Button>
-                                :
-                                <></>
-                            }
-                        </div>
-
+                        </form>
                     </SlideOver>
                 </div>
-            </div>
+            </div >
             <div className="flex flex-col">
                 {list ?
                     <div className="mt-8 flex flex-col">
@@ -198,24 +249,30 @@ function Documents({ company, documents, deal }) {
                                     </thead>
                                     <tbody className="divide-y divide-gray-200">
                                         {docs.map((item, index) => (
-
                                             <tr key={index}>
-                                                <a key={index} href={item.documentUrl} target="_blank" rel="noreferrer">
-                                                    <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 md:pl-0">
+                                                <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 md:pl-0">
+                                                    <a href={item.documentUrl} target="_blank" rel="noreferrer">
                                                         {item.title}
-                                                    </td>
-                                                </a>
-                                                <td className="whitespace-nowrap py-4 px-3 text-sm text-gray-500">{parseFloat(item.size / 1000000).toLocaleString()} MB</td>
-                                                <td td className="whitespace-nowrap py-4 px-3 text-sm text-gray-500">{fileType.find((f) => f.type === item.type)?.name}</td>
-                                                <td className="whitespace-nowrap py-4 px-3 text-sm text-gray-500">{moment(item.lastModified).format("DD MMM. YYYY - hh:mm:ss")}</td>
+                                                    </a>
+                                                </td>
+                                                <td className="whitespace-nowrap py-4 px-3 text-sm text-gray-500">
+                                                    {(item.size / 1000000).toLocaleString()} MB
+                                                </td>
+                                                <td className="whitespace-nowrap py-4 px-3 text-sm text-gray-500">
+                                                    {fileType.find((f) => f.type === item.type)?.name}
+                                                </td>
+                                                <td className="whitespace-nowrap py-4 px-3 text-sm text-gray-500">
+                                                    {moment(item.lastModified).format("DD MMM. YYYY - hh:mm:ss")}
+                                                </td>
                                                 <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6 md:pr-0">
-                                                    <a key={index} href={item.documentUrl} target="_blank" rel="noreferrer">
+                                                    <a href={item.documentUrl} target="_blank" rel="noreferrer">
                                                         <ArrowTopRightOnSquareIcon className="w-4 hover:text-gray-800" />
                                                     </a>
                                                 </td>
                                             </tr>
                                         ))}
                                     </tbody>
+
                                 </table>
                             </div>
                         </div>

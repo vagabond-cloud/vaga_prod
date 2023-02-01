@@ -8,18 +8,17 @@ import { countries } from '@/config/common/countries'
 import api from '@/lib/common/api'
 import { getSession } from 'next-auth/react';
 import { getWorkspace, isWorkspaceOwner } from '@/prisma/services/workspace';
-import { getDeal, getQuote, getCRMSettings } from '@/prisma/services/modules';
+import { getDeal, getInvoice, getCRMSettings } from '@/prisma/services/modules';
 import Content from '@/components/Content/index';
 import Meta from '@/components/Meta/index';
 import { AccountLayout } from '@/layouts/index';
 import { useRouter } from 'next/router'
 import toast from 'react-hot-toast';
-import { contactActivity } from '@/lib/client/log';
 
-function Quotes({ settings, deal, quote }) {
+function Invoices({ settings, deal, invoice }) {
     settings = JSON.parse(settings)[0]
     deal = JSON.parse(deal)
-    quote = JSON.parse(quote)[0]
+    invoice = JSON.parse(invoice)[0]
 
     const router = useRouter()
     const { workspaceSlug, id } = router.query
@@ -42,38 +41,36 @@ function Quotes({ settings, deal, quote }) {
         }
     };
 
-    console.log(deal)
-
     const defaultValues = {
-        clientName: quote?.clientName || '',
-        quoteNumber: quote?.quoteNumber || '',
+        clientName: invoice?.clientName || '',
+        invoiceNumber: invoice?.invoiceNumber || '',
         dealId: id,
-        street: getAddress(quote?.clientId ? quote?.clientId : client)?.street || '',
-        clientId: quote?.clientId || '',
-        quoteStatus: quote?.quoteStatus || '',
-        zip: getAddress(quote?.clientId ? quote?.clientId : client)?.zip || '',
-        city: getAddress(quote?.clientId ? quote?.clientId : client)?.city || '',
-        quoteDate: quote?.quoteDate || '',
-        country: countries.find((c) => c.code === getAddress(quote?.clientId ? quote?.clientId : client)?.name),
-        validUntil: quote?.validUntil || '',
-        subject: quote?.subject || '',
-        intro: quote?.intro || '',
-        item: quote?.item ? quote?.item : [{
+        street: getAddress(invoice?.clientId ? invoice?.clientId : client)?.street || '',
+        clientId: invoice?.clientId || '',
+        invoiceStatus: invoice?.invoiceStatus || '',
+        zip: getAddress(invoice?.clientId ? invoice?.clientId : client)?.zip || '',
+        city: getAddress(invoice?.clientId ? invoice?.clientId : client)?.city || '',
+        invoiceDate: invoice?.invoiceDate || '',
+        country: countries.find((c) => c.code === getAddress(invoice?.clientId ? invoice?.clientId : client)?.name),
+        validUntil: invoice?.validUntil || '',
+        subject: invoice?.subject || '',
+        intro: invoice?.intro || '',
+        item: invoice?.item ? invoice?.item : [{
             name: '',
             amount: '',
             price: '',
             vat: settings.vat || '',
             discount: '',
         }],
-        footer: quote?.footer || '',
-        note: quote?.note || '',
+        footer: invoice?.footer || '',
+        note: invoice?.note || '',
         moduleid: deal.module.id
     };
 
 
 
     const { register, setValue, getValues, watch, handleSubmit, control, formState: { errors, touchedFields } } = useForm({ defaultValues });
-    const onSubmit = data => saveQuote(data);
+    const onSubmit = data => saveInvoice(data);
 
     const { fields, append, prepend, remove } = useFieldArray({
         name: "item",
@@ -104,29 +101,30 @@ function Quotes({ settings, deal, quote }) {
 
 
 
-    const saveQuote = async (formInput) => {
-        const method = quote?.clientId ? 'PUT' : 'POST';
-        const url = "/api/modules/customer-cloud/quote";
-        const body = quote?.clientId
-            ? { canUpdate: true, quoteId: quote.id, formInput }
+    const saveInvoice = async (formInput) => {
+        const method = invoice?.clientId ? 'PUT' : 'POST';
+        const url = "/api/modules/customer-cloud/invoice";
+        const body = invoice?.clientId
+            ? { canUpdate: true, invoiceId: invoice.id, formInput }
             : { formInput };
 
         const res = await api(url, { method, body });
-        !quote?.clientId ?
-            await writeLog(`Quote for Client ${formInput.clientId} created`, "quote_created", new Date(), id)
+        !invoice?.clientId ?
+            await writeLog(`Invoice for Client ${formInput.clientId} created`, "invoice_created", new Date(), id)
             :
-            await writeLog(`Quote for Client ${formInput.clientId} updated`, "quote_updated", new Date(), id)
-        toast.success(quote?.clientId ? "Quote updated successfully" : "Quote created successfully");
+            await writeLog(`Invoice for Client ${formInput.clientId} updated`, "invoice_updated", new Date(), id)
+        toast.success(invoice?.clientId ? "Invoice updated successfully" : "Invoice created successfully");
         router.push(`/account/${workspaceSlug}/modules/customer-cloud/deals/card/${id}?tab=quotes`);
 
     };
 
     const deleteInvoice = async () => {
         const method = 'DELETE';
-        const url = `/api/modules/customer-cloud/quote?id=${quote.id}`;
+        const url = `/api/modules/customer-cloud/invoice?id=${invoice.id}`;
         const res = await api(url, { method });
+
         toast.success("Invoice deleted successfully");
-        await writeLog(`Quote for Client ${quote.clientId} deleted`, "quote_deleted", new Date(), id)
+        await writeLog(`Invoice for Client ${invoice.clientId} deleted`, "invoice_deleted", new Date(), id)
 
         router.push(`/account/${workspaceSlug}/modules/customer-cloud/deals/card/${id}?tab=quotes`);
     };
@@ -138,8 +136,8 @@ function Quotes({ settings, deal, quote }) {
         <AccountLayout>
             <Meta title={`Vagabond - Deals | Dashboard`} />
             <Content.Title
-                title="Quote"
-                subtitle="Create a new quote for your client"
+                title="Invoice"
+                subtitle="Create a new invoice for your client"
             />
             <Content.Divider />
             <Content.Container>
@@ -147,12 +145,12 @@ function Quotes({ settings, deal, quote }) {
                     <form onSubmit={handleSubmit(onSubmit)}>
                         <div className="">
                             <div className="grid grid-cols-3 gap-4 rounded-lg shadow px-2 py-4">
-                                <p className={`px-4 font-bold my-4 ${quote?.clientId ? "col-span-2" : "col-span-3"}`}>Client Information</p>
-                                {quote?.clientId && (
+                                <p className={`px-4 font-bold my-4 ${invoice?.clientId ? "col-span-2" : "col-span-3"}`}>Client Information</p>
+                                {invoice?.clientId && (
                                     <div className="px-4 my-0 col-span-1">
                                         <Controller
-                                            name="quoteStatus"
-                                            id="quoteStatus"
+                                            name="invoiceStatus"
+                                            id="invoiceStatus"
                                             control={control}
                                             rules={{ required: true }}
                                             render={({ field, fieldState, formState }) => (
@@ -191,7 +189,7 @@ function Quotes({ settings, deal, quote }) {
                                                     setValue('country', countries.find((c) => c.code === getAddress(e.target.value)?.country)?.name)
                                                     setValue('clientId', e.target.value)
                                                 }}
-                                                value={quote?.clientName ? quote?.clientName : field.value}
+                                                value={invoice?.clientName ? invoice?.clientName : field.value}
                                             >
                                                 <option value="">Choose Client</option>
 
@@ -210,8 +208,8 @@ function Quotes({ settings, deal, quote }) {
 
                                 <div className="px-4 my-0">
                                     <Controller
-                                        name="quoteNumber"
-                                        id="quoteNumber"
+                                        name="invoiceNumber"
+                                        id="invoiceNumber"
                                         control={control}
                                         render={({ field }) => (
                                             <Input
@@ -278,8 +276,8 @@ function Quotes({ settings, deal, quote }) {
                                 </div>
                                 <div className="px-4 my-0">
                                     <Controller
-                                        name="quoteDate"
-                                        id="quoteDate"
+                                        name="invoiceDate"
+                                        id="invoiceDate"
                                         control={control}
                                         render={({ field }) => (
                                             <Input
@@ -299,7 +297,7 @@ function Quotes({ settings, deal, quote }) {
                                             <Select
                                                 {...field}
                                                 label="Country"
-                                                defaultValue={quote?.country ? quote?.country : field.value}
+                                                defaultValue={invoice?.country ? invoice?.country : field.value}
                                             >
                                                 {countries.map((country, index) => (
 
@@ -537,7 +535,7 @@ function Quotes({ settings, deal, quote }) {
                             </div>
                         </div>
                         <div className="mt-10 flex w-full justify-end">
-                            {quote?.clientId ?
+                            {invoice?.clientId ?
                                 <div className="flex gap-4">
                                     <Button
                                         type="button"
@@ -555,7 +553,7 @@ function Quotes({ settings, deal, quote }) {
                                     <Button
                                         type="button"
                                         className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-                                        onClick={() => router.push(`/account/${workspaceSlug}/modules/customer-cloud/deals/card/quote/${quote.id}/preview/${id}`)}
+                                        onClick={() => router.push(`/account/${workspaceSlug}/modules/customer-cloud/deals/card/invoice/${invoice.id}/preview/${id}`)}
                                     >
                                         Preview
                                     </Button>
@@ -577,7 +575,7 @@ function Quotes({ settings, deal, quote }) {
     )
 }
 
-export default Quotes
+export default Invoices
 
 export async function getServerSideProps(context) {
 
@@ -609,11 +607,11 @@ export async function getServerSideProps(context) {
     const deal = await getDeal(context.params.id);
 
     const settings = await getCRMSettings(deal.module.id)
-    let quote = null
-    if (context.params.quote !== 'new') {
-        quote = await getQuote(context.params.quote, context.params.id)
+    let invoice = null
+    if (context.params.invoice !== 'new') {
+        invoice = await getInvoice(context.params.invoice, context.params.id)
     } else {
-        quote = []
+        invoice = []
     }
 
     return {
@@ -621,12 +619,9 @@ export async function getServerSideProps(context) {
             deal: JSON.stringify(deal),
             workspace: JSON.stringify(workspace),
             settings: JSON.stringify(settings),
-            quote: JSON.stringify(quote),
+            invoice: JSON.stringify(invoice),
 
         }
     }
 }
 
-const writeLog = async (type, action, date, contactId) => {
-    const res = await contactActivity(`${type}`, `${type} at ${date}`, `${action.toLowerCase()}`, '127.0.0.1', contactId);
-}

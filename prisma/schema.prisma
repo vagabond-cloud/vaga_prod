@@ -284,6 +284,7 @@ model Contact {
   deal            Deal[]
   ticket          Ticket[]
   Quote           Quote[]
+  Invoice         Invoice[]
 
   @@map("contacts")
 }
@@ -413,6 +414,7 @@ model Company {
   deal      Deal[]
   ticket    Ticket[]
   Quote     Quote[]
+  Invoice   Invoice[]
 
   @@map("companies")
 }
@@ -462,12 +464,13 @@ model Deal {
   workspaceId String    @db.ObjectId
   aassignedTo String?   @db.ObjectId
 
-  user    User     @relation(fields: [addedById], references: [id], onDelete: Cascade)
-  company Company? @relation(fields: [companyId], references: [id])
-  contact Contact? @relation(fields: [contactId], references: [id])
-  module  Module?  @relation(fields: [moduleid], references: [id])
+  user    User      @relation(fields: [addedById], references: [id], onDelete: Cascade)
+  company Company?  @relation(fields: [companyId], references: [id])
+  contact Contact?  @relation(fields: [contactId], references: [id])
+  module  Module?   @relation(fields: [moduleid], references: [id])
   ticket  Ticket[]
   Quote   Quote[]
+  Invoice Invoice[]
 
   @@fulltext([id, email, dealName, dealStage, dealType, priority])
   @@map("deals")
@@ -480,9 +483,19 @@ model Crmsettings {
   language    String?
   currency    String?
   country     String?
+  vat         String?
+  description String?
+  email       String?
+  street      String?
+  city        String?
+  state       String?
+  zip         String?
+  bank        String?
+  iban        String?
+  bic         String?
+  logoUrl     String?
   workspaceId String    @db.ObjectId
   moduleid    String    @db.ObjectId
-  vat         String?
   createdAt   DateTime? @default(now())
   updatedAt   DateTime? @updatedAt
   deletedAt   DateTime?
@@ -545,6 +558,7 @@ model Quote {
   item        Json?
   footer      String?
   note        String?
+  moduleid    String?   @db.ObjectId
   createdAt   DateTime? @default(now())
   updatedAt   DateTime? @updatedAt
   deletedAt   DateTime?
@@ -554,6 +568,38 @@ model Quote {
   deal    Deal    @relation(fields: [dealId], references: [id])
 
   @@map("quote")
+}
+
+model Invoice {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  addedById     String    @db.ObjectId
+  dealId        String    @db.ObjectId
+  email         String    @unique
+  clientName    String
+  invoiceNumber String
+  invoiceDate   String
+  invoiceStatus String?
+  street        String?
+  clientId      String    @db.ObjectId
+  zip           String?
+  city          String?
+  country       String?
+  validUntil    String?
+  subject       String?
+  intro         String?
+  item          Json?
+  footer        String?
+  note          String?
+  moduleid      String?   @db.ObjectId
+  createdAt     DateTime? @default(now())
+  updatedAt     DateTime? @updatedAt
+  deletedAt     DateTime?
+
+  contact Contact @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  company Company @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  deal    Deal    @relation(fields: [dealId], references: [id])
+
+  @@map("invoice")
 }
 
 enum InvitationStatus {

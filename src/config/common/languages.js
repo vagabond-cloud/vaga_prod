@@ -1,4 +1,5 @@
 export const languages = [
+    { name: 'English', value: 'en' },
     {
         name: 'Afar',
         value: 'aa',
@@ -41,7 +42,6 @@ export const languages = [
     { name: 'Dzongkha', value: 'dz' },
     { name: 'Ewe', value: 'ee' },
     { name: 'Greek, Modern (1453-)', value: 'el' },
-    { name: 'name', value: 'en' },
     { name: 'Esperanto', value: 'eo' },
     { name: 'Spanish; Castilian', value: 'es' },
     { name: 'Estonian', value: 'et' },

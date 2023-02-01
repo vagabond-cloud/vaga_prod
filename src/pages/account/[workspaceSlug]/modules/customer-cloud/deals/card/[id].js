@@ -79,9 +79,9 @@ function Deal({ deal, team, activities, documents, workspace, tickets, settings 
             <Content.Container>
                 <nav aria-label="Progress">
                     <ol role="list" className="divide-y divide-gray-300 rounded-md border border-gray-300 md:flex md:divide-y-0">
-                        {dealStage.slice(parseFloat(deal.dealStage) - 1, parseFloat(deal.dealStage) + 5).map((step, stepIdx) => (
+                        {dealStage.slice(parseFloat(deal.dealStage > 4 ? 5 : deal.dealStage) - 1, parseFloat(deal.dealStage) + 5).map((step, stepIdx) => (
                             <li key={step.name} className="relative md:flex md:flex-1">
-                                {step.id < deal.dealStage ? (
+                                {step.id < deal.dealStage - 1 ? (
                                     <a href={step.href} className="group flex w-full items-center">
                                         <span className="flex items-center px-6 py-4 text-xs font-medium">
                                             <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-red-600 group-hover:bg-red-800">
@@ -197,7 +197,7 @@ const Overview = ({ deal, team, settings }) => {
     const router = useRouter()
     const { workspaceSlug, id } = router.query
     const [assign, updateAssign] = useState("")
-
+    console.log(deal)
     const defaultValues = {
         userId: deal?.aassignedTo ? deal?.aassignedTo : '',
         dealId: id
@@ -208,16 +208,17 @@ const Overview = ({ deal, team, settings }) => {
 
     //assigne deal to user
     const assignDeal = async (data) => {
+        console.log(data)
         const res = await api(`/api/modules/customer-cloud/deal`, {
             method: 'POST',
             body: {
                 dealId: id,
-                userId: data.assign
+                userId: data.userId
             }
         })
         if (res.status === 200) {
             toast.success('Deal assigned successfully')
-            await writeLog(`Reassigned to ${team.find((t) => t.user.id === assign)?.email}`, "assigned_to", new Date(), id)
+            await writeLog(`Reassigned to ${team.find((t) => t.user.id === data.userId)?.email}`, "assigned_to", new Date(), id)
             router.replace(router.asPath)
         } else {
             toast.error('Error assigning Deal')
@@ -280,6 +281,7 @@ const Overview = ({ deal, team, settings }) => {
                             </Select>
                         )}
                     />
+                    <div className="text-red-600 mt-1 text-xs">{errors.userId?.type === 'required' && <p role="alert">User is required</p>}</div>
 
                     <Button className="w-20 bg-red-600 text-white" type="submit">Assign</Button>
                 </form>

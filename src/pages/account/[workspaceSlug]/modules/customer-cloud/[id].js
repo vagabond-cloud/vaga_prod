@@ -24,7 +24,7 @@ function CustomerCloud({ deals, total, contacts, settings }) {
     console.log(settings)
 
     const stats = [
-        { name: 'Total Sales', stat: total.toLocaleString(settings.language, { style: 'currency', currency: settings.currency }) },
+        { name: 'Total Sales', stat: total.toLocaleString(settings.language, { style: 'currency', currency: "EUR" }) },
         { name: 'Total Deals', stat: deals.length },
         { name: 'Total Clients', stat: contacts.length },
     ]
@@ -148,7 +148,7 @@ function CustomerCloud({ deals, total, contacts, settings }) {
                         </Link>
                     </Card>
                     <Card>
-                        <Link href={`/account/${workspaceSlug}/modules/customer-cloud/projects/${id}`}>
+                        <Link href={`/account/${workspaceSlug}/modules/customer-cloud/filing/${id}`}>
                             <div className="bg-cyan-500 hover:bg-gray-200 text-gray-100 hover:text-gray-800 cursor-pointer">
 
                                 <Card.Body title="Invoices" subtitle="">

@@ -686,6 +686,17 @@ export const createCRMSettings = async (workspaceId, moduleid, data) => {
             currency: data.currency,
             language: data.language,
             vat: data.vat,
+            description: data.description,
+            email: data.email,
+            street: data.street,
+            city: data.city,
+            state: data.state,
+            zip: data.zip,
+            country: data.country,
+            bank: data.bank,
+            iban: data.iban,
+            bic: data.bic,
+            logo: data.logo,
             workspaceId,
             moduleid
         },
@@ -708,6 +719,16 @@ export const updateCRMSettings = async (workspaceId, moduleid, data, id) => {
             language: data.language || undefined,
             country: data.country || undefined,
             vat: data.vat || undefined,
+            description: data.description || undefined,
+            email: data.email || undefined,
+            street: data.street || undefined,
+            city: data.city || undefined,
+            state: data.state || undefined,
+            zip: data.zip || undefined,
+            bank: data.bank || undefined,
+            iban: data.iban || undefined,
+            bic: data.bic || undefined,
+            logo: data.logo || undefined,
         },
     });
     return settings
@@ -801,6 +822,7 @@ export const createQuote = async (addedById, email, data) => {
             item: data.item,
             footer: data.footer,
             note: data.note,
+            moduleid: data.moduleid,
         },
     });
     return quote
@@ -830,6 +852,7 @@ export const updateQuote = async (id, addedById, email, data) => {
             item: data.item || undefined,
             footer: data.footer || undefined,
             note: data.note || undefined,
+            moduleid: data.moduleid,
 
         },
     });
@@ -853,10 +876,116 @@ export const getQuotes = async (dealId) => {
     return quotes
 }
 
+export const getAllQuotes = async (moduleid) => {
+    const quotes = await prisma.quote.findMany({
+        where: { moduleid },
+    });
+    console.log(quotes)
+    return quotes
+}
+
+
 // delete quote by deal
 export const deleteQuote = async (id) => {
     const quote = await prisma.quote.delete({
         where: { id },
     });
     return quote
+}
+
+// create a quote for a deal 
+export const createInvoice = async (addedById, email, data) => {
+
+    const invoice = await prisma.invoice.createMany({
+        data: {
+            addedById,
+            email,
+            clientName: data.clientName,
+            invoiceNumber: data.invoiceNumber,
+            dealId: data.dealId,
+            invoiceDate: data.invoiceDate,
+            invoiceStatus: data.invoiceStatus,
+            street: data.street,
+            clientId: data.clientId,
+            zip: data.zip,
+            city: data.city,
+            country: data.country,
+            validUntil: data.validUntil,
+            subject: data.subject,
+            intro: data.intro,
+            item: data.item,
+            footer: data.footer,
+            note: data.note,
+            moduleid: data.moduleid,
+
+        },
+    });
+    return invoice
+}
+
+
+// update a invoice for a deal
+export const updateInvoice = async (id, addedById, email, data) => {
+    const invoice = await prisma.invoice.update({
+        where: { id },
+        data: {
+            addedById,
+            email,
+            clientName: data.clientName || undefined,
+            invoiceNumber: data.invoiceNumber || undefined,
+            dealId: data.dealId || undefined,
+            invoiceDate: data.invoiceDate || undefined,
+            invoiceStatus: data.invoiceStatus || undefined,
+            street: data.street || undefined,
+            clientId: data.clientId || undefined,
+            zip: data.zip || undefined,
+            city: data.city || undefined,
+            country: data.country || undefined,
+            validUntil: data.validUntil || undefined,
+            subject: data.subject || undefined,
+            intro: data.intro || undefined,
+            item: data.item || undefined,
+            footer: data.footer || undefined,
+            note: data.note || undefined,
+            moduleid: data.moduleid,
+
+        },
+    });
+    return invoice
+}
+
+// get invoice by deal
+export const getInvoice = async (id, dealId) => {
+    const invoices = await prisma.invoice.findMany({
+        where: { id, dealId },
+    });
+    console.log(invoices)
+    return invoices
+}
+
+export const getInvoices = async (dealId) => {
+    const invoices = await prisma.invoice.findMany({
+        where: { dealId },
+    });
+    console.log(invoices)
+    return invoices
+}
+
+
+export const getAllInvoices = async (moduleid) => {
+    const invoices = await prisma.invoice.findMany({
+        where: { moduleid },
+    });
+    console.log(invoices)
+    return invoices
+}
+
+
+
+// delete invoice by deal
+export const deleteInvoice = async (id) => {
+    const invoice = await prisma.invoice.delete({
+        where: { id },
+    });
+    return invoice
 }   

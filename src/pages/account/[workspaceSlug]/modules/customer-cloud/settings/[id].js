@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 import { AccountLayout } from '@/layouts/index';
 import Content from '@/components/Content/index';
 import Input from '@/components/Input';
@@ -14,8 +15,16 @@ import { getWorkspace, isWorkspaceOwner } from '@/prisma/services/workspace';
 import { getSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import toast from 'react-hot-toast';
+import api from '@/lib/common/api'
+import { useState } from 'react';
+import { log } from '@/lib/client/log';
 
 export default function Settings({ modules, workspace, settings }) {
+    settings = JSON.parse(settings)
+    const [companyName, setCompanyName] = useState(settings[0]?.companyName || '')
+
+    const router = useRouter(false);
+    const { workspaceSlug, id } = router.query;
 
 
     const defaultValues = {
@@ -25,6 +34,16 @@ export default function Settings({ modules, workspace, settings }) {
         currency: settings[0]?.currency || '',
         country: settings[0]?.country || '',
         vat: settings[0]?.vat || '',
+        description: settings[0]?.description || '',
+        email: settings[0]?.email || '',
+        street: settings[0]?.street || '',
+        city: settings[0]?.city || '',
+        state: settings[0]?.state || '',
+        zip: settings[0]?.zip || '',
+        bank: settings[0]?.bank || '',
+        iban: settings[0]?.iban || '',
+        bic: settings[0]?.bic || '',
+        logo: settings[0]?.logo || '',
     }
 
     const { handleSubmit, control, formState: { errors } } = useForm({ defaultValues });
@@ -73,6 +92,27 @@ export default function Settings({ modules, workspace, settings }) {
         const res = await log('CRM Settings Updated', `Settings for ${defaultValues.companyName} created for Module: ${id} `, 'settings_created', '127.0.0.1');
     }
 
+    const verifyCompany = async () => {
+        console.log(companyName)
+        // const res = await api(`/api/modules/customer-cloud/settings/verify`, {
+        //     method: 'POST',
+        //     body: {
+        //         formInput,
+        //         workspaceId: workspace[0].id,
+        //         moduleId: modules.id
+        //     }
+        // })
+        // if (res.status === 200) {
+        //     toast.success('Company verified successfully')
+        //     writeLog()
+        //     router.replace(router.asPath)
+
+        // } else {
+        //     toast.error('Error verifying company')
+        // }
+    }
+
+
 
     return (
         <AccountLayout>
@@ -94,13 +134,23 @@ export default function Settings({ modules, workspace, settings }) {
                                     </label>
                                     <div className="mt-1 sm:col-span-2 sm:mt-0 ">
                                         <div className="flex gap-4 mt-1  rounded-md shadow-sm">
-                                            <Input
-                                                type="text"
+                                            <Controller
                                                 name="companyName"
                                                 id="companyName"
-                                                autoComplete="companyName"
+                                                control={control}
+                                                render={({ field }) => (
+                                                    <Input
+                                                        type="text"
+                                                        autoComplete="companyName"
+                                                        onChange={(e) => setCompanyName(e.target.value)}
+                                                        {...field}
+
+                                                    />
+                                                )}
                                             />
                                             <Button
+                                                type="button"
+                                                onClick={() => verifyCompany({ companyName: defaultValues.companyName })}
                                                 className="bg-red-600 text-white mt-1 w-20">
                                                 Verify
                                             </Button>
@@ -113,12 +163,18 @@ export default function Settings({ modules, workspace, settings }) {
                                         About
                                     </label>
                                     <div className="mt-1 sm:col-span-2 sm:mt-0">
-                                        <Textarea
-                                            id="description"
+                                        <Controller
                                             name="description"
-                                            rows={3}
-                                            defaultValue={''}
+                                            id="description"
+                                            control={control}
+                                            render={({ field }) => (
+                                                <Textarea
+                                                    {...field}
+                                                    rows={3}
+                                                />
+                                            )}
                                         />
+
                                         <p className="mt-2 text-sm text-gray-500">Write a few sentences about your company.</p>
                                     </div>
                                 </div>
@@ -161,12 +217,20 @@ export default function Settings({ modules, workspace, settings }) {
                                         Email address
                                     </label>
                                     <div className="mt-1 sm:col-span-2 sm:mt-0">
-                                        <Input
-                                            id="email"
+
+                                        <Controller
                                             name="email"
-                                            type="email"
-                                            autoComplete="email"
+                                            id="email"
+                                            control={control}
+                                            render={({ field }) => (
+                                                <Input
+                                                    {...field}
+                                                    type="email"
+                                                    autoComplete="email"
+                                                />
+                                            )}
                                         />
+
                                     </div>
                                 </div>
 
@@ -175,15 +239,22 @@ export default function Settings({ modules, workspace, settings }) {
                                         Country
                                     </label>
                                     <div className="mt-1 sm:col-span-2 sm:mt-0">
-                                        <Select
-                                            id="country"
+                                        <Controller
                                             name="country"
-                                            autoComplete="country-name"
-                                        >
-                                            <option>United States</option>
-                                            <option>Canada</option>
-                                            <option>Mexico</option>
-                                        </Select>
+                                            id="country"
+                                            control={control}
+                                            render={({ field }) => (
+                                                <Select
+                                                    {...field}
+                                                    autoComplete="country-name"
+                                                >
+                                                    {countries.map((country, index) => (
+                                                        <option key={index} value={country.code}>{country.name}</option>
+                                                    ))}
+                                                </Select>
+                                            )}
+                                        />
+
                                     </div>
                                 </div>
 
@@ -192,26 +263,48 @@ export default function Settings({ modules, workspace, settings }) {
                                         Street address
                                     </label>
                                     <div className="mt-1 sm:col-span-2 sm:mt-0">
-                                        <Input
-                                            type="text"
-                                            name="street-address"
-                                            id="street-address"
-                                            autoComplete="street-address"
+                                        <Controller
+                                            name="street"
+                                            id="street"
+                                            control={control}
+                                            render={({ field }) => (
+                                                <Input
+                                                    {...field}
+                                                    type="text"
+                                                    autoComplete="street-address"
+                                                />
+                                            )}
                                         />
                                     </div>
                                 </div>
-
                                 <div className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
-                                    <label htmlFor="city" className="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
-                                        City
+                                    <label htmlFor="postal-code" className="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                                        ZIP
                                     </label>
-                                    <div className="mt-1 sm:col-span-2 sm:mt-0">
-                                        <Input
-                                            type="text"
+                                    <div className="mt-1 sm:col-span-2 sm:mt-0 flex gap-4">
+                                        <Controller
+                                            name="zip"
+                                            id="zip"
+                                            control={control}
+                                            render={({ field }) => (
+                                                <Input
+                                                    {...field}
+                                                    type="text"
+                                                    autoComplete="zip"
+                                                />
+                                            )}
+                                        />
+                                        <Controller
                                             name="city"
                                             id="city"
-                                            autoComplete="address-level2"
-                                            className="block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:max-w-xs sm:text-sm"
+                                            control={control}
+                                            render={({ field }) => (
+                                                <Input
+                                                    {...field}
+                                                    type="text"
+                                                    autoComplete="address-level2"
+                                                />
+                                            )}
                                         />
                                     </div>
                                 </div>
@@ -221,115 +314,189 @@ export default function Settings({ modules, workspace, settings }) {
                                         State
                                     </label>
                                     <div className="mt-1 sm:col-span-2 sm:mt-0">
-                                        <Input
-                                            type="text"
-                                            name="region"
-                                            id="region"
-                                            autoComplete="address-level1"
-                                            className="block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:max-w-xs sm:text-sm"
+                                        <Controller
+                                            name="state"
+                                            id="state"
+                                            control={control}
+                                            render={({ field }) => (
+                                                <Input
+                                                    {...field}
+                                                    type="text"
+                                                    autoComplete="address-level1"
+                                                />
+                                            )}
+                                        />
+                                    </div>
+                                </div>
+                                <div className="sm:grid sm:grid-cols-2 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+                                    <h3 className="text-md font-medium leading-6 text-gray-900">Optional Information</h3>
+                                    <p className="mt-1 max-w-2xl text-sm text-gray-500">These information are needed for Quote and Invoice creation but optional. </p>
+
+                                </div>
+                                <div className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+                                    <label htmlFor="country" className="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                                        Bank Name
+                                    </label>
+                                    <div className="mt-1 sm:col-span-2 sm:mt-0">
+                                        <Controller
+                                            name="bank"
+                                            id="bank"
+                                            control={control}
+                                            render={({ field }) => (
+                                                <Input
+                                                    {...field}
+                                                    type="text"
+                                                    autoComplete="bank"
+                                                />
+                                            )}
+                                        />
+                                    </div>
+                                </div>
+                                <div className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+                                    <label htmlFor="country" className="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                                        IBAN
+                                    </label>
+                                    <div className="mt-1 sm:col-span-2 sm:mt-0">
+                                        <Controller
+                                            name="iban"
+                                            id="iban"
+                                            control={control}
+                                            render={({ field }) => (
+                                                <Input
+                                                    {...field}
+                                                    type="text"
+                                                    autoComplete="iban"
+                                                />
+                                            )}
+                                        />
+                                    </div>
+                                </div>
+                                <div className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+                                    <label htmlFor="country" className="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                                        BIC
+                                    </label>
+                                    <div className="mt-1 sm:col-span-2 sm:mt-0">
+                                        <Controller
+                                            name="bic"
+                                            id="bic"
+                                            control={control}
+                                            render={({ field }) => (
+                                                <Input
+                                                    {...field}
+                                                    type="text"
+                                                    autoComplete="bic"
+                                                />
+                                            )}
+                                        />
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div className="space-y-6 pt-8 sm:space-y-5 sm:pt-10">
+                            <div>
+                                <h3 className="text-lg font-medium leading-6 text-gray-900">Other Information</h3>
+                                <p className="mt-1 max-w-2xl text-sm text-gray-500">Use a permanent address where you can receive mail.</p>
+                            </div>
+                            <div className="space-y-6 sm:space-y-5">
+                                <div className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+                                    <label htmlFor="country" className="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                                        Timezone
+                                    </label>
+                                    <div className="mt-1 sm:col-span-2 sm:mt-0">
+                                        <Controller
+                                            name="timezone"
+                                            id="timezone"
+                                            control={control}
+                                            render={({ field }) => (
+                                                <Select
+                                                    {...field}
+                                                    autoComplete="timezone"
+                                                >
+                                                    {timezones.map((country, index) => (
+                                                        <option key={index} value={country.abbr}>{country.text}</option>
+                                                    ))}
+                                                </Select>
+                                            )}
+                                        />
+
+                                    </div>
+                                </div>
+
+                                <div className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+                                    <label htmlFor="country" className="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                                        Language
+                                    </label>
+                                    <div className="mt-1 sm:col-span-2 sm:mt-0">
+                                        <Controller
+                                            name="language"
+                                            id="language"
+                                            control={control}
+                                            render={({ field }) => (
+                                                <Select
+                                                    {...field}
+                                                    autoComplete="language"
+                                                >
+                                                    {languages.map((language, index) => (
+                                                        <option key={index} value={language.value}>{language.name}</option>
+                                                    ))}
+                                                </Select>
+                                            )}
+                                        />
+
+                                    </div>
+                                </div>
+                                <div className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+                                    <label htmlFor="country" className="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                                        Currency
+                                    </label>
+                                    <div className="mt-1 sm:col-span-2 sm:mt-0">
+                                        <Controller
+                                            name="currency"
+                                            id="currency"
+                                            control={control}
+                                            render={({ field }) => (
+                                                <Select
+                                                    {...field}
+                                                    autoComplete="currency"
+                                                >
+                                                    {countries.map((currency, index) => (
+                                                        <option key={index} value={currency.currency.code}>{currency.code + ' | ' + currency.currency.name}</option>
+                                                    ))}
+                                                </Select>
+                                            )}
                                         />
                                     </div>
                                 </div>
 
                                 <div className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
-                                    <label htmlFor="postal-code" className="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
-                                        ZIP
+                                    <label htmlFor="region" className="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                                        VAT
                                     </label>
-                                    <div className="mt-1 sm:col-span-2 sm:mt-0">
-                                        <Input
-                                            type="text"
-                                            name="postal-code"
-                                            id="postal-code"
-                                            autoComplete="postal-code"
-                                            className="block w-full max-w-lg rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:max-w-xs sm:text-sm"
+                                    <div className="mt-1 sm:col-span-2 sm:mt-0 w-32">
+                                        <Controller
+                                            name="vat"
+                                            id="vat"
+                                            control={control}
+                                            render={({ field }) => (
+                                                <div className="relative mt-1 flex items-center">
+
+                                                    <Input
+                                                        {...field}
+                                                        type="text"
+                                                        autoComplete="vat"
+                                                    />
+                                                    <div className="absolute inset-y-0 items-center right-3 text-gray-500 flex py-1.5 pr-1.5">
+                                                        %
+                                                    </div>
+                                                </div>
+                                            )}
                                         />
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="space-y-6 divide-y divide-gray-200 pt-8 sm:space-y-5 sm:pt-10">
-                            <div>
-                                <h3 className="text-lg font-medium leading-6 text-gray-900">Notifications</h3>
-                                <p className="mt-1 max-w-2xl text-sm text-gray-500">
-                                    We'll always let you know about important changes, but you pick what else you want to hear about.
-                                </p>
-                            </div>
-                            <div className="space-y-6 divide-y divide-gray-200 sm:space-y-5">
-                                <div className="pt-6 sm:pt-5">
-                                    <div role="group" aria-labelledby="label-email">
-                                        <div className="sm:grid sm:grid-cols-3 sm:items-baseline sm:gap-4">
-                                            <div>
-                                                <div className="text-base font-medium text-gray-900 sm:text-sm sm:text-gray-700" id="label-email">
-                                                    By Email
-                                                </div>
-                                            </div>
-
-                                            <div className="mt-4 sm:col-span-2 sm:mt-0">
-                                                <div className="max-w-lg space-y-4">
-                                                    <div className="relative flex items-start">
-                                                        <div className="flex h-5 items-center">
-                                                            <Controller
-                                                                name="companyName"
-                                                                id="companyName"
-                                                                control={control}
-                                                                render={({ field }) => (
-                                                                    <Input
-                                                                        {...field}
-                                                                        id="comments"
-                                                                        name="comments"
-                                                                        type="checkbox"
-                                                                    />
-                                                                )}
-                                                            />
-
-                                                        </div>
-                                                        <div className="ml-3 text-sm">
-                                                            <label htmlFor="comments" className="font-medium text-gray-700">
-                                                                Comments
-                                                            </label>
-                                                            <p className="text-gray-500">Get notified when someones posts a comment on a posting.</p>
-                                                        </div>
-                                                    </div>
-                                                    <div className="relative flex items-start">
-                                                        <div className="flex h-5 items-center">
-                                                            <Input
-                                                                id="candidates"
-                                                                name="candidates"
-                                                                type="checkbox"
-                                                                className="h-4 w-4 rounded border-gray-300 text-red-600 focus:ring-red-500"
-                                                            />
-                                                        </div>
-                                                        <div className="ml-3 text-sm">
-                                                            <label htmlFor="candidates" className="font-medium text-gray-700">
-                                                                Candidates
-                                                            </label>
-                                                            <p className="text-gray-500">Get notified when a candidate applies for a job.</p>
-                                                        </div>
-                                                    </div>
-                                                    <div className="relative flex items-start">
-                                                        <div className="flex h-5 items-center">
-                                                            <Input
-                                                                id="offers"
-                                                                name="offers"
-                                                                type="checkbox"
-                                                                className="h-4 w-4 rounded border-gray-300 text-red-600 focus:ring-red-500"
-                                                            />
-                                                        </div>
-                                                        <div className="ml-3 text-sm">
-                                                            <label htmlFor="offers" className="font-medium text-gray-700">
-                                                                Offers
-                                                            </label>
-                                                            <p className="text-gray-500">Get notified when a candidate accepts or rejects an offer.</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
 
                     <div className="pt-5">

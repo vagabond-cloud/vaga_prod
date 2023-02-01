@@ -23,7 +23,7 @@ const handler = async (req, res) => {
 
     } else if (method === 'DELETE') {
 
-        const quote = await deleteQuote(req.query.dealId);
+        const quote = await deleteQuote(req.query.id);
         res.status(200).json({ quote });
 
     } else if (method === 'GET') {

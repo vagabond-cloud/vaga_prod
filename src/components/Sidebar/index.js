@@ -19,7 +19,6 @@ const Sidebar = ({ menu }) => {
 
   const router = useRouter();
   const { workspaceSlug, id } = router.query;
-  console.log(workspace)
 
   const renderMenu = () => {
     return (

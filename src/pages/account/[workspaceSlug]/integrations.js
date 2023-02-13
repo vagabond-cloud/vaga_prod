@@ -51,6 +51,13 @@ export default CustomerCloud
 
 const files = [
     {
+        title: 'DocuSign',
+        size: parseFloat('19,00').toLocaleString("de-DE", { style: "currency", currency: "EUR" }),
+        repeat: "pay_as_you_go",
+        source:
+            'https://images.ctfassets.net/0jnmtsdzg6p5/4GSPcvcpIZpsXsZ7F0EXTW/91ac9c7b752e3ec61fa7419fef0b4cd1/OG_Image_Black.jpg',
+    },
+    {
         title: 'AI Support',
         size: parseFloat('200,00').toLocaleString("de-DE", { style: "currency", currency: "EUR" }),
         repeat: "monthly",

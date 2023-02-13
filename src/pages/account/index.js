@@ -67,7 +67,7 @@ const Welcome = ({ ip, location }) => {
       <Meta title="Vagabond - Dashboard" />
       <Content.Title
         title="Vagabond Dashboard"
-        subtitle="Start building SaaS platforms in a day"
+        subtitle="Start building Apps in minutes with Vagabond"
       />
       <Content.Divider />
       <Content.Container>

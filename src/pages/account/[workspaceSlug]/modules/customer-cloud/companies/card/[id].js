@@ -26,6 +26,7 @@ import CContacts from '@/components/modules/customer-cloud/companies/Contacts';
 import Activities from '@/components/modules/customer-cloud/companies/Activities';
 import { useForm, Controller } from "react-hook-form";
 import Textarea from '@/components/Textarea';
+import Projects from '@/components/modules/customer-cloud/companies/Projects';
 
 function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
@@ -48,7 +49,7 @@ function Contacts({ company, notes, calls, tasks, activities, documents }) {
         { name: 'Overview', href: 'overview', current: tab === 'overview' || !tab ? true : false },
         { name: 'Activity', href: 'activity', current: tab === 'activity' ? true : false },
         { name: 'Contacts', href: 'contacts', current: tab === 'contacts' ? true : false },
-        { name: 'Projects', href: 'tasks', current: tab === 'tasks' ? true : false },
+        { name: 'Projects', href: 'projects', current: tab === 'projects' ? true : false },
         { name: 'Documents', href: 'documents', current: tab === 'documents' ? true : false },
     ]
 
@@ -559,6 +560,9 @@ function Contacts({ company, notes, calls, tasks, activities, documents }) {
                 }
                 {tab === 'contacts' &&
                     <CContacts company={company} />
+                }
+                {tab === 'projects' &&
+                    <Projects deal={company} />
                 }
                 {tab === 'documents' &&
                     <Documents company={company} documents={documents} />

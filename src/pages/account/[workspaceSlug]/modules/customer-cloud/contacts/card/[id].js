@@ -27,6 +27,7 @@ import { GoogleMap, MarkerF, useJsApiLoader, InfoBox } from '@react-google-maps/
 import { mapStyles, containerStyle } from '@/config/common/mapStyles';
 import { getMap } from '@/lib/server/map'
 import Tickets from '@/components/modules/customer-cloud/Tickets';
+import Projects from '@/components/modules/customer-cloud/contacts/Projects';
 
 function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
@@ -625,6 +626,9 @@ function Contacts({ contact, notes, calls, tasks, activities, companies, lat, ln
                 {tab === 'activity' &&
                     <Activities activities={activities} />
                 }
+                {tab === 'projects' &&
+                    <Projects deal={contact} />
+                }
                 {tab === 'tickets' &&
                     <Tickets contact={contact} />
                 }
@@ -640,11 +644,11 @@ export default Contacts
 const Overview = ({ profile, lat, lng }) => {
     const libraries = useMemo(() => ['places'], []);
     const mapCenter = { lat, lng }
-    console.log(mapCenter)
+
     const onLoad = marker => {
         console.log('marker')
     }
-    console.log(process.env.NEXT_PUBLIC_GOOGLE_MAPS_API)
+
     const { isLoaded } = useJsApiLoader({
         id: 'google-map-script',
         googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API
@@ -706,9 +710,9 @@ const writeLog = async (type, action, date, contactId) => {
 export async function getServerSideProps(context) {
 
     const contact = await getContact(context.params.id)
-    const notes = contact.note
-    const calls = contact.call
-    const tasks = contact.task
+    const notes = contact?.note
+    const calls = contact?.call
+    const tasks = contact?.task
     const activities = await getActivity(context.params.id)
     const companies = await getCompanies()
 

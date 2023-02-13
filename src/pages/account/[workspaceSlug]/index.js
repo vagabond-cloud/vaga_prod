@@ -1,37 +1,33 @@
+import Button from '@/components/Button';
 import Card from '@/components/Card/index';
 import Content from '@/components/Content/index';
 import Meta from '@/components/Meta/index';
-import Input from '@/components/Input';
-import Button from '@/components/Button';
 import Reload from '@/components/Reload';
 import TabsController from '@/components/Tabs';
+import { activitydetails } from '@/config/activity';
 import { createNew, learnMore, vagachain } from '@/config/workspace-overview/items';
+import { types } from '@/config/workspace-overview/module-types';
 import { AccountLayout } from '@/layouts/index';
-import { log } from '@/lib/client/log';
+import api from '@/lib/common/api';
 import { getModules } from '@/prisma/services/modules';
 import { getActivities } from '@/prisma/services/user';
 import { getWorkspace, isWorkspaceOwner } from '@/prisma/services/workspace';
-import { useWorkspace } from '@/providers/workspace';
-import { EllipsisVerticalIcon, XMarkIcon } from '@heroicons/react/20/solid';
+import { ChevronLeftIcon, ChevronRightIcon, EllipsisVerticalIcon, XMarkIcon } from '@heroicons/react/20/solid';
 import moment from 'moment';
 import { getSession } from 'next-auth/react';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
 import General from './settings/general';
-import Link from 'next/link'
-import { types } from '@/config/workspace-overview/module-types'
-import { activitydetails } from '@/config/activity'
-import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid'
-import { useState, useEffect } from 'react';
-import api from '@/lib/common/api'
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
-const Workspace = ({ activity, isTeamOwner, modules, session }) => {
+const Workspace = ({ activity, isTeamOwner, modules, session, workspace }) => {
   const router = useRouter();
   const { workspaceSlug, section } = router.query;
-  let { workspace } = useWorkspace();
+
 
   const tabs = [
     { name: 'Workspace', href: `/account/${workspaceSlug}?section=workspace`, current: section === "workspace" || !section ? true : false },
@@ -336,6 +332,8 @@ const Modules = ({ modules }) => {
 }
 
 export async function getServerSideProps(context) {
+  const { workspaceSlug } = context.params;
+
   const session = await getSession(context);
   let isTeamOwner = false;
   let workspace = null;
@@ -351,15 +349,24 @@ export async function getServerSideProps(context) {
       isTeamOwner = isWorkspaceOwner(session.user.email, workspace);
     }
   }
-  const activity = await getActivities(1, 10, { createdAt: "desc" }, session.user.userId,)
-  const modules = await getModules(session.user.userId)
+
+  const currentWorkspace = workspace.find((w) => w.slug === workspaceSlug);
+  const member = currentWorkspace?.members.find((m) => m.email === session.user.email).inviter;
+  const isOwner = currentWorkspace?.members.find((m) => m.email === session.user.email).teamRole === "OWNER";
+
+  const activity = await getActivities(1, 10, { createdAt: "desc" }, session.user.userId);
+
+  const modules = isOwner
+    ? await getModules(session.user.userId)
+    : await getModules(member);
 
   return {
     props: {
       isTeamOwner,
       activity: JSON.stringify(activity),
       modules: modules.length === 0 ? [] : JSON.stringify(modules),
-      session
-    }
-  }
+      session,
+      workspace: JSON.parse(JSON.stringify(workspace))
+    },
+  };
 }

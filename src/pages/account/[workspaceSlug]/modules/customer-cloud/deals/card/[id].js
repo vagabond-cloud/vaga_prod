@@ -23,6 +23,7 @@ import Documents from '@/components/modules/customer-cloud/deals/Documents';
 import Quotes from '@/components/modules/customer-cloud/deals/Quotes';
 import Finance from '@/components/modules/customer-cloud/deals/Finance';
 import Reports from '@/components/modules/customer-cloud/deals/Reports';
+import Projects from '@/components/modules/customer-cloud/deals/Projects';
 import { useForm, Controller } from "react-hook-form";
 
 
@@ -30,6 +31,7 @@ function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
 }
 
+/** @param {import('next').InferGetServerSidePropsType<typeof getServerSideProps> } props */
 function Deal({ deal, team, activities, documents, workspace, tickets, settings }) {
     deal = JSON.parse(deal)
     team = JSON.parse(team)
@@ -43,6 +45,7 @@ function Deal({ deal, team, activities, documents, workspace, tickets, settings 
         { name: 'Activity', href: 'activity', current: tab === 'activity' ? true : false },
         { name: 'Tickets', href: 'tickets', current: tab === 'tickets' ? true : false },
         { name: 'Documents', href: 'documents', current: tab === 'documents' ? true : false },
+        { name: 'Projects', href: 'projects', current: tab === 'projects' ? true : false },
         { name: 'Invoices', href: 'quotes', current: tab === 'quotes' ? true : false },
         { name: 'Finance', href: 'finance', current: tab === 'tasks' ? true : false },
         { name: 'Reports', href: 'reports', current: tab === 'reports' ? true : false },
@@ -179,7 +182,10 @@ function Deal({ deal, team, activities, documents, workspace, tickets, settings 
                     <Finance />
                 }
                 {tab === "reports" &&
-                    <Reports />
+                    <Reports deal={deal} settings={settings} />
+                }
+                {tab === "projects" &&
+                    <Projects deal={deal} />
                 }
                 {tab === "overview" &&
                     <Overview deal={deal} team={team} settings={settings} />
@@ -197,7 +203,7 @@ const Overview = ({ deal, team, settings }) => {
     const router = useRouter()
     const { workspaceSlug, id } = router.query
     const [assign, updateAssign] = useState("")
-    console.log(deal)
+
     const defaultValues = {
         userId: deal?.aassignedTo ? deal?.aassignedTo : '',
         dealId: id
@@ -208,12 +214,13 @@ const Overview = ({ deal, team, settings }) => {
 
     //assigne deal to user
     const assignDeal = async (data) => {
-        console.log(data)
+        const email = team.find((t) => t.user.id === data.userId)?.email
         const res = await api(`/api/modules/customer-cloud/deal`, {
             method: 'POST',
             body: {
                 dealId: id,
-                userId: data.userId
+                userId: data.userId,
+                email
             }
         })
         if (res.status === 200) {

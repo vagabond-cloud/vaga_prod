@@ -1,0 +1,44 @@
+[
+    {
+        "name": "Backlog",
+        "id": "1", 
+        "items": [
+            
+        ]
+    },
+    {
+        "name": "In Progress",
+        "id": "2",
+        "items": [
+            
+        ]
+    },
+    {
+        "name": "Under Review",
+        "id": "3",
+        "items": [
+          
+        ]
+    },
+    {
+        "name": "Accepted",
+        "id": "4",
+        "items": [
+           
+        ]
+    },
+        {
+        "name": "Closed",
+        "id": "4",
+        "items": [
+           
+        ]
+    },
+        {
+        "name": "Rejected",
+        "id": "4",
+        "items": [
+           
+        ]
+    }
+]

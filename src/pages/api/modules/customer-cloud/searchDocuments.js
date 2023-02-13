@@ -1,5 +1,5 @@
 import { captureContactActivities } from '@/prisma/services/log';
-import { searchDocuments } from '@/prisma/services/modules';
+import { searchDocuments, searchAllDocuments } from '@/prisma/services/modules';
 import { validateSession } from '@/config/api-validation';
 
 
@@ -7,6 +7,12 @@ import { validateSession } from '@/config/api-validation';
 const handler = async (req, res) => {
     const { method } = req;
     const session = await validateSession(req, res);
+
+    if (method === 'GET') {
+
+        const documents = await searchAllDocuments(req.query.title, req.query.type)
+        return res.status(200).json({ documents });
+    }
 
     if (method === 'POST') {
         const { id, title, type } = req.body;

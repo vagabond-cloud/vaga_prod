@@ -15,6 +15,8 @@ const AccountLayout = ({ children, footer }) => {
   const router = useRouter();
   const { workspace } = useWorkspace();
 
+  const { workspaceSlug } = router.query
+
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.replace('/auth/login');
@@ -25,7 +27,7 @@ const AccountLayout = ({ children, footer }) => {
   return (
     <>
       <main className="relative flex flex-col w-full space-x-0 text-gray-800 dark:text-gray-200 md:space-x-5 md:flex-row bg-gray-50 dark:bg-gray-800">
-        <Sidebar menu={menu(workspace?.slug)} />
+        <Sidebar menu={menu(workspaceSlug)} />
         <Content>
           <Toaster position="bottom-left" toastOptions={{ duration: 10000 }} />
           <Header />

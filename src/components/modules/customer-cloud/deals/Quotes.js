@@ -28,14 +28,14 @@ function Quotes({ settings, deal }) {
             getQuotes()
         }
     }, [id, category])
-    console.log(category)
+
 
     const getQuotes = async () => {
         try {
             const res = await api(`/api/modules/customer-cloud/${category}?dealId=${id}&all=1`, {
                 method: 'GET'
             });
-            console.log(res)
+
             setQuotes(res.quote);
         } catch (err) {
             console.error("Error in getQuotes:", err);
@@ -43,7 +43,7 @@ function Quotes({ settings, deal }) {
     };
 
     const handleCategory = ({ target: { value } }) => {
-        console.log(value)
+
         setCategory(value)
     };
 
@@ -88,13 +88,13 @@ function Quotes({ settings, deal }) {
             {
                 category.length > 0 ?
                     <div className="w-full px-4 mt-10">
-                        {quotes.map((item, index) => (
+                        {quotes.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).map((item, index) => (
                             <Link href={`/account/${workspaceSlug}/modules/customer-cloud/deals/card/${category}/${item.id}/${deal.id}`} key={index} className="">
                                 <div className="p-4 cursor-pointer pointer-events-auto w-full max-w-full overflow-hidden rounded-lg bg-white ring-1 ring-black ring-opacity-5 my-4 hover:bg-gray-100">
                                     <div className="flex items-between">
                                         <div className="ml-3 w-0 flex-1 pt-0.5">
                                             <p className="text-sm font-medium text-gray-900">{deal?.contact?.id === item.clientId ? deal?.contact?.firstName + ' ' + deal?.contact?.lastName : deal?.company?.companyName} </p>
-                                            <p className="text-xs text-gray-400 truncate pr-8 my-2">{item.item.reduce((a, b) => a + parseFloat(b.price * b.amount), 0)?.toLocaleString(settings.country, { style: 'currency', currency: settings.currency })}</p>
+                                            <p className="text-xs text-gray-400 truncate pr-8 my-2">{item.item.reduce((a, b) => a + parseFloat((b.price * b.amount) + (b.price * b.amount * b.vat / 100) - parseFloat(b.discount)), 0)?.toLocaleString(settings.country, { style: 'currency', currency: settings.currency })}</p>
                                             <p className="text-xs text-gray-400 truncate pr-8 my-2">{moment(item.createdAt).format("DD MMM. YYYY - hh:mm:ss")}</p>
 
                                         </div>

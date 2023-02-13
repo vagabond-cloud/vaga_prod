@@ -23,7 +23,7 @@ function Tickets({ tickets, deal, team }) {
 
     const [showOverlay, setShowOverlay] = useState(false)
     const [modalContent, setModalContent] = useState({})
-    console.log("1", modalContent)
+
     const defaultValues = {
         ticketName: '',
         ticketDescription: '',
@@ -36,6 +36,7 @@ function Tickets({ tickets, deal, team }) {
         associatedContact: deal?.contact?.id ? deal?.contact?.id : '',
         associatedCompany: deal?.company?.id ? deal?.company?.id : '',
         associatedDeal: deal.id,
+        email: deal?.contact?.email ? deal?.contact?.email : '',
     }
 
     const { handleSubmit, control, formState: { errors } } = useForm({ defaultValues });
@@ -43,7 +44,7 @@ function Tickets({ tickets, deal, team }) {
 
 
     const addTicket = async (formInput) => {
-        console.log(formInput)
+
         const res = await api(`/api/modules/customer-cloud/ticket`, {
             method: 'POST',
             body: { formInput },
@@ -353,7 +354,7 @@ function Tickets({ tickets, deal, team }) {
                 </div>
             </Modal >
             <div className="w-full px-4 mt-10">
-                {tickets.map((item, index) => (
+                {tickets.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).map((item, index) => (
                     <div key={index} className="cursor-pointer pointer-events-auto w-full max-w-7xl overflow-hidden rounded-lg bg-white ring-1 ring-black ring-opacity-5 my-4 hover:bg-gray-100" onClick={() => toggleModal(item)}>
                         <div className="p-4">
                             <div className="flex items-between">

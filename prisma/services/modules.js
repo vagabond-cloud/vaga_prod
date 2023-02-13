@@ -29,6 +29,7 @@ export const getModule = async (moduleCode) =>
 
 export const getModules = async (id) =>
     await prisma.module.findMany({
+
         where: { addedById: id },
         include: {
             workspace: true,
@@ -152,7 +153,11 @@ export const getContact = async (id) =>
                     deal: true,
                 }
             },
-            deal: true
+            deal: {
+                include: {
+                    Project: true,
+                }
+            }
         }
     });
 
@@ -471,11 +476,15 @@ export const getCompany = async (id) =>
         include: {
             user: true,
             contacts: true,
-            deal: true,
             call: true,
             task: true,
             note: true,
             document: true,
+            deal: {
+                include: {
+                    Project: true,
+                }
+            }
         }
     });
 
@@ -526,15 +535,31 @@ export const getAllCompanies = async (page, limit, sort, moduleid) => {
     return { companies, total };
 };
 
-
-
-
-
 export const getDocuments = async (id) =>
     await prisma.document.findMany({
         where: { companyId: id },
 
     });
+
+export const getAllDocuments = async (page, limit, sort, id) => {
+    const skip = (page - 1) * limit;
+
+    const document = await prisma.document.findMany({
+        where: {
+            OR: [
+                { addedById: id },
+                { companyId: id },
+                { contactId: id },
+            ],
+        },
+        skip,
+        take: limit,
+        orderBy: sort,
+    });
+    const total = await prisma.document.count();
+    return { document, total }
+}
+
 
 // search for documents by title and type
 export const searchDocuments = async (id, title, type) =>
@@ -545,8 +570,22 @@ export const searchDocuments = async (id, title, type) =>
                 { type: { contains: type } }
             ],
             AND: {
-                companyId: id
+                OR: [
+                    { companyId: id },
+                    { contactId: id },
+                    { dealId: id },
+                ],
             },
+        },
+    });
+
+export const searchAllDocuments = async (title, type) =>
+    await prisma.document.findMany({
+        where: {
+            OR: [
+                { title: { contains: title } },
+                { type: { contains: type } }
+            ],
         },
     });
 
@@ -585,6 +624,7 @@ export const getDeal = async (id) =>
             contact: true,
             company: true,
             module: true,
+            Project: true,
         }
     });
 
@@ -596,7 +636,8 @@ export const getDeals = async (moduleid) =>
             module: true,
             user: true,
             contact: true,
-            company: true
+            company: true,
+            Project: true
         },
     });
 
@@ -618,7 +659,8 @@ export const getAllDeals = async (page, limit, sort, moduleid) => {
             module: true,
             user: true,
             contact: true,
-            company: true
+            company: true,
+            Project: true,
         },
         where: { dealStage, moduleid },
         skip,
@@ -650,7 +692,9 @@ export const getDealByStage = async (page, limit, sort, dealStage, moduleid) => 
             user: true,
             contact: true,
             company: true,
-            module: true
+            module: true,
+            Project: true,
+
         },
         where: { dealStage, moduleid },
 
@@ -678,7 +722,7 @@ export const assignDeal = async (id, aassignedTo) => {
 }
 
 export const createCRMSettings = async (workspaceId, moduleid, data) => {
-    console.log(workspaceId)
+
     const deal = await prisma.crmsettings.createMany({
         data: {
             companyName: data.companyName,
@@ -735,7 +779,7 @@ export const updateCRMSettings = async (workspaceId, moduleid, data, id) => {
 }
 
 export const createTicket = async (addedById, email, data) => {
-    console.log(data)
+
     const ticket = await prisma.ticket.createMany({
         data: {
             addedById,
@@ -791,6 +835,26 @@ export const getTicket = async (associatedDeal) =>
         },
     });
 
+
+export const getOwnersTickets = async (addedById) =>
+    await prisma.ticket.findMany({
+        where: {
+            OR: [
+                { addedById },
+                { assignedTo: addedById }, // Added ticketOwner here 
+            ],
+        },
+        include: {
+            deal: {
+                select: { // Added select
+                    contact: true,
+                    company: true,
+                }
+            },
+            user: true,
+        },
+    });
+
 export const deleteTicket = async (id) => {
     const ticket = await prisma.ticket.delete({
         where: { id },
@@ -801,7 +865,7 @@ export const deleteTicket = async (id) => {
 
 // create a quote for a deal 
 export const createQuote = async (addedById, email, data) => {
-    console.log(data)
+
     const quote = await prisma.quote.createMany({
         data: {
             addedById,
@@ -864,7 +928,6 @@ export const getQuote = async (id, dealId) => {
     const quotes = await prisma.quote.findMany({
         where: { id, dealId },
     });
-    console.log(quotes)
     return quotes
 }
 
@@ -872,7 +935,6 @@ export const getQuotes = async (dealId) => {
     const quotes = await prisma.quote.findMany({
         where: { dealId },
     });
-    console.log(quotes)
     return quotes
 }
 
@@ -880,7 +942,6 @@ export const getAllQuotes = async (moduleid) => {
     const quotes = await prisma.quote.findMany({
         where: { moduleid },
     });
-    console.log(quotes)
     return quotes
 }
 
@@ -959,7 +1020,6 @@ export const getInvoice = async (id, dealId) => {
     const invoices = await prisma.invoice.findMany({
         where: { id, dealId },
     });
-    console.log(invoices)
     return invoices
 }
 
@@ -967,7 +1027,6 @@ export const getInvoices = async (dealId) => {
     const invoices = await prisma.invoice.findMany({
         where: { dealId },
     });
-    console.log(invoices)
     return invoices
 }
 
@@ -976,7 +1035,6 @@ export const getAllInvoices = async (moduleid) => {
     const invoices = await prisma.invoice.findMany({
         where: { moduleid },
     });
-    console.log(invoices)
     return invoices
 }
 
@@ -988,4 +1046,154 @@ export const deleteInvoice = async (id) => {
         where: { id },
     });
     return invoice
-}   
+}
+
+export const getProjectData = async (id) => {
+    const data = await prisma.project.findMany({
+        where: { id },
+        include: {
+            ProjectItemDocuments: true,
+            ProjectItem: true,
+            deal: {
+                include: {
+                    contact: true,
+                    company: true,
+                    ticket: true,
+                }
+            },
+        }
+    })
+
+    if (data.length === 0) {
+        var boardData = [{ data: "createBoard" }];
+    } else {
+        var boardData = JSON.parse(JSON.stringify(data));
+    }
+
+    return boardData[0]
+}
+
+export const getAllProjects = async (moduleId) => {
+    const data = await prisma.project.findMany({
+        where: { moduleId },
+        include: {
+            deal: true,
+        }
+    })
+
+
+    var boardData = JSON.parse(JSON.stringify(data));
+
+    return boardData
+}
+
+
+// create a quote for a deal 
+export const createProject = async (addedById, email, data) => {
+
+    const project = await prisma.project.createMany({
+        data: {
+            addedById,
+            email,
+            projectName: data.projectName,
+            projectType: data.projectType,
+            projectStatus: data.projectStatus,
+            projectOwner: data.projectOwner,
+            priority: data.priority,
+            resolution: data.resolution,
+            assignedTo: data.assignedTo,
+            dealId: data.dealId,
+            moduleId: data.moduleId,
+            imageUrl: data.imageUrl,
+            description: data.description,
+            startDate: data.startDate,
+            endDate: data.endDate,
+        },
+    });
+    return project
+}
+
+export const createProjectItem = async (addedById, email, data) => {
+
+    const project = await prisma.projectItem.createMany({
+        data: {
+            addedById,
+            email,
+            assignees: data.assignees || undefined,
+            attachment: data.attachment || undefined,
+            boardId: data.boardId,
+            boardIndex: data.boardIndex,
+            chat: data.chat || undefined,
+            priority: data.priority || undefined,
+            title: data.title || undefined,
+            itemStatus: data.itemStatus || undefined,
+            itemOwner: data.itemOwner || undefined,
+            projectId: data.projectId || undefined,
+        },
+    });
+    return project
+}
+
+export const updateProjectItem = async (addedById, email, data) => {
+
+    const project = await prisma.projectItem.update({
+        where: { id },
+        data: {
+            addedById,
+            email,
+            assignees: data.assignees || undefined,
+            attachment: data.attachment || undefined,
+            boardId: data.boardId || undefined,
+            boardIndex: data.boardIndex || undefined,
+            chat: data.chat || undefined,
+            priority: data.priority || undefined,
+            title: data.title || undefined,
+            itemStatus: data.itemStatus || undefined,
+            itemOwner: data.itemOwner || undefined,
+            projectId: data.projectId || undefined,
+        },
+    });
+    return project
+}
+
+export const updateProjectBoardPosition = async (id, addedById, email, data) => {
+
+    const project = await prisma.projectItem.update({
+        where: { id },
+        data: {
+            addedById,
+            email,
+            assignees: data.assignees || undefined,
+            attachment: data.attachment || undefined,
+            boardId: data.boardId || undefined,
+            boardIndex: data.boardIndex,
+            chat: data.chat || undefined,
+            priority: data.priority || undefined,
+            title: data.title || undefined,
+            itemStatus: data.itemStatus || undefined,
+            itemOwner: data.itemOwner || undefined,
+            projectId: data.projectId || undefined,
+        },
+    });
+
+    return project
+}
+
+export const getProjectItems = async (id) => {
+    const data = await prisma.projectItem.findMany({
+        where: { projectId: id },
+        include: {
+            project: true,
+            comments: true,
+            documents: true,
+        }
+    })
+
+    if (data.length === 0) {
+        var boardData = [{ data: "createBoard" }];
+    } else {
+        var boardData = JSON.parse(JSON.stringify(data));
+    }
+
+    return boardData
+}

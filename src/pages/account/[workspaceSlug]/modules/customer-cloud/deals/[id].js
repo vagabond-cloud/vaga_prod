@@ -27,6 +27,7 @@ function classNames(...classes) {
 }
 
 
+/** @param {import('next').InferGetServerSidePropsType<typeof getServerSideProps> } props */
 function Contacts({ modules, companies, workspace, deals, contacts, filters, total }) {
     modules = JSON.parse(modules)
     companies = JSON.parse(companies)
@@ -107,7 +108,7 @@ function Contacts({ modules, companies, workspace, deals, contacts, filters, tot
         }
     };
 
-    console.log(deals)
+
     return (
         <AccountLayout>
             <Meta title={`Vagabond - Deals | Dashboard`} />

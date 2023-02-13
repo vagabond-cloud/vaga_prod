@@ -16,8 +16,6 @@ import Textarea from '@/components/Textarea';
 import Link from 'next/link'
 
 function Tickets({ contact }) {
-
-    console.log(contact)
     const router = useRouter()
     const { workspaceSlug, id } = router.query
 
@@ -32,7 +30,7 @@ function Tickets({ contact }) {
 
     const [showOverlay, setShowOverlay] = useState(false)
     const [modalContent, setModalContent] = useState({})
-    console.log("2", modalContent)
+
     const defaultValues = {
         note: "",
         title: "",
@@ -93,7 +91,7 @@ function Tickets({ contact }) {
 
             </div>
             <div className="w-full px-4 mt-10">
-                {contact?.ticket.sort((a, b) => { new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime() }).reverse().map((item, index) => (
+                {contact?.ticket.sort((a, b) => { new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime() }).reverse().map((item, index) => (
                     <div key={index} className="cursor-pointer pointer-events-auto w-full max-w-7xl overflow-hidden rounded-lg bg-white ring-1 ring-black ring-opacity-5 my-4 hover:bg-gray-100" onClick={() => toggleModal(item)}>
                         <div className="p-4">
                             <div className="flex items-between">

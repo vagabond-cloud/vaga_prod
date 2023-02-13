@@ -14,6 +14,7 @@ import Meta from '@/components/Meta/index';
 import { AccountLayout } from '@/layouts/index';
 import { useRouter } from 'next/router'
 import toast from 'react-hot-toast';
+import { contactActivity } from '@/lib/client/log';
 
 function Invoices({ settings, deal, invoice }) {
     settings = JSON.parse(settings)[0]
@@ -114,8 +115,10 @@ function Invoices({ settings, deal, invoice }) {
             :
             await writeLog(`Invoice for Client ${formInput.clientId} updated`, "invoice_updated", new Date(), id)
         toast.success(invoice?.clientId ? "Invoice updated successfully" : "Invoice created successfully");
-        router.push(`/account/${workspaceSlug}/modules/customer-cloud/deals/card/${id}?tab=quotes`);
-
+        !invoice?.clientId ?
+            router.push(`/account/${workspaceSlug}/modules/customer-cloud/deals/card/${id}?tab=quotes`)
+            :
+            null
     };
 
     const deleteInvoice = async () => {
@@ -625,3 +628,6 @@ export async function getServerSideProps(context) {
     }
 }
 
+const writeLog = async (type, action, date, contactId) => {
+    const res = await contactActivity(`${type}`, `${type} at ${date}`, `${action.toLowerCase()}`, '127.0.0.1', contactId);
+}

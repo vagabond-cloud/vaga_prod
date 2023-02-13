@@ -4,6 +4,7 @@ import {
 
 
 const Content = ({ children }) => {
+
   return (
     <div className="flex flex-col min-h-full p-5 space-y-5 overflow-y-auto md:p-10 md:w-3/4">
       {children}
@@ -43,13 +44,19 @@ Content.Title = ({ subtitle, title }) => {
   return (
     <div>
       <div className="flex gap-4">
-        <ArrowLeftCircleIcon className="w-8 cursor-pointer hover:text-red-600" onClick={handleBack} />
-        <h1 className="text-lg font-bold md:text-lg">{title}</h1>
+        <ArrowLeftCircleIcon
+          className="w-8 cursor-pointer hover:text-red-600"
+          onClick={handleBack}
+        />
+        <h1 className="text-lg font-bold md:text-lg">
+          {title}
+        </h1>
       </div>
       <h3 className="text-gray-400 text-sm ml-12">{subtitle}</h3>
     </div>
   );
 };
+
 
 Content.Container.displayName = 'Container';
 Content.Divider.displayName = 'Divider';

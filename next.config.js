@@ -4,7 +4,9 @@ module.exports = {
   },
   distDir: 'build',
   images: {
-    domains: ['ipfs.infura.io', 'firebasestorage.googleapis.com', 'ipfs.infura.io', 'countryflagsapi.com'],
+    domains: ['ipfs.infura.io', 'firebasestorage.googleapis.com', 'ipfs.infura.io', 'countryflagsapi.com', 'randomuser.me', 'images.unsplash.com'],
   },
-  reactStrictMode: true,
+  reactStrictMode: false,
+  swcMinify: false,
+
 };

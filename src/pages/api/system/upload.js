@@ -22,26 +22,31 @@ const handler = async (req, res) => {
 
             const { file } = files;
             if (!file) return reject(new Error('File not found in the request'));
+            try {
+                await storage.bucket(bucketName).upload(file.filepath, { destination: uuid });
+                await storage
+                    .bucket(bucketName)
+                    .file(uuid)
+                    .setMetadata({
+                        contentType: file.mimetype,
+                        contentLanguage: 'en',
+                        contentEncoding: 'compress',
+                        contentDisposition: 'inline',
+                        cacheControl: 'public, max-age=31536000',
+                        metadata: {
+                            lastModified: file.lastModifiedDate,
+                            originalFileName: file.originalFilename,
+                        },
+                    });
 
-            await storage.bucket(bucketName).upload(file.filepath, { destination: uuid });
-            await storage
-                .bucket(bucketName)
-                .file(uuid)
-                .setMetadata({
-                    contentType: file.mimetype,
-                    contentLanguage: 'en',
-                    contentEncoding: 'compress',
-                    contentDisposition: 'inline',
-                    cacheControl: 'public, max-age=31536000',
-                    metadata: {
-                        lastModified: file.lastModifiedDate,
-                        originalFileName: file.originalFilename,
-                    },
-                });
+                const fileUrl = `https://storage.googleapis.com/crm-vagabond/${uuid}}`;
 
-            const fileUrl = `https://storage.googleapis.com/crm-vagabond/`;
+                res.status(200).json({ data: { fileUrl } });
+            } catch (err) {
+                console.log(err)
+                res.status(500).json({ error: err.message });
+            }
 
-            res.status(200).json({ data: { fileUrl } });
         });
     });
 };

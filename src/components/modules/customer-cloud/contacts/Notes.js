@@ -58,7 +58,7 @@ function Notes({ profile, notes }) {
             const res = await api(`/api/modules/note?noteId=${cid}`, {
                 method: "DELETE"
             })
-            console.log("DELETE", res)
+
             setShowOverlay(!showOverlay)
 
             await writeLog("Note Deleted", "note_deleted", new Date(), id)

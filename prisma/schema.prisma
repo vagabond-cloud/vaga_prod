@@ -116,25 +116,29 @@ model User {
   role          String?
   active        Boolean?  @default(true)
 
-  accounts         Account[]
-  sessions         Session[]
-  membership       Member[]          @relation("membership")
-  invitedMembers   Member[]          @relation("inviter")
-  createdWorkspace Workspace[]
-  customerPayment  CustomerPayment?
-  domains          Domain[]
-  Log              Log[]
-  Module           Module[]
-  Contact          Contact[]
-  Note             Note[]
-  Call             Call[]
-  Task             Task[]
-  ContactActivity  ContactActivity[]
-  Company          Company[]
-  Document         Document[]
-  Deal             Deal[]
-  Member           Member?
-  Ticket           Ticket[]
+  accounts             Account[]
+  sessions             Session[]
+  membership           Member[]               @relation("membership")
+  invitedMembers       Member[]               @relation("inviter")
+  createdWorkspace     Workspace[]
+  customerPayment      CustomerPayment?
+  domains              Domain[]
+  Log                  Log[]
+  Module               Module[]
+  Contact              Contact[]
+  Note                 Note[]
+  Call                 Call[]
+  Task                 Task[]
+  ContactActivity      ContactActivity[]
+  Company              Company[]
+  Document             Document[]
+  Deal                 Deal[]
+  Member               Member?
+  Ticket               Ticket[]
+  Project              Project[]
+  ProjectItem          ProjectItem[]
+  ProjectItemComments  ProjectItemComments[]
+  ProjectItemDocuments ProjectItemDocuments[]
 
   @@unique([userCode, email])
   @@fulltext([id, email, name, vaga_address])
@@ -425,6 +429,8 @@ model Document {
   email        String    @unique
   companyId    String?   @db.ObjectId
   contactId    String?   @db.ObjectId
+  dealId       String?   @db.ObjectId
+  moduleId     String?   @db.ObjectId
   title        String
   documentUrl  String
   size         Int?
@@ -471,6 +477,7 @@ model Deal {
   ticket  Ticket[]
   Quote   Quote[]
   Invoice Invoice[]
+  Project Project[]
 
   @@fulltext([id, email, dealName, dealStage, dealType, priority])
   @@map("deals")
@@ -518,6 +525,7 @@ model Ticket {
   ticketOwner       String
   priority          String?
   createDate        String
+  assignedTo        String?
   associatedContact String?   @db.ObjectId
   associatedCompany String?   @db.ObjectId
   associatedDeal    String?   @db.ObjectId
@@ -600,6 +608,99 @@ model Invoice {
   deal    Deal    @relation(fields: [dealId], references: [id])
 
   @@map("invoice")
+}
+
+model Project {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  addedById     String    @db.ObjectId
+  email         String    @unique
+  projectName   String
+  projectType   String
+  projectStatus String
+  projectOwner  String
+  priority      String?
+  resolution    String?
+  assignedTo    String?
+  reporter      String?
+  imageUrl      String?
+  description   String
+  startDate     String
+  endDate       String
+  dealId        String?   @db.ObjectId
+  moduleId      String?   @db.ObjectId
+  createdAt     DateTime? @default(now())
+  updatedAt     DateTime? @updatedAt
+  deletedAt     DateTime?
+
+  user                 User                   @relation(fields: [addedById], references: [id], onDelete: Cascade)
+  deal                 Deal?                  @relation(fields: [dealId], references: [id])
+  ProjectItem          ProjectItem[]
+  ProjectItemComments  ProjectItemComments[]
+  ProjectItemDocuments ProjectItemDocuments[]
+
+  @@map("project")
+}
+
+model ProjectItem {
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  addedById  String    @db.ObjectId
+  projectId  String    @db.ObjectId
+  email      String    @unique
+  title      String
+  itemStatus String
+  itemOwner  String
+  priority   String?
+  boardId    Int?
+  boardIndex Int?
+  assignees  Json?
+  chat       String?
+  attachment String?
+  createdAt  DateTime? @default(now())
+  updatedAt  DateTime? @updatedAt
+  deletedAt  DateTime?
+
+  project   Project                @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user      User                   @relation(fields: [addedById], references: [id], onDelete: Cascade)
+  comments  ProjectItemComments[]
+  documents ProjectItemDocuments[]
+
+  @@map("projectItem")
+}
+
+model ProjectItemComments {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  addedById String    @db.ObjectId
+  projectId String    @db.ObjectId
+  itemId    String    @db.ObjectId
+  email     String    @unique
+  comment   String
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
+  deletedAt DateTime?
+
+  project Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  item    ProjectItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  user    User        @relation(fields: [addedById], references: [id], onDelete: Cascade)
+
+  @@map("projectItemComments")
+}
+
+model ProjectItemDocuments {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  addedById String    @db.ObjectId
+  projectId String    @db.ObjectId
+  itemId    String    @db.ObjectId
+  email     String    @unique
+  document  String
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
+  deletedAt DateTime?
+
+  project Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  item    ProjectItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  user    User        @relation(fields: [addedById], references: [id], onDelete: Cascade)
+
+  @@map("projectItemDocuments")
 }
 
 enum InvitationStatus {

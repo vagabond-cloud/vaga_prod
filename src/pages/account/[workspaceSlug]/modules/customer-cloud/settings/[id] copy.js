@@ -32,7 +32,7 @@ function Settings({ modules, workspace, settings }) {
     modules = JSON.parse(modules)
     workspace = JSON.parse(workspace)
     settings = JSON.parse(settings)
-    console.log(settings)
+
     const router = useRouter(false);
     const { workspaceSlug, id } = router.query;
 

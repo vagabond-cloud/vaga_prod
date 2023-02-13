@@ -26,8 +26,8 @@ const View = ({ settings, deal, invoice }) => {
         <AccountLayout>
             <Meta title={`Vagabond - Settings | Dashboard`} />
             <Content.Title
-                title="Quote"
-                subtitle={`Preview of Quote ${invoice.id}`}
+                title="Invoice"
+                subtitle={`Preview of Invoice ${invoice.id}`}
             />
             <Content.Divider />
             <Content.Container>

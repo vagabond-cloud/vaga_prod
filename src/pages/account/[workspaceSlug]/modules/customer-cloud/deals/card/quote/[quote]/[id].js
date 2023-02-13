@@ -42,8 +42,6 @@ function Quotes({ settings, deal, quote }) {
         }
     };
 
-    console.log(deal)
-
     const defaultValues = {
         clientName: quote?.clientName || '',
         quoteNumber: quote?.quoteNumber || '',
@@ -92,12 +90,10 @@ function Quotes({ settings, deal, quote }) {
     const total = (index) => {
         const item = calcItems[index];
         if (!item) return 0;
-
         const amount = item.amount ? parseFloat(item.amount) : 0;
         const price = item.price ? parseFloat(item.price) : 0;
         const vat = item.vat ? parseFloat(item.vat) : (settings.vat || 0);
         const discount = item.discount ? parseFloat(item.discount) : 0;
-
         return (amount * price + (amount * price * vat / 100) - discount)
             .toLocaleString(settings.country, { style: 'currency', currency: settings.currency });
     };
@@ -117,8 +113,10 @@ function Quotes({ settings, deal, quote }) {
             :
             await writeLog(`Quote for Client ${formInput.clientId} updated`, "quote_updated", new Date(), id)
         toast.success(quote?.clientId ? "Quote updated successfully" : "Quote created successfully");
-        router.push(`/account/${workspaceSlug}/modules/customer-cloud/deals/card/${id}?tab=quotes`);
-
+        !quote?.clientId ?
+            router.push(`/account/${workspaceSlug}/modules/customer-cloud/deals/card/${id}?tab=quotes`)
+            :
+            null
     };
 
     const deleteInvoice = async () => {
@@ -127,12 +125,8 @@ function Quotes({ settings, deal, quote }) {
         const res = await api(url, { method });
         toast.success("Invoice deleted successfully");
         await writeLog(`Quote for Client ${quote.clientId} deleted`, "quote_deleted", new Date(), id)
-
         router.push(`/account/${workspaceSlug}/modules/customer-cloud/deals/card/${id}?tab=quotes`);
     };
-
-
-
 
     return (
         <AccountLayout>
@@ -604,8 +598,6 @@ export async function getServerSideProps(context) {
 
     //This retrieves the module data using the getModule function and assigns it to the modules variable. 
     //It takes the id from the params property of the context object.
-
-
     const deal = await getDeal(context.params.id);
 
     const settings = await getCRMSettings(deal.module.id)
@@ -622,7 +614,6 @@ export async function getServerSideProps(context) {
             workspace: JSON.stringify(workspace),
             settings: JSON.stringify(settings),
             quote: JSON.stringify(quote),
-
         }
     }
 }

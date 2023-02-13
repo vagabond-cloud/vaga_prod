@@ -1,21 +1,13 @@
 import Content from '@/components/Content/index';
-import Input from '@/components/Input';
 import Meta from '@/components/Meta/index';
-import Select from '@/components/Select';
-import SlideOver from '@/components/SlideOver';
-import { dealStage, types } from '@/config/modules/crm';
 import { AccountLayout } from '@/layouts/index';
-import { log } from '@/lib/client/log';
-import { contactActivity } from '@/lib/client/log';
-import api from '@/lib/common/api';
-import { getAllInvoices, getAllQuotes, getModule, getCRMSettings } from '@/prisma/services/modules';
+import { getAllInvoices, getAllQuotes, getCRMSettings, getModule } from '@/prisma/services/modules';
 import { getWorkspace, isWorkspaceOwner } from '@/prisma/services/workspace';
-import { ArrowRightCircleIcon } from '@heroicons/react/24/outline';
+import { ChevronRightIcon } from '@heroicons/react/24/solid';
 import moment from 'moment';
 import { getSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { ChevronRightIcon } from '@heroicons/react/24/solid';
 
 function Filing({ invoices, quotes, settings }) {
     quotes = JSON.parse(quotes)
@@ -24,9 +16,8 @@ function Filing({ invoices, quotes, settings }) {
     const router = useRouter();
     const { workspaceSlug, id } = router.query;
 
-    const category = "quote"
     const allDocs = [...quotes, ...invoices]
-    console.log(allDocs)
+
     return (
         <AccountLayout>
             <Meta title={`Vagabond - Deals | Dashboard`} />
@@ -38,14 +29,14 @@ function Filing({ invoices, quotes, settings }) {
                 <div>
                     <div className="w-full px-4 mt-10">
                         {allDocs.map((item, index) => (
-                            <Link href={`/account/${workspaceSlug}/modules/customer-cloud/deals/card/${category}/${item.id}/${item.dealId}`} key={index} className="">
+                            <Link href={`/account/${workspaceSlug}/modules/customer-cloud/deals/card/${item.invoiceNumber ? "invoice" : "quote"}/${item.id}/${item.dealId}`} key={index} className="">
                                 <div className="p-4 cursor-pointer pointer-events-auto w-full max-w-full overflow-hidden rounded-lg bg-white ring-1 ring-black ring-opacity-5 my-4 hover:bg-gray-100">
                                     <div className="flex items-between">
                                         <div className="ml-3 w-0 flex-1 pt-0.5">
                                             <div className="flex justify-between">
                                                 <p className="text-sm font-medium text-gray-900">{item.clientName} </p>
                                             </div>
-                                            <p className="text-xs text-gray-400 truncate pr-8 my-2">{item?.item?.reduce((a, b) => a + parseFloat(b.price * b.amount), 0)?.toLocaleString(settings.country, { style: 'currency', currency: settings.currency })}</p>
+                                            <p className="text-xs text-gray-400 truncate pr-8 my-2">{item?.item?.reduce((a, b) => a + parseFloat((b.price * b.amount) + (b.price * b.amount * b.vat / 100) - parseFloat(b.discount)), 0)?.toLocaleString(settings.country, { style: 'currency', currency: settings.currency })}</p>
                                             <p className="text-xs text-gray-400 truncate pr-8 my-2">{moment(item.createdAt).format("DD MMM. YYYY - hh:mm:ss")}</p>
 
                                         </div>

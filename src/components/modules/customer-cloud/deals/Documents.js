@@ -1,16 +1,16 @@
-import { useState, useRef } from 'react'
-import { useRouter } from 'next/router'
-import SlideOver from '@/components/SlideOver'
-import Input from '@/components/Input'
 import Button from '@/components/Button'
-import { ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline'
+import Input from '@/components/Input'
+import SlideOver from '@/components/SlideOver'
 import { fileType } from '@/config/common/fileType'
-import moment from 'moment'
+import { contactActivity } from '@/lib/client/log'
+import { uploadToGCS } from '@/lib/client/upload'
 import api from '@/lib/common/api'
-import { uploadToGCS } from '@/lib/client/upload';
-import { contactActivity } from '@/lib/client/log';
-import toast from 'react-hot-toast';
-import { useFieldArray, useForm, useWatch, Controller } from "react-hook-form";
+import { ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline'
+import moment from 'moment'
+import { useRouter } from 'next/router'
+import { useRef, useState } from 'react'
+import { Controller, useForm } from "react-hook-form"
+import toast from 'react-hot-toast'
 
 function Documents({ company, documents, deal }) {
 
@@ -36,11 +36,9 @@ function Documents({ company, documents, deal }) {
     }
 
     const { register, setValue, getValues, watch, handleSubmit, control, formState: { errors, touchedFields } } = useForm({ defaultValues });
-    const onSubmit = data => updateContact(data);
+    const onSubmit = data => updateDocument(data);
 
-
-    const updateContact = async (formInput) => {
-        console.log(formInput)
+    const updateDocument = async (formInput) => {
         try {
             const res = await api(`/api/modules/document`, {
                 method: 'PUT',
@@ -51,10 +49,9 @@ function Documents({ company, documents, deal }) {
                     moduleid: deal.moduleid,
                 }
             });
-            console.log(res)
+
             if (res.status === 200) {
                 await writeLog("Document Uploaded", "document_uploaded", new Date(), id);
-
                 router.replace(router.asPath);
                 toast.success('Document uploaded successfully');
             } else {
@@ -147,15 +144,6 @@ function Documents({ company, documents, deal }) {
                                         />
                                     </div>
                                     <div className="px-4 my-0 col-span-2">{errors.title && <span className="text-red-500 text-xs">This field is required</span>}</div>
-                                    {/* <label htmlFor="email" className="block text-xs font-medium text-gray-500">
-                                    Title
-                                </label>
-                                <div className="mt-1">
-                                    <Input
-                                        defaultValue={""}
-                                        onChange={(e) => updateFormInput({ ...formInput, title: e.target.value })}
-                                    />
-                                </div> */}
                                 </div>
                                 <div className="px-4 my-6 flex justify-between mt-10">
                                     <div className="px-4 my-0 col-span-2">
@@ -178,13 +166,6 @@ function Documents({ company, documents, deal }) {
                                             )}
                                         />
                                     </div>
-                                    {/* <input
-                                    type="file"
-                                    ref={documentsRef}
-                                    className=""
-                                    onChange={(e) => uploadDocument(e.target.files[0])}
-                                    accept=".jpeg,.jpg,.png,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.pdf,.txt,.rtf,.mp4,.mov"
-                                /> */}
                                     {submit &&
                                         <svg width="24" height="24" viewBox="0 0 24 24" className="text-gray-400" xmlns="http://www.w3.org/2000/svg">
                                             <circle cx="4" cy="12" r="3">
@@ -203,6 +184,29 @@ function Documents({ company, documents, deal }) {
                                     }
                                 </div>
                             </div>
+                            {uploaded &&
+                                <>
+                                    <p className="px-8 my-2 text-sm font-bold">File Details</p>
+                                    <div className="px-8 my-2 bg-gray-100 py-6 border">
+                                        <div className="mt-2 grid grid-cols-3">
+                                            <p className="text-sm">Title:</p>
+                                            <p className="text-sm">{getValues("title")}</p>
+                                        </div>
+                                        <div className="mt-2 grid grid-cols-3">
+                                            <p className="text-sm">Type:</p>
+                                            <p className="text-sm">{getValues("type")}</p>
+                                        </div>
+                                        <div className="mt-2 grid grid-cols-3">
+                                            <p className="text-sm">Size:</p>
+                                            <p className="text-sm">{getValues("fileSize")}</p>
+                                        </div>
+                                        <div className="mt-2 grid grid-cols-3">
+                                            <p className="text-sm">Last Modified:</p>
+                                            <p className="text-sm">{moment(getValues("lastModified")).format("DD MMM. YYYY - hh:mm:ss")}</p>
+                                        </div>
+                                    </div>
+                                </>
+                            }
                             <div className="flex flex-shrink-0 min-h-20 justify-end px-4 py-4 w-full border-t absolute bottom-0 bg-white resize-y">
                                 {uploaded ?
                                     <Button

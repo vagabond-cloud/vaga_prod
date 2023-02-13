@@ -2,7 +2,7 @@
 import React, { forwardRef } from "react";
 
 const Textarea = forwardRef(({ className, type, rows, placeholder, label, ...rest }, ref) => {
-    console.log(rows)
+
     return (
         <>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700">

@@ -1,31 +1,33 @@
 const docusign = require('docusign-esign');
 const fs = require('fs');
 const path = require('path');
-
+const url = require('url');
+import ReactPDF from '@react-pdf/renderer';
+import api from '@/lib/common/api';
 
 
 const handler = async (req, res) => {
     const { method } = req;
-
-
-
     if (method === 'POST') {
 
-        const { title, description, action, ip } = req.body;
+
+        const { base64, signerEmail, signerName, ccEmail, ccName } = req.body;
+
+        const file = Buffer.from(base64, 'base64');
 
         const args = {
-            accessToken: "eyJ0eXAiOiJNVCIsImFsZyI6IlJTMjU2Iiwia2lkIjoiNjgxODVmZjEtNGU1MS00Y2U5LWFmMWMtNjg5ODEyMjAzMzE3In0.AQoAAAABAAUABwCApX5skwTbSAgAgOWhetYE20gCAHMXJJrWuT1PvAq8G8kBSxAVAAEAAAAYAAEAAAAFAAAADQAkAAAAOGUwYjY3NWQtNjJjNC00ZTI1LWI3MGQtN2RkZTgyNzBkYTQzIgAkAAAAOGUwYjY3NWQtNjJjNC00ZTI1LWI3MGQtN2RkZTgyNzBkYTQzMACAWbzdjwTbSDcA9PW9fHxTBkmDS3Rr-yYd_A.AbIVUXvft4ZAPDnQ6CbTzxm5wtGiEQ53DqG-2tz0CvBQbdrPvOyeIrg4EG4snYYeqLuecQ3lx_SRGhzNVu1hhnZXtcTDkt3VVDinydIw8yX9ke_AMXHT-q_3itwJLrYHFNmmyfcBCkgszeW5RmeAOtQ0yUfUaMcX7DLE-bFG9jUrtuOx4uMMxFGNy_abmwZHmBwsgTjEWoM4xmdZrsskUie5Lrl_CFIF80LTv00cD_XJiGJXnqS93hLMsp_WPH0OpQUVI4PYdg_CSDGbV8i-nWuev9lH-EcW4Ho6d7yDSQiLRdYiT-wz4gq-6vdq_gMSX2JG1GIRqlN1LUOHg05RiA",
-            basePath: "https://demo.docusign.net/restapi/",
+            accessToken: "eyJ0eXAiOiJNVCIsImFsZyI6IlJTMjU2Iiwia2lkIjoiNjgxODVmZjEtNGU1MS00Y2U5LWFmMWMtNjg5ODEyMjAzMzE3In0.AQoAAAABAAUABwCAtxKfAAXbSAgAgPc1rUMF20gCAHMXJJrWuT1PvAq8G8kBSxAVAAEAAAAYAAEAAAAFAAAADQAkAAAAOGUwYjY3NWQtNjJjNC00ZTI1LWI3MGQtN2RkZTgyNzBkYTQzIgAkAAAAOGUwYjY3NWQtNjJjNC00ZTI1LWI3MGQtN2RkZTgyNzBkYTQzMACAWbzdjwTbSDcA9PW9fHxTBkmDS3Rr-yYd_A.KN2wO5qfXwtsXwbp2uSy0HVNgMhR6gZmgjnZRRL6ghqOo6R07suPtaJ0othIGFbcs-66Zy12-B8187rxk0ZcK7tGMrPquVLc_04l0-MAqas8sgBrQuNy5S2ZAdk8Vci2S4rZmOPdc_RptXBQJZxbTM2BlOWNeT1I2UzeijQIPvR7eqLCNtUoKVBLtVbo3JoZ8DK9020NGSizE23AtlapjWmk_nCX6qexrilEnS-G7p1q9OSq5lAWTpITMDo-ysp3ryt2TlULvuISWFuVqTi7XPE_sVEhbfpEH2JYyFdASLWRQfSrB5bm10CiyoCczkMXVbe6P42XtvTFOgcTIiHcig",
+            basePath: "https://demo.docusign.net/restapi",
             accountId: "18254572",
-            signerEmail: "navidkianil@gmail.com",
-            signerName: "John Smith",
-            ccEmail: "navid@trxf.net",
-            ccName: "John Doe",
+            signerEmail: signerEmail,
+            signerName: signerName,
+            ccEmail: ccEmail,
+            ccName: ccName,
             envelopeArgs: {
-                signerEmail: "navidkianil@gmail.com",
-                signerName: "John Smith",
-                ccEmail: "navid@trxf.net",
-                ccName: "John Doe",
+                signerEmail: signerEmail,
+                signerName: signerName,
+                ccEmail: ccEmail,
+                ccName: ccName,
                 status: "sent",
             }
         }
@@ -37,7 +39,7 @@ const handler = async (req, res) => {
             results = null;
 
         // Make the envelope request body
-        let envelope = makeEnvelope(args.envelopeArgs);
+        let envelope = makeEnvelope(args.envelopeArgs, file);
 
         // Call Envelopes::create API method
         // Exceptions will be caught by the calling function
@@ -46,7 +48,6 @@ const handler = async (req, res) => {
         });
         let envelopeId = results.envelopeId;
 
-        console.log(`Envelope was created. EnvelopeId ${envelopeId}`);
         res.status(200).json({ envelopeId: envelopeId });
         return { envelopeId: envelopeId };
     }
@@ -55,14 +56,14 @@ const handler = async (req, res) => {
 export default handler;
 
 const demoDocsPath = path.join('/Users/navidlarijani/Downloads/');
-const doc2File = "Receipt-2646-4803.pdf"
-const doc3File = "Receipt-2646-4803.pdf"
+const doc2File = "somename.pdf"
+const doc3File = "somename.pdf"
 
-function makeEnvelope(args) {
-
+function makeEnvelope(args, file) {
     let doc2DocxBytes, doc3PdfBytes;
     // read files from a local directory
     // The reads could raise an exception if the file is not available!
+
     doc2DocxBytes = fs.readFileSync(path.resolve(demoDocsPath, doc2File));
     doc3PdfBytes = fs.readFileSync(path.resolve(demoDocsPath, doc3File));
 
@@ -73,7 +74,7 @@ function makeEnvelope(args) {
     // add the documents
     let doc1 = new docusign.Document()
         , doc1b64 = Buffer.from(document1(args)).toString('base64')
-        , doc2b64 = Buffer.from(doc2DocxBytes).toString('base64')
+        , doc2b64 = Buffer.from(file).toString('base64')
         , doc3b64 = Buffer.from(doc3PdfBytes).toString('base64')
         ;
 
@@ -85,8 +86,8 @@ function makeEnvelope(args) {
     // Alternate pattern: using constructors for docs 2 and 3...
     let doc2 = new docusign.Document.constructFromObject({
         documentBase64: doc2b64,
-        name: 'Battle Plan', // can be different from actual file name
-        fileExtension: 'docx',
+        name: 'Invoice', // can be different from actual file name
+        fileExtension: 'pdf',
         documentId: '2'
     });
 
@@ -98,7 +99,7 @@ function makeEnvelope(args) {
     });
 
     // The order in the docs array determines the order in the envelope
-    env.documents = [doc1, doc2, doc3];
+    env.documents = [doc2];
 
     // create a signer recipient to sign the document, identified by name and email
     // We're setting the parameters via the object constructor
@@ -133,7 +134,7 @@ function makeEnvelope(args) {
         anchorXOffset: '20'
     })
         , signHere2 = docusign.SignHere.constructFromObject({
-            anchorString: '/sn1/',
+            anchorString: 'Total.',
             anchorYOffset: '10', anchorUnits: 'pixels',
             anchorXOffset: '20'
         })

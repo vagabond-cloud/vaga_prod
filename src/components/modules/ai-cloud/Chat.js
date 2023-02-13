@@ -65,7 +65,6 @@ function Chat({ name }) {
 
     useEffect(() => {
         scrollToBottom();
-        console.log(messagesEndRef.current)
     }, [messages, loading]);
 
     useEffect(() => {

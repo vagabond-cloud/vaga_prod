@@ -67,7 +67,7 @@ const Header = () => {
                   <span>Account</span>
                 </Link>
               </Menu.Item>
-              {data.user.role === 'admin' &&
+              {data?.user?.role === 'admin' &&
                 <Menu.Item>
                   <Link
                     href="/admin"

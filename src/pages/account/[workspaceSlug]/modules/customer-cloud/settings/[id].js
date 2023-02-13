@@ -93,7 +93,7 @@ export default function Settings({ modules, workspace, settings }) {
     }
 
     const verifyCompany = async () => {
-        console.log(companyName)
+
         // const res = await api(`/api/modules/customer-cloud/settings/verify`, {
         //     method: 'POST',
         //     body: {

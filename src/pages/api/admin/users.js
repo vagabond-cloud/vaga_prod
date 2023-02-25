@@ -1,4 +1,4 @@
-import { getAllUsers } from '@/prisma/services/log';
+import { getAllUsers } from '@/prisma/services/user';
 import { validateSession } from '@/config/api-validation';
 
 const handler = async (req, res) => {

@@ -4,8 +4,6 @@ import {
     Text,
     View,
     StyleSheet,
-    PDFViewer,
-    PDFDownloadLink,
     pdf,
 } from "@react-pdf/renderer";
 import { useState } from "react";
@@ -13,6 +11,15 @@ import Button from "@/components/Button";
 import api from '@/lib/common/api'
 import { useRouter } from 'next/router'
 import toast from 'react-hot-toast'
+import dynamic from 'next/dynamic'
+//dynamic import PDFDownloadLink
+const PDFDownloadLink = dynamic(() => import("@react-pdf/renderer").then((mod) => mod.PDFDownloadLink), {
+    ssr: false,
+})
+const PDFViewer = dynamic(() => import("@react-pdf/renderer").then((mod) => mod.PDFViewer), {
+    ssr: false,
+})
+
 
 const PDF = ({ quote, deal, settings }) => (
     <Document>

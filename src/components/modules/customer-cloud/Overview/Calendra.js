@@ -10,6 +10,7 @@ import { Menu, Transition } from '@headlessui/react'
 import moment from 'moment'
 import { useState } from 'react'
 import { useRouter } from 'next/router'
+import Image from 'next/image'
 
 function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
@@ -154,7 +155,7 @@ export default function Example({ deals }) {
                         .slice(0, 3).map((meeting, index) => (
 
                             <li key={index} className="relative flex space-x-6 py-6 xl:static hover:bg-gray-100 px-2">
-                                <img src={meeting.imageUrl} alt="" className="h-14 w-14 flex-none rounded-full" />
+                                <Image src={meeting.imageUrl} width={100} height={100} alt="" className="h-14 w-14 rounded-full" />
                                 <div className="flex-auto">
                                     <h3 className="pr-10 font-semibold text-gray-900 xl:pr-0">{meeting.name}</h3>
                                     <dl className="mt-2 flex flex-col text-gray-500 xl:flex-row">

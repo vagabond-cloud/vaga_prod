@@ -27,12 +27,44 @@ const Settings = ({ user }) => {
   const [apikey] = useState(user.apikey);
   const [secret] = useState(user.secret);
   const [hide, setHide] = useState(true);
+  const [address, setAddress] = useState(user.vaga_address || '');
+  const [rawMnemonic, setRawMnemonic] = useState('');
   const [verifyEmail, setVerifyEmail] = useState('');
   const validName = name.length > 0 && name.length <= 32;
   const validEmail = isEmail(email);
   const verifiedEmail = verifyEmail === email;
 
   const router = useRouter();
+
+  const createWallet = async (event) => {
+    event.preventDefault();
+
+    const res = await api('/api/vagachain/createWallet', {
+      method: 'GET',
+    });
+
+    setAddress(res.data.address);
+    setRawMnemonic(res.data.raw);
+    setSubmittingState(true);
+    api('/api/vagachain/createWallet', {
+      body: {
+        address: res.data.address,
+        mnemonic: res.data.mnemonic
+      },
+      method: 'POST',
+    }).then((response) => {
+      setSubmittingState(false);
+
+      if (response.errors) {
+        Object.keys(response.errors).forEach((error) =>
+          toast.error(response.errors[error].msg)
+        );
+      } else {
+        toast.success('Name successfully updated!');
+      }
+
+    })
+  }
 
   const copyToClipboard = () => toast.success('Copied to clipboard!');
   const hideContent = () => setHide(!hide);
@@ -125,7 +157,6 @@ const Settings = ({ user }) => {
         } else {
           toast.success('API & Secret successfully updated!');
           router.replace(router.asPath);
-
         }
       });
     }
@@ -265,7 +296,50 @@ const Settings = ({ user }) => {
             </div>
           </Card.Body>
         </Card>
+        <Card>
+          {rawMnemonic &&
+            <div className="flex w-full relative">
+              <div className="absolute z-10 h-40 w-full  bg-white">
+                <div className="flex flex-wrap gap-4 my-4 mx-4">
+                  {rawMnemonic.split(' ').map((word, index) => (
+                    <div
+                      key={index}
+                      className="px-4 py-2 bg-gray-800 rounded-md"
+                    >
+                      <span className="overflow-x-auto text-gray-50">{word}</span>
+                    </div>
+                  )
+                  )}
+                </div>
+                <p className="text-center text-sm text-gray-500">
+                  Save these words in a safe place. You will need them to recover your wallet. <span className="text-red-600 cursor-pointer" onClick={() => setRawMnemonic(false)}>I have stored this keywords</span>
+                </p>
+              </div>
 
+            </div>
+          }
+          <Card.Body
+            title="VagaChain Address"
+            subtitle="Your unique Wallet address"
+          >
+            <div className="flex items-center justify-between px-3 py-2 space-x-5 font-mono text-sm border rounded md:w-1/2">
+              <span className="overflow-x-auto">{address}</span>
+              <CopyToClipboard onCopy={copyToClipboard} text={address}>
+                <DocumentDuplicateIcon className="w-5 h-5 cursor-pointer hover:text-red-600" />
+              </CopyToClipboard>
+            </div>
+          </Card.Body>
+          <Card.Footer>
+            <small>A Wallet address will be created on VagaChain</small>
+            <Button
+              className="text-white bg-red-600 hover:bg-red-500"
+              disabled={address || isSubmitting}
+              onClick={createWallet}
+            >
+              Create
+            </Button>
+          </Card.Footer>
+        </Card>
         <Card>
           <Card.Body
             title="API Key"
@@ -274,7 +348,11 @@ const Settings = ({ user }) => {
             <div className="flex items-center justify-between px-3 py-2 space-x-5 font-mono text-sm border rounded md:w-1/2">
               <span className={`overflow-x-auto ${hide ? 'blur-sm	' : 'blur-none'}`}> {apikey}</span>
               <div className="flex gap-4">
-                <EyeIcon className="w-5 h-5 cursor-pointer hover:text-red-600" onClick={() => hideContent()} />
+                {hide ?
+                  <EyeIcon className="w-5 h-5 cursor-pointer hover:text-red-600" onClick={() => hideContent()} />
+                  :
+                  <EyeSlashIcon className="w-5 h-5 cursor-pointer hover:text-red-600" onClick={() => hideContent()} />
+                }
                 <CopyToClipboard onCopy={copyToClipboard} text={apikey}>
                   <DocumentDuplicateIcon className="w-5 h-5 cursor-pointer hover:text-red-600" />
                 </CopyToClipboard>
@@ -287,8 +365,11 @@ const Settings = ({ user }) => {
           >
             <div className={`flex items-center justify-between px-3 py-2 space-x-5 font-mono text-sm border rounded md:w-1/2`}>
               <span className={`overflow-x-auto ${hide ? 'blur-sm	' : 'blur-none'}`}>{secret}</span>
-              <div className="flex gap-4">
+              <div className="flex gap-4">            {hide ?
                 <EyeIcon className="w-5 h-5 cursor-pointer hover:text-red-600" onClick={() => hideContent()} />
+                :
+                <EyeSlashIcon className="w-5 h-5 cursor-pointer hover:text-red-600" onClick={() => hideContent()} />
+              }
                 <CopyToClipboard onCopy={copyToClipboard} text={secret}>
                   <DocumentDuplicateIcon className="w-5 h-5 cursor-pointer hover:text-red-600" />
                 </CopyToClipboard>
@@ -308,19 +389,7 @@ const Settings = ({ user }) => {
             </Card.Footer>
           }
         </Card>
-        <Card>
-          <Card.Body
-            title="VagaChain Address"
-            subtitle="Your unique VagaChain address"
-          >
-            <div className="flex items-center justify-between px-3 py-2 space-x-5 font-mono text-sm border rounded md:w-1/2">
-              <span className="overflow-x-auto">{userCode}</span>
-              <CopyToClipboard onCopy={copyToClipboard} text={userCode}>
-                <DocumentDuplicateIcon className="w-5 h-5 cursor-pointer hover:text-red-600" />
-              </CopyToClipboard>
-            </div>
-          </Card.Body>
-        </Card>
+
         <Card danger>
           <Card.Body
             title="Danger Zone"
@@ -381,7 +450,7 @@ const Settings = ({ user }) => {
 
 export const getServerSideProps = async (context) => {
   const session = await getSession(context);
-  const { email, name, userCode, apikey, secret, company } = await getUser(session.user?.userId);
+  const { email, name, userCode, apikey, secret, company, vaga_address } = await getUser(session.user?.userId);
 
   return {
     props: {
@@ -391,7 +460,8 @@ export const getServerSideProps = async (context) => {
         company,
         userCode,
         apikey,
-        secret
+        secret,
+        vaga_address
       },
     },
   };

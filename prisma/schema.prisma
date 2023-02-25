@@ -110,11 +110,14 @@ model User {
   updatedAt     DateTime? @updatedAt
   photo_url     String?
   phone_number  String?   @unique
-  vaga_address  String?   @unique
   domain        String?
   company       String?
   role          String?
   active        Boolean?  @default(true)
+  vaga_address  String?   @unique
+  mnemonic      String?
+  privateKey    String?
+  publicKey     String?
 
   accounts             Account[]
   sessions             Session[]
@@ -701,6 +704,35 @@ model ProjectItemDocuments {
   user    User        @relation(fields: [addedById], references: [id], onDelete: Cascade)
 
   @@map("projectItemDocuments")
+}
+
+model VagaSession {
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  session      String   @unique
+  txblob       String?
+  account      String?
+  dispatchedto String?
+  amount       Int?
+  node         String?
+  expired      Boolean?
+  code         String?
+  height       Int?
+  hash         String?
+  gasUsed      Int?
+  gasWanted    Int?
+  rawLog       String?
+  gatewayURL   String?
+  type         String?
+  to           String?
+  flag         Int?
+  memo         String?
+  nodeid       String?
+  createdAt    DateTime? @default(now())
+  expiresAt    Int?
+  updatedAt    DateTime? @updatedAt
+  deletedAt    DateTime?
+
+  @@map("vagaSession")
 }
 
 enum InvitationStatus {

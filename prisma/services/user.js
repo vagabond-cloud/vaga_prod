@@ -84,6 +84,7 @@ export const getUser = async (id) =>
       userCode: true,
       apikey: true,
       secret: true,
+      vaga_address: true,
     },
     where: { id },
   });
@@ -113,6 +114,15 @@ export const updateName = async (id, name) =>
 export const updateCompany = async (id, company) =>
   await prisma.user.update({
     data: { company },
+    where: { id },
+  });
+
+export const updateAddress = async (id, address, mnemonic) =>
+  await prisma.user.update({
+    data: {
+      vaga_address: address,
+      mnemonic: mnemonic
+    },
     where: { id },
   });
 

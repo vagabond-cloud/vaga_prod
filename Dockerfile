@@ -26,6 +26,8 @@ COPY package.json yarn.lock ./
 
 RUN yarn install
 
+RUN yarn add prisma
+RUN yarn add @prisma/client
 
 # Rebuild the source code only when needed
 FROM node:16 AS builder

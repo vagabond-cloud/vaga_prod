@@ -26,19 +26,20 @@ COPY package.json yarn.lock ./
 
 RUN yarn install
 
-RUN yarn add prisma
-RUN yarn add @prisma/client
+
 
 # Rebuild the source code only when needed
-FROM node:16 AS builder
+FROM node:18 AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+RUN yarn add prisma
+RUN yarn add @prisma/client
 RUN yarn build
 
 # Production image, copy all the files and run next
 # Production image, copy all the files and run next
-FROM node:16 AS runner
+FROM node:18 AS runner
 WORKDIR /app
 
 # RUN apk add --no-cache libc6-compat

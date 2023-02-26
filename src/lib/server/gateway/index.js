@@ -36,12 +36,14 @@ export const gateway = async (blob) => {
 
     } else if (type === "payment") {
 
+        const value = amount * 1000000
+
         const sessionBlob = {
             session_id,
             type,
             account,
             to,
-            amount,
+            amount: value.toString(),
             flag,
             node,
             expiresAt,

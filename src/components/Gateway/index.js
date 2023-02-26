@@ -1,20 +1,33 @@
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { CheckCircleIcon, ClockIcon } from '@heroicons/react/24/solid'
 import useSign from '@/hooks/data/useSign';
 import { useRouter } from 'next/router'
+import Button from '@/components/Button'
 
 export default function Gateway({ image, session, expried }) {
+
+    const [mobile, setMobile] = useState();
+
     const router = useRouter()
     const { id } = router.query
     const { data, isLoading } = useSign(id);
 
+    useEffect(() => {
+
+        setMobile(window.innerWidth <= 500);
+    }, [])
+
+
     const setType = (type) => {
         if (type === "signin") {
-            return `Waiting for you to scan and verify the sign in request for ${session.account} with the VagaWallet app.`
+            return `Waiting for you to scan and verify the sign in request for ${session?.account} with the VagaWallet app.`
+        } else if (type === "payment") {
+            return `Waiting for you to scan and verify the payment request to ${session?.to} with the VagaWallet app.`
         }
     }
-
+    console.log(session)
     return (
         <div className="bg-white">
             {/* Background color split screen for large screens */}
@@ -61,6 +74,11 @@ export default function Gateway({ image, session, expried }) {
                                         </div>
                                     }
                                 </div>
+                                {!data && mobile &&
+                                    <div className="flex justify-center my-10">
+                                        <Button className="bg-red-600 text-white" onClick={() => router.push(`vagawallet://vagawallet.com/processQR/${session?.session}`)}>Open in VagaWallet</Button>
+                                    </div>
+                                }
                                 <div className="mt-10">
                                     <p className="text-sm text-center">Details will be available in the VagaWallet app after scanning the QR code.</p>
                                 </div>
@@ -76,6 +94,13 @@ export default function Gateway({ image, session, expried }) {
                                         {typeLabel.find((t) => t.type === session?.type)?.label}
                                     </p>
                                 </div>
+                                {session.type === "payment" &&
+                                    <div className="col-span-2 mb-10">
+                                        <p className="text-gray-50 text-2xl font-bold">
+                                            {session?.amount / 1000000} VAGA
+                                        </p>
+                                    </div>
+                                }
                                 <div className="col-span-2">
                                     <p className="text-gray-50">
                                         {session?.type === "signin" ? session.account : session?.to}
@@ -104,7 +129,7 @@ export default function Gateway({ image, session, expried }) {
                                     </p>
                                 </div>
                             </div>
-                            <div className="mt-20">
+                            <div className="my-20 flex items-end h-[170px]">
                                 {!data && session.expiresAt > new Date().getTime() ?
                                     <div className="flex  gap-4 items-center">
                                         <svg width="32" height="32" viewBox="0 0 24 24" fill="#ffffff" className="text-gray-50" xmlns="http://www.w3.org/2000/svg">
@@ -118,7 +143,7 @@ export default function Gateway({ image, session, expried }) {
                                                 <animate id="spinner_vwSQ" begin="spinner_jObz.end-0.45s" attributeName="r" dur="0.75s" values="3;.2;3" />
                                             </circle>
                                         </svg>
-                                        <p className="text-gray-50">{setType(session?.type)}</p>
+                                        <p className="text-gray-50 text-xs">{setType(session?.type)}</p>
                                     </div>
                                     :
                                     <div className="flex gap-4 items-center">

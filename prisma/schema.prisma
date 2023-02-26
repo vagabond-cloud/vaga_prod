@@ -712,7 +712,7 @@ model VagaSession {
   txblob       String?
   account      String?
   dispatchedto String?
-  amount       Int?
+  amount       String?
   node         String?
   expired      Boolean?
   code         String?

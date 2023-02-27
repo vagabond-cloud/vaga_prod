@@ -7,6 +7,8 @@ env_variables:
   HUBSPOT_KEY: 'pat-eu1-98887408-7fbd-46a9-8e42-362ca1e4c490'
   OPENAI_API_KEY: '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'
   NEXT_PUBLIC_MORALIS_API: 'pBI7nFKOsgaNJAL1znNjnDaFvIeuctEgnE2YT3Nk4g4O0bGSBurPISlZW53gTMjx'
+  DATABASE_URL: 'mongodb+srv://vaga:CTl9zvmCEsmxonmE@vagabond.wmjbsmj.mongodb.net/test'
+
 automatic_scaling:
   cool_down_period_sec: 180
   cpu_utilization:

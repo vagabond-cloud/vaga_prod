@@ -7,7 +7,6 @@ const handler = async (req, res) => {
 
         const { session } = req.body
 
-        console.log(session)
         var options = {
             text: `vagawallet://vagawallet.com/processQR/${session}`,
             width: 500,
@@ -43,8 +42,6 @@ const handler = async (req, res) => {
             res.status(200).json({ data: { url } });
         })
     }
-
-
 }
 
 export default handler;

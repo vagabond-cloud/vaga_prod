@@ -2,11 +2,8 @@ runtime: nodejs
 env: flex
 
 env_variables:
-  XUMM_API_KEY: 'f28e22fb-540d-422f-9783-f986c13c4514'
-  XUMM_SECRET_KEY: '4abd1dd5-1b51-4800-b407-b378fcc16a50'
   HUBSPOT_KEY: 'pat-eu1-98887408-7fbd-46a9-8e42-362ca1e4c490'
   OPENAI_API_KEY: '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'
-  NEXT_PUBLIC_MORALIS_API: 'pBI7nFKOsgaNJAL1znNjnDaFvIeuctEgnE2YT3Nk4g4O0bGSBurPISlZW53gTMjx'
   DATABASE_URL: 'mongodb+srv://vaga:CTl9zvmCEsmxonmE@vagabond.wmjbsmj.mongodb.net/test'
 
 automatic_scaling:
@@ -28,5 +25,3 @@ handlers:
   - url: /.*
     secure: always
     script: auto
-beta_settings:
-  cloud_sql_instances: vagabondproduction:europe-west3:vagabond-postres=tcp:5432

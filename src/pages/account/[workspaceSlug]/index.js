@@ -180,10 +180,10 @@ const Activity = ({ activity, session }) => {
   const [pageIndex, setPageIndex] = useState(0);
 
   useEffect(() => {
-    nextPage()
+    next()
   }, [pageIndex])
 
-  const nextPage = async () => {
+  const next = async () => {
     const res = await api(`/api/modules/workspaceActivities?id=${session?.user?.userId}&page=${pageIndex}`, {
       method: 'GET'
     })

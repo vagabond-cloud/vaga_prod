@@ -26,7 +26,7 @@ function Contacts({ modules, contacts, workspace, total }) {
     contacts = JSON.parse(contacts)
     workspace = JSON.parse(workspace)
 
-    const router = useRouter(false);
+    const router = useRouter();
     const { workspaceSlug, id, page } = router.query;
 
     const defaultValues = {

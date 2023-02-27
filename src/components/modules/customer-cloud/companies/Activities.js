@@ -14,10 +14,10 @@ function Activites({ activities }) {
     const [pageIndex, setPageIndex] = useState(0);
 
     useEffect(() => {
-        nextPage()
+        next()
     }, [pageIndex])
 
-    const nextPage = async () => {
+    const next = async () => {
         const res = await api(`/api/modules/activities?id=${id}&page=${pageIndex}`, {
             method: 'GET'
         })

@@ -16,7 +16,7 @@ const Site = ({ workspace }) => {
   if (router.isFallback) {
     return <h1>Loading...</h1>;
   }
-
+  console.log("DOMAINS", workspace.domains)
   return workspace ? (
     <main className="relative flex flex-col items-center justify-center h-screen space-y-10 text-gray-800 bg-gray-50">
       <Meta title={workspace.name} />
@@ -68,6 +68,7 @@ export const getStaticPaths = async () => {
 export const getStaticProps = async ({ params }) => {
   const { site } = params;
   const siteWorkspace = await getSiteWorkspace(site, site.includes('.'));
+  console.log(siteWorkspace)
   let workspace = null;
 
   if (siteWorkspace) {

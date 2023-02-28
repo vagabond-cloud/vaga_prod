@@ -2,6 +2,7 @@ import Gateways from '@/components/Gateway'
 import api from '@/lib/common/api'
 import { getSession } from '@/prisma/services/gateway';
 
+/** @param {import('next').InferGetServerSidePropsType<typeof getServerSideProps> } props */
 export default function Gate({ data, session }) {
 
     return (
@@ -15,17 +16,16 @@ export async function getServerSideProps(context) {
 
     const vagaSession = await getSession(context.query.id)
 
-    const { data } = await api(`${process.env.APP_URL}/api/system/qrcode`, {
+    const { data } = await api(`https://api.vagabonds.cloud/qrcode`, {
         method: 'POST',
         body: {
             session: vagaSession.session,
-            creator: vagaSession.account
         }
     })
 
     return {
         props: {
-            data: data.url,
+            data: data,
             session: JSON.parse(JSON.stringify(vagaSession))
         }
     }

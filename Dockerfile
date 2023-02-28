@@ -2,31 +2,11 @@
 FROM node:18 AS deps
 # Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
 
+
 WORKDIR /app
 COPY package.json yarn.lock ./
 
-
-#  add libraries; sudo so non-root user added downstream can get sudo
-# RUN apk add --no-cache libc6-compat
-# RUN apk add --no-cache git
-# RUN apk add --update python3 make g++ && rm -rf /var/cache/apk/*
-
-# RUN apk add --no-cache py3-pip
-# RUN apk add --no-cache py3-setuptools
-
-# RUN apk add --no-cache \
-#     build-base \
-#     g++ \
-#     cairo-dev \
-#     jpeg-dev \
-#     pango-dev \
-#     bash \
-#     imagemagick
-
-
 RUN yarn install
-
-
 
 # Rebuild the source code only when needed
 FROM node:18 AS builder
@@ -40,25 +20,9 @@ RUN yarn build
 # Production image, copy all the files and run next
 # Production image, copy all the files and run next
 FROM node:18 AS runner
+
+
 WORKDIR /app
-
-# RUN apk add --no-cache libc6-compat
-# RUN apk add --no-cache git
-# RUN apk add --update python3 make g++ && rm -rf /var/cache/apk/*
-
-# RUN apk add --no-cache py3-pip
-# RUN apk add --no-cache py3-setuptools
-
-# RUN apk add --no-cache \
-#     build-base \
-#     g++ \
-#     cairo-dev \
-#     jpeg-dev \
-#     pango-dev \
-#     bash \
-#     imagemagick
-
-
 
 ENV NODE_ENV production
 

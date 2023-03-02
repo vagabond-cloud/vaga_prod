@@ -8,7 +8,6 @@ const handler = async (req, res) => {
 
         const session = await validateSession(req, res);
 
-
         const { name, network, workspace, type } = req.body;
 
         const modules = await createNote(session.user.userId, session.user.email, name, network, workspace, type);

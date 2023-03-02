@@ -154,15 +154,16 @@ export default function CreateSession({ cookies, session }) {
                         </span>
                     </p>
                 </div>
-
             </div>
-            <div className="w-full my-6 flex justify-center">
-                <a href={gatewayURL} target="_blank" rel="noreferrer">
-                    <Button className="bg-gray-600 text-white hover:bg-red-500">
-                        Pay Slip
-                    </Button>
-                </a>
-            </div>
+            {gatewayURL &&
+                <div className="w-full my-6 flex justify-center">
+                    <a href={gatewayURL} target="_blank" rel="noreferrer">
+                        <Button className="bg-gray-600 text-white hover:bg-red-500">
+                            Pay Slip
+                        </Button>
+                    </a>
+                </div>
+            }
             {
                 sessionData.session &&
                 <Modal

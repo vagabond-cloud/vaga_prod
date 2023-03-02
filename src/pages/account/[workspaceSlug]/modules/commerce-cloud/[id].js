@@ -12,8 +12,6 @@ function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
 }
 
-
-
 function CommerceCloud() {
     const router = useRouter();
     const { workspaceSlug } = router.query;

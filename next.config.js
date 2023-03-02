@@ -1,8 +1,4 @@
 module.exports = {
-  env: {
-    UNLOCK_KEY: process.env.UNLOCK_KEY,
-    DATABASE_URL: process.env.DATABASE_URL,
-  },
   images: {
     domains: [''],
   },

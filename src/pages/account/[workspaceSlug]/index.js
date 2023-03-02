@@ -27,7 +27,7 @@ function classNames(...classes) {
 const Workspace = ({ activity, isTeamOwner, modules, session, workspace }) => {
   const router = useRouter();
   const { workspaceSlug, section } = router.query;
-
+  workspace = workspace[0]
 
   const tabs = [
     { name: 'Workspace', href: `/account/${workspaceSlug}?section=workspace`, current: section === "workspace" || !section ? true : false },
@@ -53,7 +53,7 @@ const Workspace = ({ activity, isTeamOwner, modules, session, workspace }) => {
             <Activity activity={activity} session={session} />
           }
           {section === "settings" &&
-            <Settings workspace={workspace} isTeamOwner={isTeamOwner} />
+            <Settings workspace={workspace} isTeamOwner={isTeamOwner} modules={modules} />
           }
           {!section &&
             <Main workspace={workspace} modules={modules} />
@@ -277,11 +277,11 @@ const Activity = ({ activity, session }) => {
   )
 }
 
-const Settings = ({ workspace, isTeamOwner }) => {
+const Settings = ({ workspace, isTeamOwner, modules }) => {
 
   return (
     <>
-      <General workspace={workspace} isTeamOwner={isTeamOwner} />
+      <General workspace={workspace} isTeamOwner={isTeamOwner} modules={modules} />
     </>
 
   )
@@ -290,7 +290,7 @@ const Settings = ({ workspace, isTeamOwner }) => {
 const Modules = ({ modules }) => {
   const router = useRouter()
   const { workspaceSlug } = router.query
-  modules = modules.length > 0 ? JSON.parse(modules) : []
+  modules = modules.length > 0 ? modules : []
 
   return (
     <div>
@@ -356,15 +356,17 @@ export async function getServerSideProps(context) {
 
   const activity = await getActivities(1, 10, { createdAt: "desc" }, session.user.userId);
 
+
   const modules = isOwner
-    ? await getModules(session.user.userId)
-    : await getModules(member);
+    ? await getModules(session.user.userId, currentWorkspace.id)
+    : await getModules(member, currentWorkspace.id);
+
 
   return {
     props: {
       isTeamOwner,
       activity: JSON.stringify(activity),
-      modules: modules.length === 0 ? [] : JSON.stringify(modules),
+      modules: modules.length === 0 ? [] : JSON.parse(JSON.stringify(modules)),
       session,
       workspace: JSON.parse(JSON.stringify(workspace))
     },

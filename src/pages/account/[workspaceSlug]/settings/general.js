@@ -9,14 +9,13 @@ import isSlug from 'validator/lib/isSlug';
 
 import Button from '@/components/Button/index';
 import Card from '@/components/Card/index';
-import Content from '@/components/Content/index';
-import Meta from '@/components/Meta/index';
-import { AccountLayout } from '@/layouts/index';
 import api from '@/lib/common/api';
 import { useWorkspace } from '@/providers/workspace';
 import Input from '@/components/Input';
+import Select from '@/components/Select';
+import { useForm, Controller } from "react-hook-form";
 
-const General = ({ isTeamOwner, workspace }) => {
+const General = ({ isTeamOwner, workspace, modules }) => {
 
   const router = useRouter();
   const { setWorkspace } = useWorkspace();
@@ -24,13 +23,19 @@ const General = ({ isTeamOwner, workspace }) => {
   const [name, setName] = useState(workspace?.name || '');
   const [slug, setSlug] = useState(workspace?.slug || '');
 
-  const validName = name.length > 0 && name.length <= 16;
+  const validName = name?.length > 0 && name?.length <= 16;
   const validSlug =
-    slug.length > 0 &&
-    slug.length <= 16 &&
+    slug?.length > 0 &&
+    slug?.length <= 16 &&
     isSlug(slug) &&
     isAlphanumeric(slug, undefined, { ignore: '-' });
 
+  const defaultValues = {
+    id: modules.find((m) => m.active).id || ''
+  }
+
+  const { handleSubmit, control, formState: { errors } } = useForm({ defaultValues });
+  const onSubmit = data => updateActive(data);
 
   const changeName = (event) => {
     event.preventDefault();
@@ -84,6 +89,25 @@ const General = ({ isTeamOwner, workspace }) => {
     setWorkspace(workspace);
   }, []);
 
+  const updateActive = async (data) => {
+    const getActive = modules.filter((m) => m.active)
+
+    const res = await api(`/api/modules/setShopfront`, {
+      method: 'PUT',
+      body: {
+        id: data.id,
+        oldId: getActive[0].id
+      }
+    })
+    if (res.setActive) {
+      toast.success(`${res.setActive.name} - is now active`);
+      router.replace(router.asPath)
+    } else {
+      toast.error('Something went wrong');
+    }
+  }
+
+
   return (
     <div>
       <Card>
@@ -126,8 +150,8 @@ const General = ({ isTeamOwner, workspace }) => {
               type="text"
               value={slug}
             />
-            <span className={`w-10 text-sm ${slug.length > 16 && 'text-red-600'}`}>
-              {slug.length} / 16
+            <span className={`w-10 text-sm ${slug?.length > 16 && 'text-red-600'}`}>
+              {slug?.length} / 16
             </span>
           </div>
         </Card.Body>
@@ -165,33 +189,48 @@ const General = ({ isTeamOwner, workspace }) => {
           </div>
         </Card.Body>
       </Card>
+      <div className="h-6" />
+      <Card>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <Card.Body
+            title="Activate Shopfront"
+            subtitle="Define the module to be active on the shopfront"
+          >
+            <div className="flex items-center justify-between font-mono text-sm  rounded md:w-1/2">
+              <div className="w-full">
+                <Controller
+                  name="id"
+                  id="id"
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      className="w-96"
+                      {...field}
+                    >
+                      {modules.map((module, index) => (
+                        <option key={index} value={module.id}>{module.name}</option>
+                      ))}
+                    </Select>
+                  )}
+                />
+              </div>
+            </div>
+          </Card.Body>
+          <Card.Footer>
+            <small>Saving this settings will change your Shopfront</small>
+            {isTeamOwner && (
+              <Button
+                type="submit"
+                className="text-white bg-red-600 hover:bg-red-500"
+              >
+                Save
+              </Button>
+            )}
+          </Card.Footer>
+        </form>
+      </Card>
     </div>
   );
 };
-
-// export const getServerSideProps = async (context) => {
-//   const session = await getSession(context);
-//   let isTeamOwner = false;
-//   let workspace = null;
-
-//   if (session) {
-//     workspace = await getWorkspace(
-//       session.user.userId,
-//       session.user.email,
-//       context.params.workspaceSlug
-//     );
-
-//     if (workspace) {
-//       isTeamOwner = isWorkspaceOwner(session.user.email, workspace);
-//     }
-//   }
-
-//   return {
-//     props: {
-//       isTeamOwner,
-//       workspace: JSON.stringify(workspace),
-//     },
-//   };
-// };
 
 export default General;

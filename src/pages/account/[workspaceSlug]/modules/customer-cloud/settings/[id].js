@@ -19,6 +19,11 @@ import api from '@/lib/common/api'
 import { useState } from 'react';
 import { log } from '@/lib/client/log';
 
+function toggle(value) {
+    return !value;
+}
+
+/** @param {import('next').InferGetServerSidePropsType<typeof getServerSideProps> } props */
 export default function Settings({ modules, workspace, settings }) {
     settings = JSON.parse(settings)
     const [companyName, setCompanyName] = useState(settings[0]?.companyName || '')
@@ -490,6 +495,27 @@ export default function Settings({ modules, workspace, settings }) {
                                                         %
                                                     </div>
                                                 </div>
+                                            )}
+                                        />
+                                    </div>
+                                </div>
+                                <div className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+                                    <label htmlFor="region" className="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                                        Activate Shopfront
+                                    </label>
+                                    <div className="mt-1 sm:col-span-2 sm:mt-0">
+                                        <Controller
+                                            name="active"
+                                            id="active"
+                                            control={control}
+                                            render={({ field: props }) => (
+                                                <Input
+                                                    {...props}
+                                                    type="checkbox"
+                                                    checked={props.value}
+                                                    onChange={(e) => props.onChange(e.target.checked)}
+                                                    className="w-4 h-4"
+                                                />
                                             )}
                                         />
                                     </div>

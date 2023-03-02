@@ -209,6 +209,7 @@ model Module {
   updatedAt   DateTime? @updatedAt
   currency    String?
   moduleType  String?   @db.ObjectId
+  active      Boolean?  @default(false)
 
   user        User          @relation(fields: [addedById], references: [id], onDelete: Cascade)
   workspace   Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
@@ -708,7 +709,7 @@ model ProjectItemDocuments {
 
 model VagaSession {
   id           String    @id @default(auto()) @map("_id") @db.ObjectId
-  session      String   @unique
+  session      String    @unique
   txblob       String?
   account      String?
   dispatchedto String?

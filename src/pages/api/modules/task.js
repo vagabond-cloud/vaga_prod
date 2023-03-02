@@ -8,7 +8,6 @@ const handler = async (req, res) => {
 
         const session = await validateSession(req, res);
 
-
         const {
             contactId,
             note,

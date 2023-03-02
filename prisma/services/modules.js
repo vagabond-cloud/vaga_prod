@@ -27,10 +27,29 @@ export const getModule = async (moduleCode) =>
         },
     });
 
-export const getModules = async (id) =>
+export const getModules = async (id, workspaceId) =>
     await prisma.module.findMany({
 
-        where: { addedById: id },
+        where: {
+            addedById: id,
+            workspaceId: workspaceId
+        },
+        include: {
+            workspace: true,
+        },
+    });
+
+export const updateModule = async (id, data) =>
+    await prisma.module.update({
+        where: { id },
+        data
+    })
+
+
+export const getModulesByWorkspace = async (id) =>
+    await prisma.module.findMany({
+
+        where: { workspaceId: id, active: true },
         include: {
             workspace: true,
         },
@@ -741,6 +760,7 @@ export const createCRMSettings = async (workspaceId, moduleid, data) => {
             iban: data.iban,
             bic: data.bic,
             logo: data.logo,
+            active: data.active,
             workspaceId,
             moduleid
         },
@@ -773,6 +793,7 @@ export const updateCRMSettings = async (workspaceId, moduleid, data, id) => {
             iban: data.iban || undefined,
             bic: data.bic || undefined,
             logo: data.logo || undefined,
+            active: data.active || undefined,
         },
     });
     return settings

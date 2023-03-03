@@ -736,6 +736,43 @@ model VagaSession {
   @@map("vagaSession")
 }
 
+model pp_materials {
+  id                   String    @id @default(auto()) @map("_id") @db.ObjectId
+  vid                  String
+  version              String
+  material             String
+  material_name        String
+  material_description String?
+  material_type        String?
+  unit                 String?
+  material_nr          String?
+  division             String?
+  product_allocation   String?
+  material_status      String?
+  material_group       String?
+  office               String?
+  valid_from           String?
+  item_group           String?
+  auth_group           String?
+  gross_weight         String?
+  net_weight           String?
+  unit_weight          String?
+  volume               String?
+  size                 String?
+  ean                  String?
+  packaging_material   String?
+  moduleid             String?   @db.ObjectId
+  workspaceid          String?   @db.ObjectId
+  addedbyid            String?   @db.ObjectId
+  addedbyemail         String?  
+  createdAt            DateTime? @default(now())
+  expiresAt            Int?
+  updatedAt            DateTime? @updatedAt
+  deletedAt            DateTime?
+
+  @@map("pp_materials")
+}
+
 enum InvitationStatus {
   ACCEPTED
   PENDING

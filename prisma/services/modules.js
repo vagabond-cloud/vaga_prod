@@ -1218,3 +1218,13 @@ export const getProjectItems = async (id) => {
 
     return boardData
 }
+
+export const createMaterial = async (workspaceid, moduleid, data) => {
+
+    const contacts = await prisma.contact.createMany({
+        data: {
+
+        }
+    })
+    return contacts
+}

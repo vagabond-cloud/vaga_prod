@@ -31,7 +31,7 @@ const General = ({ isTeamOwner, workspace, modules }) => {
     isAlphanumeric(slug, undefined, { ignore: '-' });
 
   const defaultValues = {
-    id: modules.find((m) => m.active).id || ''
+    id: modules?.find((m) => m.active)?.id || ''
   }
 
   const { handleSubmit, control, formState: { errors } } = useForm({ defaultValues });

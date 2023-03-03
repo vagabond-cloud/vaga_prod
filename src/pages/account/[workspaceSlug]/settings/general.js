@@ -90,7 +90,7 @@ const General = ({ isTeamOwner, workspace, modules }) => {
   }, []);
 
   const updateActive = async (data) => {
-    const getActive = modules.filter((m) => m.active)
+    const getActive = modules?.filter((m) => m.active)
 
     const res = await api(`/api/modules/setShopfront`, {
       method: 'PUT',
@@ -207,7 +207,7 @@ const General = ({ isTeamOwner, workspace, modules }) => {
                       className="w-96"
                       {...field}
                     >
-                      {modules.map((module, index) => (
+                      {modules?.map((module, index) => (
                         <option key={index} value={module.id}>{module.name}</option>
                       ))}
                     </Select>

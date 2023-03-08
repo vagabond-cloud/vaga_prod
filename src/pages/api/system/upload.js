@@ -39,7 +39,7 @@ const handler = async (req, res) => {
                         },
                     });
 
-                const fileUrl = `https://storage.googleapis.com/crm-vagabond/${uuid}}`;
+                const fileUrl = `https://storage.googleapis.com/crm-vagabond/${uuid}`;
 
                 res.status(200).json({ data: { fileUrl } });
             } catch (err) {

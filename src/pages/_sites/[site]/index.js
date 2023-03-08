@@ -66,7 +66,7 @@ export const getStaticProps = async ({ params }) => {
       hostname: `${siteWorkspace[0].slug}.${host}`,
     };
   }
-  console.log(siteWorkspace[0].id)
+
   const modules = await getModulesByWorkspace(siteWorkspace[0].id);
 
   let layout = ""
@@ -85,7 +85,6 @@ export const getStaticProps = async ({ params }) => {
       break;
   }
 
-  console.log(layout)
 
   return {
     props: {

@@ -19,6 +19,7 @@ function classNames(...classes) {
 
 
 
+/** @param {import('next').InferGetServerSidePropsType<typeof getServerSideProps> } props */
 function ProductDashboard({ isWorkspaceOwner, workspace, modules }) {
     workspace = JSON.parse(workspace);
     modules = JSON.parse(modules);
@@ -35,8 +36,52 @@ function ProductDashboard({ isWorkspaceOwner, workspace, modules }) {
             />
             <Content.Divider />
             <Content.Container>
-                {id}
+                <div className="grid grid-cols-2 gap-4">
+                    <Card>
+                        <Link href={`/account/${workspaceSlug}/modules/product-pass/dashboard/pass/${id}`}>
+                            <div className="bg-teal-500 hover:bg-gray-200 text-gray-100 hover:text-gray-800 cursor-pointer">
+                                <Card.Body title="Product Pass" subtitle="">
 
+                                    <p className="text-xs ">Manage your Product Passes</p>
+
+                                </Card.Body>
+                            </div>
+                        </Link>
+                    </Card>
+                    <Card>
+                        <Link href={`/account/${workspaceSlug}/modules/product-pass/dashboard/inventory/${id}`}>
+                            <div className="bg-green-500 hover:bg-gray-200 text-gray-100 hover:text-gray-800 cursor-pointer">
+                                <Card.Body title="Inventory" subtitle="">
+
+                                    <p className="text-xs ">Manage your Inventory</p>
+
+                                </Card.Body>
+                            </div>
+                        </Link>
+                    </Card>
+                    <Card>
+                        <Link href={`/account/${workspaceSlug}/modules/product-pass/dashboard/pass/${id}`}>
+                            <div className="bg-red-500 hover:bg-gray-200 text-gray-100 hover:text-gray-800 cursor-pointer">
+                                <Card.Body title="Product Pass" subtitle="">
+
+                                    <p className="text-xs ">Manage your Product Passes</p>
+
+                                </Card.Body>
+                            </div>
+                        </Link>
+                    </Card>
+                    <Card>
+                        <Link href={`/account/${workspaceSlug}/modules/product-pass/dashboard/pass/${id}`}>
+                            <div className="bg-gray-500 hover:bg-gray-200 text-gray-100 hover:text-gray-800 cursor-pointer">
+                                <Card.Body title="Inventory" subtitle="">
+
+                                    <p className="text-xs ">Manage your Inventory</p>
+
+                                </Card.Body>
+                            </div>
+                        </Link>
+                    </Card>
+                </div>
             </Content.Container>
         </AccountLayout >
     )

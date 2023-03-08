@@ -764,13 +764,314 @@ model pp_materials {
   moduleid             String?   @db.ObjectId
   workspaceid          String?   @db.ObjectId
   addedbyid            String?   @db.ObjectId
-  addedbyemail         String?  
+  addedbyemail         String?
   createdAt            DateTime? @default(now())
   expiresAt            Int?
   updatedAt            DateTime? @updatedAt
   deletedAt            DateTime?
 
   @@map("pp_materials")
+}
+
+model pp_assignedMaterial {
+  id               String  @id @default(auto()) @map("_id") @db.ObjectId
+  pp_materialsid   String  @db.ObjectId
+  pp_productPassid String  @db.ObjectId
+  addedbyid        String? @db.ObjectId
+  addedbyemail     String?
+  moduleid         String? @db.ObjectId
+  workspaceid      String? @db.ObjectId
+
+  createdAt DateTime? @default(now())
+  expiresAt Int?
+  updatedAt DateTime? @updatedAt
+  deletedAt DateTime?
+
+  productPass pp_productPass @relation(fields: [pp_productPassid], references: [id])
+
+  @@map("pp_assignedMaterial")
+}
+
+model pp_locations {
+  id                   String    @id @default(auto()) @map("_id") @db.ObjectId
+  vid                  String
+  location_name        String
+  street               String?
+  postal               String?
+  city                 String?
+  country              String?
+  po_box               String?
+  po_code              String?
+  language             String?
+  phone                String?
+  fax                  String?
+  email                String?
+  standard_comm_method String?
+  is_plant             Boolean?
+  plant_id             String?
+  plant_name           String?
+  fork_lift            Boolean?
+  lift_gate            Boolean?
+  loading_dock         Boolean?
+  photo_allowed        Boolean?
+  floor_protection     Boolean?
+  insurance            Boolean?
+  union_labor          Boolean?
+  height_limit         String?
+  security_clearance   Boolean?
+  docking_from         String?
+  docking_to           String?
+  max_truck_size       String?
+  moduleid             String?   @db.ObjectId
+  workspaceid          String?   @db.ObjectId
+  addedbyid            String?   @db.ObjectId
+  addedbyemail         String?
+  createdAt            DateTime? @default(now())
+  expiresAt            Int?
+  updatedAt            DateTime? @updatedAt
+  deletedAt            DateTime?
+
+  @@map("pp_locations")
+}
+
+model pp_inventory {
+  id                 String    @id @default(auto()) @map("_id") @db.ObjectId
+  vid                String
+  available_quantity String
+  batch              String
+  certificate_number String
+  document_number    String
+  product            String
+  quantity           String
+  storage_id         String
+  storage_location   String
+  storage_type       String
+  total_stock        String
+  deposit_refund     String
+  deposit_id         String
+  weight             String
+  moduleid           String?   @db.ObjectId
+  workspaceid        String?   @db.ObjectId
+  addedbyid          String?   @db.ObjectId
+  addedbyemail       String?
+  createdAt          DateTime? @default(now())
+  expiresAt          Int?
+  updatedAt          DateTime? @updatedAt
+  deletedAt          DateTime?
+
+  @@map("pp_inventory")
+}
+
+model pp_productPass {
+  id                             String    @id @default(auto()) @map("_id") @db.ObjectId
+  vid                            String    @unique
+  version                        String
+  identification                 String
+  identification_value           String
+  product_name                   String
+  parent_organization            String
+  brand                          String?
+  product_description            String?
+  intended_sale                  String?
+  season                         String?
+  retail_price                   String?
+  companyid                      String?
+  currency_code                  String?
+  size                           String?
+  product_color                  String?
+  age_group                      String?
+  gender                         String?
+  categorization_standard        String?
+  product_family                 String?
+  product_category               String?
+  country_origin                 String?
+  manufacturing_facility         String?
+  manufacturing_name             String?
+  material_traceability_provider String?
+  material_type                  String?
+  finishes                       String?
+  material_certifications        String?
+  net_weight                     String?
+  id_type                        String?
+  id_material                    String?
+  id_location                    String?
+  id_type_value                  String?
+  id_material_value              String?
+  id_location_value              String?
+  material_composition           String?
+  deposit                        Boolean?
+  product_website                String?
+  materiallistid                 String?   @db.ObjectId
+  moduleid                       String?   @db.ObjectId
+  workspaceid                    String?   @db.ObjectId
+  addedbyid                      String?   @db.ObjectId
+  addedbyemail                   String?
+  createdAt                      DateTime? @default(now())
+  expiresAt                      Int?
+  updatedAt                      DateTime? @updatedAt
+  deletedAt                      DateTime?
+  registered_companyId           String?   @db.ObjectId
+
+  registered_company  registered_company?   @relation(fields: [registered_companyId], references: [id])
+  pp_productImages    pp_productImages[]
+  pp_productDocuments pp_productDocuments[]
+  pp_assignedMaterial pp_assignedMaterial[]
+  pp_subProductpass   pp_subProductpass[]
+
+  @@map("pp_productPass")
+}
+
+model pp_subProductpass {
+  id               String    @id @default(auto()) @map("_id") @db.ObjectId
+  vid              String    @unique
+  passid           String    @unique
+  pp_productPassid String    @db.ObjectId
+  tokenid          String
+  moduleid         String?   @db.ObjectId
+  workspaceid      String?   @db.ObjectId
+  addedbyid        String?   @db.ObjectId
+  addedbyemail     String?
+  createdAt        DateTime? @default(now())
+  expiresAt        Int?
+  updatedAt        DateTime? @updatedAt
+  deletedAt        DateTime?
+
+  productPass pp_productPass @relation(fields: [pp_productPassid], references: [id], onDelete: Cascade)
+  pp_checkIn  pp_checkIn[]
+  pp_checkOut pp_checkOut[]
+
+  @@map("pp_subProductpass")
+}
+
+model pp_productImages {
+  id               String    @id @default(auto()) @map("_id") @db.ObjectId
+  url              String
+  pp_productPassid String    @db.ObjectId
+  vid              String    @unique
+  addedbyid        String?   @db.ObjectId
+  addedbyemail     String?
+  type             String?
+  size             Int?
+  name             String?
+  workspaceid      String?   @db.ObjectId
+  moduleid         String?   @db.ObjectId
+  createdAt        DateTime? @default(now())
+  expiresAt        Int?
+  updatedAt        DateTime? @updatedAt
+  deletedAt        DateTime?
+
+  productPass pp_productPass @relation(fields: [pp_productPassid], references: [id], onDelete: Cascade)
+
+  @@map("pp_productImages")
+}
+
+model pp_productDocuments {
+  id               String    @id @default(auto()) @map("_id") @db.ObjectId
+  url              String
+  pp_productPassid String    @db.ObjectId
+  vid              String    @unique
+  addedbyid        String?   @db.ObjectId
+  addedbyemail     String?
+  type             String?
+  size             Int?
+  name             String?
+  workspaceid      String?   @db.ObjectId
+  moduleid         String?   @db.ObjectId
+  createdAt        DateTime? @default(now())
+  expiresAt        Int?
+  updatedAt        DateTime? @updatedAt
+  deletedAt        DateTime?
+
+  productPass pp_productPass @relation(fields: [pp_productPassid], references: [id], onDelete: Cascade)
+
+  @@map("pp_productDocuments")
+}
+
+model pp_checkIn {
+  id                  String    @id @default(auto()) @map("_id") @db.ObjectId
+  pp_productPassid    String    @db.ObjectId
+  vid                 String    @unique
+  name                String
+  description         String?
+  batch               String?
+  lat                 String
+  lng                 String
+  pp_subProductpassid String?   @db.ObjectId
+  createdAt           DateTime? @default(now())
+  expiresAt           Int?
+  updatedAt           DateTime? @updatedAt
+  deletedAt           DateTime?
+
+  pp_subProductpass pp_subProductpass? @relation(fields: [pp_subProductpassid], references: [id])
+
+  @@map("pp_checkIn")
+}
+
+model pp_checkOut {
+  id                  String    @id @default(auto()) @map("_id") @db.ObjectId
+  pp_productPassid    String    @db.ObjectId
+  vid                 String    @unique
+  name                String
+  description         String?
+  batch               String?
+  lat                 String
+  lng                 String
+  pp_subProductpassid String?   @db.ObjectId
+  createdAt           DateTime? @default(now())
+  expiresAt           Int?
+  updatedAt           DateTime? @updatedAt
+  deletedAt           DateTime?
+
+  pp_subProductpass pp_subProductpass? @relation(fields: [pp_subProductpassid], references: [id])
+
+  @@map("pp_checkOut")
+}
+
+model registered_company {
+  id                   String             @id @default(auto()) @map("_id") @db.ObjectId
+  companyid            String?
+  applicationid        String?
+  company_name         String
+  company_reg_number   String
+  contact_name         String
+  contact_email        String
+  contact_phone        String?
+  account_type         String?
+  registration_country String?
+  registration_city    String?
+  date_registered      DateTime?
+  status               String?
+  moduleid             String?            @db.ObjectId
+  workspaceid          String?            @db.ObjectId
+  addedbyid            String?            @db.ObjectId
+  addedbyemail         String?
+  createdAt            DateTime?          @default(now())
+  expiresAt            Int?
+  updatedAt            DateTime?          @updatedAt
+  deletedAt            DateTime?
+  pp_productPass       pp_productPass[]
+  registered_brand     registered_brand[]
+
+  @@map("registered_company")
+}
+
+model registered_brand {
+  id                   String    @id @default(auto()) @map("_id") @db.ObjectId
+  brandid              String?
+  name                 String
+  description          String?
+  url                  String?
+  registered_companyid String    @db.ObjectId
+  addedbyid            String?   @db.ObjectId
+  addedbyemail         String?
+  createdAt            DateTime? @default(now())
+  expiresAt            Int?
+  updatedAt            DateTime? @updatedAt
+  deletedAt            DateTime?
+
+  registered_company registered_company? @relation(fields: [registered_companyid], references: [id])
+
+  @@map("registered_brand")
 }
 
 enum InvitationStatus {

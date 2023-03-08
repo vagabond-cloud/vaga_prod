@@ -12,82 +12,63 @@ import Button from '@/components/Button/index';
 import SlideOver from '@/components/SlideOver';
 import api from '@/lib/common/api';
 
-import { countries } from '@/config/common/countries';
-import { materialStatus } from '@/config/modules/pass';
 import { AccountLayout } from '@/layouts/index';
-import { getMaterials, getModule } from '@/prisma/services/modules';
-import { getWorkspace, isWorkspaceOwner } from '@/prisma/services/workspace';
-import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid';
-import { ArrowRightCircleIcon } from '@heroicons/react/24/outline';
+import { materialStatus } from '@/config/modules/pass';
 import moment from 'moment';
 import toast from 'react-hot-toast';
 import { useForm, Controller } from "react-hook-form";
-import Pagniation from '@/components/Pagination/';
-import generateVID from '@/lib/server/vid';
+
+import { getMaterial } from '@/prisma/services/modules';
 import { units } from '@/config/common/units';
 
-/** @param {import('next').InferGetServerSidePropsType<typeof getServerSideProps> } props */
-function Materials({ modules, materials, workspace, total }) {
-
-
+export default function MaterialDetails({ material }) {
     const router = useRouter();
-    const { workspaceSlug, id, page } = router.query;
+    const { workspaceSlug, id } = router.query;
 
     const defaultValues = {
-        vid: generateVID(),
-        version: '',
-        material: '',
-        material_name: '',
-        material_description: '',
-        material_type: '',
-        unit: '',
-        material_nr: '',
-        division: '',
-        product_allocation: '',
-        material_status: '',
-        material_group: '',
-        office: '',
-        valid_from: '',
-        item_group: '',
-        auth_group: '',
-        gross_weight: '',
-        net_weight: '',
-        unit_weight: '',
-        volume: '',
-        size: '',
-        ean: '',
-        packaging_material: '',
+        vid: material.vid || '',
+        version: material.version || '',
+        material: material.material || '',
+        material_name: material.material_name || '',
+        material_description: material.material_description || '',
+        material_type: material.material_type || '',
+        unit: material.unit || '',
+        material_nr: material.material_nr || '',
+        division: material.division || '',
+        product_allocation: material.product_allocation || '',
+        material_status: material.material_status || '',
+        material_group: material.material_group || '',
+        office: material.office || '',
+        valid_from: material.valid_from || '',
+        item_group: material.item_group || '',
+        auth_group: material.auth_group || '',
+        gross_weight: material.gross_weight || '',
+        net_weight: material.net_weight || '',
+        unit_weight: material.unit_weight || '',
+        volume: material.volume || '',
+        size: material.size || '',
+        ean: material.ean || '',
+        packaging_material: material.packaging_material || '',
     }
 
     const { handleSubmit, control, formState: { errors } } = useForm({ defaultValues });
-    const onSubmit = data => createContact(data);
+    const onSubmit = data => updateMaterial(data);
 
+    const updateMaterial = async (data) => {
 
-    const createContact = async (data) => {
-
-        try {
-            const res = await api(`/api/modules/product-pass/material`, {
-                method: 'POST',
-                body: {
-                    data,
-                    workspaceid: workspace[0].id,
-                    moduleid: modules.id
-                }
-            });
-
-            if (res.status === 200) {
-                writeLog();
-                router.replace(router.asPath);
-            } else {
-                toast.error('Error creating Materials');
+        const res = await api(`/api/modules/product-pass/material`, {
+            method: 'PUT',
+            body: {
+                id: material.id,
+                data
             }
-        } catch (error) {
-            toast.error(`Error creating Materials: ${error.response ? error.response.data.message : error.message}`);
+        })
+        if (res.status === 200) {
+            toast.success('Material updated successfully');
+            router.replace(router.asPath)
+        } else {
+            toast.error('Something went wrong');
         }
-    };
-
-    const writeLog = async () => {
-        toast.success('Materials created successfully')
     }
 
     return (
@@ -99,18 +80,17 @@ function Materials({ modules, materials, workspace, total }) {
             />
             <Content.Divider />
             <Content.Container>
-                <div className="mt-4">
-                    <div className="sm:flex sm:items-center">
-                        <div className="sm:flex-auto">
-                            <h1 className="text-xl font-semibold text-gray-900">Materials</h1>
-                            <p className="mt-2 text-sm text-gray-700">
-                                A list of all the Materials in your Workspace.
-                            </p>
+                <div>
+                    <div className="justify-between mt-4 flex flex-col space-y-3 sm:flex-row sm:space-y-0 sm:space-x-4">
+
+                        <div>
+                            <h3 className="text-base font-semibold leading-6 text-gray-900">Material Information</h3>
+                            <p className="mt-1 max-w-2xl text-sm text-gray-500">Details for selected Material</p>
                         </div>
                         <SlideOver
-                            title="Add Material"
-                            subTitle="Add a new Material to your Product Pass"
-                            buttonTitle="Add Material"
+                            title="Edit Material"
+                            subTitle="Edit Material for your Product Pass"
+                            buttonTitle="Edit Material"
                         >
                             <form onSubmit={handleSubmit(onSubmit)}>
                                 <div className="overflow-scroll h-full pb-20">
@@ -178,6 +158,7 @@ function Materials({ modules, materials, workspace, total }) {
                                                 control={control}
                                                 render={({ field }) => (
                                                     <Textarea
+                                                        {...field}
                                                         label="Description"
                                                         rows={3}
                                                     />
@@ -221,8 +202,8 @@ function Materials({ modules, materials, workspace, total }) {
                                     <div className="px-4 my-10">
                                         <div className="mt-1">
                                             <Controller
-                                                name="material"
-                                                id="material"
+                                                name="material_nr"
+                                                id="material_nr"
                                                 control={control}
                                                 render={({ field }) => (
                                                     <Input
@@ -243,6 +224,22 @@ function Materials({ modules, materials, workspace, total }) {
                                                 render={({ field }) => (
                                                     <Input
                                                         label="Division"
+                                                        type="text"
+                                                        {...field}
+                                                    />
+                                                )}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="px-4 my-10">
+                                        <div className="mt-1">
+                                            <Controller
+                                                name="product_allocation"
+                                                id="product_allocation"
+                                                control={control}
+                                                render={({ field }) => (
+                                                    <Input
+                                                        label="Product Allocation"
                                                         type="text"
                                                         {...field}
                                                     />
@@ -462,7 +459,6 @@ function Materials({ modules, materials, workspace, total }) {
                                             />
                                         </div>
                                     </div>
-
                                 </div>
                                 <div className="flex flex-shrink-0 justify-end px-4 py-4 w-full border-t absolute bottom-0 bg-white">
                                     <Button
@@ -477,97 +473,123 @@ function Materials({ modules, materials, workspace, total }) {
 
                         </SlideOver>
                     </div>
-                    <div className="mt-8 flex flex-col">
-                        <div className="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
-                            <div className="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
-                                <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-sm">
-                                    <table className="min-w-full divide-y divide-gray-300">
-                                        <thead className="bg-gray-50">
-                                            <tr>
-                                                <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">
-                                                    Material
-                                                </th>
-                                                <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                                                    Material #
-                                                </th>
-                                                <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                                                    Material Status
-                                                </th>
-                                                <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                                                    Valid from
-                                                </th>
-                                                <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                                                    Gross Weight
-                                                </th>
-                                                <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-6">
-                                                    <span className="sr-only">Edit</span>
-                                                </th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-gray-200 bg-white">
-                                            {materials.map((material, index) => (
-                                                <tr key={index} className="hover:bg-gray-100">
-                                                    <td className="whitespace-nowrap py-4 pl-4 pr-3 text-xs font-medium text-gray-900 sm:pl-6 flex gap-2 items-center">
-                                                        {material.material_name}
-                                                    </td>
-                                                    <td className="whitespace-nowrap px-3 py-4 text-xs text-gray-500">{material.material_nr}</td>
-                                                    <td className="whitespace-nowrap px-3 py-4 text-xs text-gray-500">{materialStatus.find((m) => m.id === material.material_status)?.name}</td>
-                                                    <td className="whitespace-nowrap px-3 py-4 text-xs text-gray-500">{moment(material.valid_from).format("DD MMM. YYYY")}</td>
-                                                    <td className="whitespace-nowrap px-3 py-4 text-xs text-gray-500">{material.gross_weight} {units.find((u) => u.id === material.unit)?.name}</td>
-
-                                                    <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-xs font-medium sm:pr-6">
-                                                        <Link href={`/account/${workspaceSlug}/modules/product-pass/materials/card/${material.id}`} className="text-red-600 hover:text-red-900">
-                                                            <ArrowRightCircleIcon className="w-6 hover:text-gray-800" />
-                                                        </Link>
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
+                    <div className="mt-5 border-t border-gray-200">
+                        <dl className="sm:divide-y sm:divide-gray-200 grid grid-cols-2 gap-4">
+                            <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">
+                                <dt className="text-sm font-medium text-gray-500">Material</dt>
+                                <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{material.material}</dd>
                             </div>
-                        </div>
+                            <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">
+                                <dt className="text-sm font-medium text-gray-500">Material Name</dt>
+                                <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{material.material_name}</dd>
+                            </div>
+                            <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">
+                                <dt className="text-sm font-medium text-gray-500">Material Type</dt>
+                                <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{material.material_type}</dd>
+                            </div>
+                            <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">
+                                <dt className="text-sm font-medium text-gray-500">Material Number</dt>
+                                <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{material.material_nr}</dd>
+                            </div>
+                            <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">
+                                <dt className="text-sm font-medium text-gray-500">Unit</dt>
+                                <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{units.find((u) => u.id === material.unit)?.name}</dd>
+                            </div>
+                            <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">
+                                <dt className="text-sm font-medium text-gray-500">Division</dt>
+                                <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{material.division}</dd>
+                            </div>
+                            <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">
+                                <dt className="text-sm font-medium text-gray-500">Product Allocation</dt>
+                                <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{material.product_allocation} pcs</dd>
+                            </div>
+
+                            <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">
+                                <dt className="text-sm font-medium text-gray-500">Material Status</dt>
+                                <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{materialStatus.find((m) => m.id === material.material_status)?.name}</dd>
+                            </div>
+                            <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">
+                                <dt className="text-sm font-medium text-gray-500">Material Group</dt>
+                                <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{material.material_group}</dd>
+                            </div>
+                            <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">
+                                <dt className="text-sm font-medium text-gray-500">Office</dt>
+                                <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{material.office}</dd>
+                            </div>
+
+                            <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">
+                                <dt className="text-sm font-medium text-gray-500">Valid from</dt>
+                                <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{material.valid_from}</dd>
+                            </div>
+                            <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">
+                                <dt className="text-sm font-medium text-gray-500">Item Group</dt>
+                                <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{material.item_group}</dd>
+                            </div>
+                            <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">
+                                <dt className="text-sm font-medium text-gray-500">Auth Group</dt>
+                                <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{material.auth_group}</dd>
+                            </div>
+
+                            <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">
+                                <dt className="text-sm font-medium text-gray-500">Gross Weight</dt>
+                                <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{material.gross_weight}</dd>
+                            </div>
+                            <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">
+                                <dt className="text-sm font-medium text-gray-500">Net Weight</dt>
+                                <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{material.net_weight}</dd>
+                            </div>
+                            <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">
+                                <dt className="text-sm font-medium text-gray-500">Weight Unit</dt>
+                                <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{material.unit_weight}</dd>
+                            </div>
+                            <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">
+                                <dt className="text-sm font-medium text-gray-500">Volume</dt>
+                                <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{material.volume}</dd>
+                            </div>
+                            <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">
+                                <dt className="text-sm font-medium text-gray-500">Size</dt>
+                                <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{material.size}</dd>
+                            </div>
+                            <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">
+                                <dt className="text-sm font-medium text-gray-500">EAN/UPC</dt>
+                                <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{material.ean}</dd>
+                            </div>
+                            <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">
+                                <dt className="text-sm font-medium text-gray-500">Packaging Material</dt>
+                                <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{material.packaging_material}</dd>
+                            </div>
+                            <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">
+                                <dt className="text-sm font-medium text-gray-500">Created At</dt>
+                                <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{moment(material.createdAt).format("DD MMM. YYYY - hh:mm:ss")}</dd>
+                            </div>
+                            <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">
+                                <dt className="text-sm font-medium text-gray-500">Last Update</dt>
+                                <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{moment(material.updatedAt).format("DD MMM. YYYY - hh:mm:ss")}</dd>
+                            </div>
+                            <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5 col-span-2">
+                                <dt className="text-sm font-medium text-gray-500">Description</dt>
+                                <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+                                    {material.material_description}
+                                </dd>
+                            </div>
+                        </dl>
                     </div>
-                    {total > 10 &&
-                        <Pagniation page={page} total={total} />
-                    }
+
                 </div>
             </Content.Container>
-        </AccountLayout >
-    )
+        </AccountLayout>
+    );
 }
 
-export default Materials
+export async function getServerSideProps(ctx) {
+    const session = await getSession(ctx);
 
 
-export async function getServerSideProps(context) {
+    const material = await getMaterial(ctx.params.id);
 
-    const { page } = context.query
-    const session = await getSession(context);
-    let isTeamOwner = false;
-    let workspace = null;
-
-    const modules = await getModule(context.params.id);
-    const materials = await getMaterials(!page ? 1 : page, 10, { id: 'asc' }, modules.id)
-
-    if (session) {
-        workspace = await getWorkspace(
-            session.user.userId,
-            session.user.email,
-            context.params.workspaceSlug
-        );
-
-        if (workspace) {
-            isTeamOwner = isWorkspaceOwner(session.user.email, workspace);
-        }
-    }
     return {
         props: {
-            isTeamOwner,
-            workspace: JSON.parse(JSON.stringify(workspace)),
-            modules: JSON.parse(JSON.stringify(modules)),
-            materials: JSON.parse(JSON.stringify(materials.materials)),
-            total: materials.total
+            material: JSON.parse(JSON.stringify(material))
         }
     }
 }

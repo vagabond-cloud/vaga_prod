@@ -1219,12 +1219,416 @@ export const getProjectItems = async (id) => {
     return boardData
 }
 
-export const createMaterial = async (workspaceid, moduleid, data) => {
+export const createMaterial = async (addedbyid, addedbyemail, workspaceid, moduleid, data) => {
 
-    const contacts = await prisma.contact.createMany({
+    const material = await prisma.pp_materials.createMany({
         data: {
-
+            workspaceid,
+            moduleid,
+            vid: data.vid,
+            version: data.version,
+            material: data.material,
+            material_name: data.material_name,
+            material_description: data.material_description,
+            material_type: data.material_type,
+            unit: data.unit,
+            material_nr: data.material_nr,
+            division: data.division,
+            product_allocation: data.product_allocation,
+            material_status: data.material_status,
+            material_group: data.material_group,
+            office: data.office,
+            valid_from: data.valid_from,
+            item_group: data.item_group,
+            auth_group: data.auth_group,
+            gross_weight: data.gross_weight,
+            net_weight: data.net_weight,
+            unit_weight: data.unit_weight,
+            volume: data.volume,
+            size: data.size,
+            ean: data.ean,
+            packaging_material: data.packaging_material,
+            addedbyid,
+            addedbyemail,
         }
     })
-    return contacts
+    return material
+}
+
+export const updateMaterial = async (id, data) =>
+    await prisma.pp_materials.update({
+        where: { id },
+        data
+    })
+
+export const getMaterials = async (page, limit, sort, moduleid) => {
+    const skip = (page - 1) * limit;
+    const materials = await prisma.pp_materials.findMany({
+
+        where: { moduleid },
+        skip,
+        take: limit,
+        orderBy: sort,
+    });
+    const total = await prisma.pp_materials.count();
+    return { materials, total };
+};
+
+
+export const getMaterial = async (id) => {
+    const material = await prisma.pp_materials.findUnique({
+
+        where: { id },
+    });
+
+    return material;
+};
+
+
+export const createLocation = async (addedbyid, addedbyemail, workspaceid, moduleid, data) => {
+
+    const location = await prisma.pp_locations.createMany({
+        data: {
+            workspaceid,
+            moduleid,
+            vid: data.vid,
+            location_name: data.location_name,
+            street: data.street,
+            postal: data.postal,
+            city: data.city,
+            country: data.country,
+            po_box: data.po_box,
+            po_code: data.po_code,
+            language: data.language,
+            phone: data.phone,
+            fax: data.fax,
+            email: data.email,
+            standard_comm_method: data.standard_comm_method,
+            is_plant: data.is_plant,
+            plant_id: data.plant_id,
+            plant_name: data.plant_name,
+            fork_lift: data.fork_lift,
+            lift_gate: data.lift_gate,
+            loading_dock: data.loading_dock,
+            photo_allowed: data.photo_allowed,
+            floor_protection: data.floor_protection,
+            insurance: data.insurance,
+            union_labor: data.union_labor,
+            height_limit: data.height_limit,
+            security_clearance: data.security_clearance,
+            docking_from: data.docking_from,
+            docking_to: data.docking_to,
+            max_truck_size: data.max_truck_size,
+            addedbyid,
+            addedbyemail,
+        }
+    })
+    return location
+}
+
+export const updateLocation = async (id, data) =>
+    await prisma.pp_locations.update({
+        where: { id },
+        data
+    })
+
+export const getLocations = async (page, limit, sort, moduleid) => {
+    const skip = (page - 1) * limit;
+    const materials = await prisma.pp_locations.findMany({
+        where: { moduleid },
+        skip,
+        take: limit,
+        orderBy: sort,
+    });
+    const total = await prisma.pp_locations.count();
+    return { materials, total };
+};
+
+
+export const getLocation = async (id) => {
+    const material = await prisma.pp_locations.findUnique({
+        where: { id },
+    });
+    return material;
+};
+
+export const getLocationsByModule = async (moduleid) => {
+    const material = await prisma.pp_locations.findMany({
+        where: { moduleid },
+    });
+    return material;
+};
+
+
+export const createProductPass = async (addedbyid, addedbyemail, workspaceid, moduleid, data) => {
+
+    const pass = await prisma.pp_productPass.createMany({
+        data: {
+            workspaceid,
+            moduleid,
+            vid: data.vid,
+            version: data.version,
+            identification: data.identification,
+            identification_value: data.identification_value,
+            product_name: data.product_name,
+            parent_organization: data.parent_organization,
+            brand: data.brand,
+            product_description: data.product_description,
+            intended_sale: data.intended_sale,
+            season: data.season,
+            retail_price: data.retail_price,
+            companyid: data.companyid,
+            currency_code: data.currency_code,
+            size: data.size,
+            product_color: data.product_color,
+            age_group: data.age_group,
+            gender: data.gender,
+            categorization_standard: data.categorization_standard,
+            product_family: data.product_family,
+            product_category: data.product_category,
+            country_origin: data.country_origin,
+            manufacturing_facility: data.manufacturing_facility,
+            manufacturing_name: data.manufacturing_name,
+            material_traceability_provider: data.material_traceability_provider,
+            material_type: data.material_type,
+            finishes: data.finishes,
+            material_certifications: data.material_certifications,
+            net_weight: data.net_weight,
+            id_type: data.id_type,
+            id_material: data.id_material,
+            id_location: data.id_location,
+            material_composition: data.material_composition,
+            deposit: data.deposit,
+            addedbyid,
+            addedbyemail,
+        }
+    })
+    return pass
+}
+
+export const updateProductPass = async (id, data) =>
+    await prisma.pp_productPass.update({
+        where: { id },
+        data
+    })
+
+export const getProductPasses = async (page, limit, sort, moduleid) => {
+    const skip = (page - 1) * limit;
+    const passes = await prisma.pp_productPass.findMany({
+        where: { moduleid },
+        skip,
+        take: limit,
+        orderBy: sort,
+    });
+    const total = await prisma.pp_productPass.count();
+    return { passes, total };
+};
+
+
+export const getProductPass = async (id) => {
+    const pass = await prisma.pp_productPass.findUnique({
+        where: { id },
+        include: {
+            pp_productImages: true,
+            pp_assignedMaterial: true,
+            pp_productDocuments: true,
+        }
+    });
+    return pass;
+};
+
+export const getProductPassByVID = async (vid) => {
+    const pass = await prisma.pp_productPass.findUnique({
+        where: { vid },
+        include: {
+            pp_productImages: true
+        }
+    });
+    return pass;
+};
+
+// SUB PASS
+
+export const createSubPass = async (addedbyid, addedbyemail, workspaceid, moduleid, data) => {
+
+    const pass = await prisma.pp_subProductpass.createMany({
+        data: {
+            workspaceid,
+            moduleid,
+            vid: data.vid,
+            passid: data.passid,
+            pp_productPassid: data.pp_productPassid,
+            tokenid: data.tokenid,
+            addedbyid,
+            addedbyemail,
+        }
+    })
+    return pass
+}
+
+export const updateSubPass = async (id, data) =>
+    await prisma.pp_subProductpass.update({
+        where: { id },
+        data
+    })
+
+export const getSubPasses = async (page, limit, sort, pp_productPassid) => {
+    const skip = (page - 1) * limit;
+    const passes = await prisma.pp_subProductpass.findMany({
+        where: { pp_productPassid },
+        skip,
+        take: limit,
+        orderBy: sort,
+    });
+    const total = await prisma.pp_subProductpass.count();
+    return { passes, total };
+};
+
+
+export const getSubPass = async (id) => {
+    const pass = await prisma.pp_subProductpass.findUnique({
+        where: { id },
+
+    });
+    return pass;
+};
+
+export const getSubPassByPassid = async (passid) => {
+    const pass = await prisma.pp_subProductpass.findUnique({
+        where: { passid },
+        include: {
+            pp_checkIn: true,
+            pp_checkOut: true,
+        }
+    });
+    return pass;
+};
+
+// END SUB PASS
+
+// CHECK IN
+
+export const createCheckIn = async (data) => {
+
+    const checkin = await prisma.pp_checkIn.createMany({
+        data: {
+            pp_productPassid: data.pp_productPassid,
+            vid: data.vid,
+            lat: data.lat.toString(),
+            lng: data.lng.toString(),
+            name: data.name,
+            description: data.description,
+            batch: data.batch,
+            pp_subProductpassid: data.pp_subProductpassid,
+        }
+    })
+    return checkin
+}
+
+// END CHECK IN
+
+// CHECK IN
+
+export const createCheckOut = async (data) => {
+
+    const checkout = await prisma.pp_checkOut.createMany({
+        data: {
+            pp_productPassid: data.pp_productPassid,
+            vid: data.vid,
+            lat: data.lat.toString(),
+            lng: data.lng.toString(),
+            name: data.name,
+            description: data.description,
+            batch: data.batch,
+            pp_subProductpassid: data.pp_subProductpassid,
+        }
+    })
+    return checkout
+}
+
+// END CHECK IN
+
+export const createProductPassImage = async (addedbyid, addedbyemail, workspaceid, moduleid, data, type, size, name) => {
+    const image = await prisma.pp_productImages.createMany({
+        data: {
+            workspaceid,
+            moduleid,
+            pp_productPassid: data.pp_productPassid,
+            url: data.url,
+            vid: data.vid,
+            type,
+            size,
+            name,
+            addedbyid,
+            addedbyemail,
+        }
+    })
+    return image
+}
+
+export const deleteProductPassImage = async (id) => {
+    const image = await prisma.pp_productImages.delete({
+        where: { id },
+    });
+    return image
+}
+
+export const getProductPassImages = async (id) => {
+    const images = await prisma.pp_productImages.findMany({
+        where: { pp_productPassid: id },
+    });
+    return images;
+};
+
+export const createProductPassDoc = async (addedbyid, addedbyemail, workspaceid, moduleid, data, type, size, name) => {
+    const doc = await prisma.pp_productDocuments.createMany({
+        data: {
+            workspaceid,
+            moduleid,
+            pp_productPassid: data.pp_productPassid,
+            url: data.url,
+            vid: data.vid,
+            type,
+            size,
+            name,
+            addedbyid,
+            addedbyemail,
+        }
+    })
+    return doc
+}
+
+export const deleteProductPassDoc = async (id) => {
+    const doc = await prisma.pp_productDocuments.delete({
+        where: { id },
+    });
+    return doc
+}
+
+export const getProductPassDoc = async (id) => {
+    const docs = await prisma.pp_productDocuments.findMany({
+        where: { pp_productPassid: id },
+    });
+    return docs;
+};
+
+export const assignMaterial = async (addedbyid, addedbyemail, workspaceid, moduleid, data) => {
+    const image = await prisma.pp_assignedMaterial.createMany({
+        data: {
+            workspaceid,
+            moduleid,
+            pp_productPassid: data.pp_productPassid,
+            pp_materialsid: data.pp_materialsid,
+            addedbyid,
+            addedbyemail,
+        }
+    })
+    return image
+}
+
+export const deleteAssignMaterial = async (id) => {
+    const mats = await prisma.pp_assignedMaterial.delete({
+        where: { id },
+    });
+    return mats
 }

@@ -27,7 +27,7 @@ export default function Gateway({ image, session, expried }) {
             return `Waiting for you to scan and verify the payment request to ${session?.to} with the VagaWallet app.`
         }
     }
-    console.log(session)
+
     return (
         <div className="bg-white">
             {/* Background color split screen for large screens */}

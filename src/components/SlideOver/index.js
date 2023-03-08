@@ -34,7 +34,7 @@ export default function SlideOver({ children, title, subTitle, buttonTitle }) {
                                     leaveFrom="translate-x-0"
                                     leaveTo="translate-x-full"
                                 >
-                                    <Dialog.Panel className="pointer-events-auto w-screen max-w-lg">
+                                    <Dialog.Panel className="pointer-events-auto w-screen max-w-2xl">
                                         <div className="flex h-full flex-col divide-y divide-gray-200 bg-white shadow-xl">
                                             <div className="h-0 flex-1 overflow-y-auto">
                                                 <div className="bg-red-700 py-6 px-4 sm:px-6">

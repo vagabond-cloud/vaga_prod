@@ -18,7 +18,7 @@ import { Controller, useForm } from "react-hook-form";
 import { GoogleMap, MarkerF, useJsApiLoader, InfoBox, Polyline } from '@react-google-maps/api';
 import { mapStyles, containerStyle } from '@/config/common/mapStyles';
 import QRModal from '@/components/modules/product-pass/qrModal';
-
+import toast from 'react-hot-toast';
 
 import { AccountLayout } from '@/layouts/index';
 
@@ -60,30 +60,36 @@ export default function Pass({ subPass }) {
                 data
             }
         })
+        if (res.error) return toast.error(res.error);
+
         toggleModal()
         reset()
+        toast.success("Location captured successfully")
         router.replace(router.asPath)
     }
 
     const checkin = subPass.pp_checkIn;
     const checkout = subPass.pp_checkOut;
 
-    const checkinArray = checkin.map(({ lat, lng }) => ({
+    const checkinArray = checkin.map(({ lat, lng, createdAt }) => ({
         lat: parseFloat(lat),
-        lng: parseFloat(lng)
+        lng: parseFloat(lng),
+        createdAt
     }));
 
-    const checkoutArray = checkout.map(({ lat, lng }) => ({
+    const checkoutArray = checkout.map(({ lat, lng, createdAt }) => ({
         lat: parseFloat(lat),
-        lng: parseFloat(lng)
+        lng: parseFloat(lng),
+        createdAt
     }));
 
     const pathArray = checkinArray.concat(checkoutArray);
 
     var PATHS = pathArray.sort(function (a, b) {
-        return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
 
+    console.log(PATHS)
     const mapCenter = PATHS[0]
 
     const onLoad = marker => {
@@ -148,7 +154,7 @@ export default function Pass({ subPass }) {
                             )
                         }
                         )}
-                        {PATHS.map((item, index) => {
+                        {/* {PATHS.map((item, index) => {
                             return (
                                 <InfoBox key={index} position={item} options={{ closeBoxURL: ``, enableEventPropagation: true }}>
                                     <div style={{ backgroundColor: `white`, opacity: 0.75, padding: `10px` }}>
@@ -158,7 +164,7 @@ export default function Pass({ subPass }) {
                                     </div>
                                 </InfoBox>
                             )
-                        })}
+                        })} */}
                         <Polyline
                             key={1}
                             path={PATHS}
@@ -175,9 +181,6 @@ export default function Pass({ subPass }) {
                                 editable: false,
                                 visible: true,
                                 radius: 30000,
-                                paths: PATHS,
-
-
                             }}
                         />
                     </GoogleMap>

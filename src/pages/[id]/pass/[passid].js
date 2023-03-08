@@ -25,19 +25,26 @@ export default function index({ subPass, pass, qr, lat, lng }) {
         return <p>Loading...</p>;
     }
 
-    const checkin = subPass.pp_checkIn.map(({ lat, lng }) => ({
+    const checkin = subPass.pp_checkIn.map(({ lat, lng, createdAt }) => ({
         lat: parseFloat(lat),
-        lng: parseFloat(lng)
+        lng: parseFloat(lng),
+        createdAt
     }));
 
-    const checkout = subPass.pp_checkOut.map(({ lat, lng }) => ({
+    const checkout = subPass.pp_checkOut.map(({ lat, lng, createdAt }) => ({
         lat: parseFloat(lat),
-        lng: parseFloat(lng)
+        lng: parseFloat(lng),
+        createdAt
     }));
 
-    const PATHS = checkin.concat(checkout, { lat: mapCenter.lat, lng: mapCenter.lng });
 
+    const pathArray = checkin.concat(checkout);
 
+    var PATHS = pathArray.sort(function (a, b) {
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
+
+    console.log(PATHS)
     return (
         <div className="flex flex-col items-center justify-center bg-gray-900">
             <div className="flex flex-col items-center justify-cente bg-gray-900">
@@ -134,14 +141,14 @@ export default function index({ subPass, pass, qr, lat, lng }) {
                                         {isLoaded &&
                                             <GoogleMap
                                                 mapContainerStyle={containerStyle}
-                                                center={mapCenter}
+                                                center={PATHS[0] ? PATHS[0] : mapCenter}
                                                 zoom={7}
                                                 options={{ styles: mapStyles, minZoom: 2 }}
                                             >
                                                 <MarkerF
                                                     onLoad={onLoad}
                                                     icon={"http://maps.google.com/mapfiles/ms/icons/red.png"}
-                                                    position={mapCenter}
+                                                    position={PATHS[0] ? PATHS[0] : mapCenter}
                                                 />
                                                 {PATHS.map((item, index) => {
                                                     return (
@@ -154,7 +161,7 @@ export default function index({ subPass, pass, qr, lat, lng }) {
                                                     )
                                                 }
                                                 )}
-                                                {PATHS.map((item, index) => {
+                                                {/* {PATHS.map((item, index) => {
                                                     return (
                                                         <InfoBox key={index} position={item} options={{ closeBoxURL: ``, enableEventPropagation: true }}>
                                                             <div style={{ backgroundColor: `white`, opacity: 0.75, padding: `10px` }}>
@@ -164,7 +171,7 @@ export default function index({ subPass, pass, qr, lat, lng }) {
                                                             </div>
                                                         </InfoBox>
                                                     )
-                                                })}
+                                                })} */}
                                                 <Polyline
                                                     key={1}
                                                     path={PATHS}
@@ -181,9 +188,6 @@ export default function index({ subPass, pass, qr, lat, lng }) {
                                                         editable: false,
                                                         visible: true,
                                                         radius: 30000,
-                                                        paths: PATHS,
-
-
                                                     }}
                                                 />
                                             </GoogleMap>

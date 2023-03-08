@@ -8,10 +8,13 @@ const handler = async (req, res) => {
         const { data } = req.body;
         const map = await getMap(data.city + data.address + data.country)
 
+        if (!map.lat || !map.lng) return res.status(200).json({ error: 'No location found' });
+
         const blob = {
             lat: map.lat,
             lng: map.lng,
             name: data.name,
+            vid: data.vid,
             description: data.description,
             batch: data.batch,
             pp_productPassid: data.pp_productPassid,

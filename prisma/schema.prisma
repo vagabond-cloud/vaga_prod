@@ -901,6 +901,7 @@ model pp_productPass {
   material_composition           String?
   deposit                        Boolean?
   product_website                String?
+  contractAddress                String?   @unique
   materiallistid                 String?   @db.ObjectId
   moduleid                       String?   @db.ObjectId
   workspaceid                    String?   @db.ObjectId
@@ -927,6 +928,7 @@ model pp_subProductpass {
   passid           String    @unique
   pp_productPassid String    @db.ObjectId
   tokenid          String
+  contractAddress  String?   @unique
   moduleid         String?   @db.ObjectId
   workspaceid      String?   @db.ObjectId
   addedbyid        String?   @db.ObjectId
@@ -1028,7 +1030,7 @@ model pp_checkOut {
 }
 
 model registered_company {
-  id                   String             @id @default(auto()) @map("_id") @db.ObjectId
+  id                   String    @id @default(auto()) @map("_id") @db.ObjectId
   companyid            String?
   applicationid        String?
   company_name         String
@@ -1039,18 +1041,20 @@ model registered_company {
   account_type         String?
   registration_country String?
   registration_city    String?
-  date_registered      DateTime?
+  reg_doc          String?
+  workspace            String?   @unique
+  date_registered      Int?
   status               String?
-  moduleid             String?            @db.ObjectId
-  workspaceid          String?            @db.ObjectId
-  addedbyid            String?            @db.ObjectId
+  workspaceid          String?   @db.ObjectId
+  addedbyid            String?   @db.ObjectId
   addedbyemail         String?
-  createdAt            DateTime?          @default(now())
+  createdAt            DateTime? @default(now())
   expiresAt            Int?
-  updatedAt            DateTime?          @updatedAt
+  updatedAt            DateTime? @updatedAt
   deletedAt            DateTime?
-  pp_productPass       pp_productPass[]
-  registered_brand     registered_brand[]
+
+  registered_brand registered_brand[]
+  pp_productPass   pp_productPass[]
 
   @@map("registered_company")
 }

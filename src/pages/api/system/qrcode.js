@@ -39,7 +39,6 @@
 //         var qrcode = new QRCode(options);
 
 //         return qrcode.toDataURL().then((url) => {
-//             console.log(url)
 //             res.status(200).json({ data: { url } });
 //         })
 //     }

@@ -729,6 +729,7 @@ export async function getServerSideProps(context) {
     let workspace = null;
 
     const modules = await getModule(context.params.id);
+    console.log(modules.id)
     const productPasses = await getProductPasses(!page ? 1 : page, 10, { id: 'asc' }, modules.id)
     const locations = await getLocationsByModule(modules.id);
     if (session) {

@@ -1413,6 +1413,7 @@ export const updateProductPass = async (id, data) =>
     })
 
 export const getProductPasses = async (page, limit, sort, moduleid) => {
+
     const skip = (page - 1) * limit;
     const passes = await prisma.pp_productPass.findMany({
         where: { moduleid },

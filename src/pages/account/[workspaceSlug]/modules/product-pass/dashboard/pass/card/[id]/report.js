@@ -97,12 +97,20 @@ export default function MaterialList({ pass, materials }) {
                         {submit ?
                             <div className="bg-red-600 text-white px-4 py-2 rounded-md">Loading...</div>
                             :
-                            <button
-                                className="bg-red-600 text-white px-4 py-2 rounded-md"
-                                onClick={() => aiPrompt(`create a German Sustainability Code report for ${pass.product_name} by ${pass.brand} using following materials: ${material_list.map((i) => i)}.It is produced in ${pass.country_origin} `)}
-                            >
-                                Create Report
-                            </button>
+                            <div className="flex gap-4">
+                                <button
+                                    className="bg-red-600 text-white px-4 py-2 rounded-md"
+                                    onClick={() => aiPrompt(`create a German Sustainability Code report for ${pass.product_name} by ${pass.brand} using following materials: ${material_list.map((i) => i)}.It is produced in ${pass.country_origin} `)}
+                                >
+                                    German Sustainability Code
+                                </button>
+                                <button
+                                    className="bg-red-600 text-white px-4 py-2 rounded-md"
+                                    onClick={() => aiPrompt(`create a GRI 3: Material Topics report for ${pass.product_name} by ${pass.brand} using following materials: ${material_list.map((i) => i)}.It is produced in ${pass.country_origin} `)}
+                                >
+                                    GRI Index
+                                </button>
+                            </div>
                         }
                     </div>
                     {response &&

@@ -19,8 +19,8 @@ import { GoogleMap, MarkerF, useJsApiLoader, InfoBox, Polyline } from '@react-go
 import { mapStyles, containerStyle } from '@/config/common/mapStyles';
 import QRModal from '@/components/modules/product-pass/qrModal';
 import toast from 'react-hot-toast';
-
 import { AccountLayout } from '@/layouts/index';
+import { TicketIcon, CameraIcon } from '@heroicons/react/24/outline';
 
 export default function Pass({ subPass }) {
 
@@ -89,7 +89,6 @@ export default function Pass({ subPass }) {
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
 
-    console.log(PATHS)
     const mapCenter = PATHS[0]
 
     const onLoad = marker => {
@@ -119,14 +118,14 @@ export default function Pass({ subPass }) {
                 <div className="flex gap-4 justify-end">
 
                     <div className="flex justify-end">
-                        <Button className="bg-red-600 text-white hover:bg-red-500" onClick={toggleModal}>Capture</Button>
+                        <Button className="bg-red-600 text-white hover:bg-red-500" onClick={toggleModal}><CameraIcon className="text-white w-6 h-6" /></Button>
                     </div>
                     <div className="flex justify-end">
                         <QRModal url={`${process.env.NEXT_PUBLIC_APP_URL}/${subPass.vid}/pass/${subPass.passid}`} />
                     </div>
                     <div className="flex justify-end">
                         <Link href={`${process.env.NEXT_PUBLIC_APP_URL}/${subPass.vid}/pass/${subPass.passid}`} target="_blank">
-                            <Button className="bg-red-600 text-white hover:bg-red-500">View Pass</Button>
+                            <Button className="bg-red-600 text-white hover:bg-red-500"><TicketIcon className="text-white w-6 h-6" /></Button>
                         </Link>
                     </div>
 
@@ -154,35 +153,8 @@ export default function Pass({ subPass }) {
                             )
                         }
                         )}
-                        {/* {PATHS.map((item, index) => {
-                            return (
-                                <InfoBox key={index} position={item} options={{ closeBoxURL: ``, enableEventPropagation: true }}>
-                                    <div style={{ backgroundColor: `white`, opacity: 0.75, padding: `10px` }}>
-                                        <div style={{ fontSize: `10px`, fontColor: `#08233B` }}>
-                                            {item.lat}, {item.lng}
-                                        </div>
-                                    </div>
-                                </InfoBox>
-                            )
-                        })} */}
-                        <Polyline
-                            key={1}
-                            path={PATHS}
-                            options={{
-                                path: "M 0,-1 0,1",
-                                geodesic: true,
-                                strokeColor: '#FF0000',
-                                strokeOpacity: 0.8,
-                                strokeWeight: 2,
-                                fillColor: '#FF0000',
-                                fillOpacity: 0.35,
-                                clickable: false,
-                                draggable: false,
-                                editable: false,
-                                visible: true,
-                                radius: 30000,
-                            }}
-                        />
+
+
                     </GoogleMap>
                 }
                 <div className="grid grid-cols-2 gap-4 my-10">
@@ -235,7 +207,7 @@ export default function Pass({ subPass }) {
                         </div>
                     </div>
                     <div>
-                        <p>Check Out</p>
+                        <p className="font-bold">Check Out</p>
                         <div className="mt-8 flex flex-col">
                             <div className="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
                                 <div className="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">

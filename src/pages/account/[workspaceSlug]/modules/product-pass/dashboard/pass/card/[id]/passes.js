@@ -22,6 +22,7 @@ import { getSubPasses } from '@/prisma/services/modules';
 import moment from 'moment';
 import { ArrowRightCircleIcon } from '@heroicons/react/24/outline';
 import { generatePassid } from '@/lib/server/vid';
+import { TicketIcon } from '@heroicons/react/24/outline';
 
 function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
@@ -143,8 +144,8 @@ export default function MaterialList({ pass, passes, total }) {
                                                 <td className="whitespace-nowrap px-3 py-4 text-xs text-gray-500">{moment(pass.createdAt).format("DD MMM. YYYY")}</td>
 
                                                 <td className="relative whitespace-nowrap py-4 pl-3 pr-4 flex justify-end text-right text-xs font-medium sm:pr-6">
-                                                    <Link href={`${process.env.NEXT_PUBLIC_APP_URL}/${pass.vid}/pass/${pass.passid}`} target="_blank" className="text-red-600 hover:text-red-900 mr-2">
-                                                        <Button className="bg-red-600 text-white hover:bg-red-500">Go to Pass</Button>
+                                                    <Link href={`${process.env.NEXT_PUBLIC_APP_URL}/${pass.vid}/pass/${pass.passid}`} target="_blank" className="text-red-600 hover:text-red-900 mr-2 flex items-center mr-8">
+                                                        <TicketIcon className="text-red-600 w-8 h-8 hover:text-red-400" />
                                                     </Link>
                                                     <Link href={`/account/${workspaceSlug}/modules/product-pass/dashboard/pass/card/${pass.vid}/pass/${pass.passid}`} className="text-red-600 hover:text-red-900 mr-2">
                                                         <Button className="bg-red-600 text-white hover:bg-red-500">Details</Button>

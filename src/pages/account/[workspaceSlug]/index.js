@@ -18,13 +18,14 @@ import { getSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
+import { getCompanies } from '@/prisma/services/company';
 import General from './settings/general';
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
-const Workspace = ({ activity, isTeamOwner, modules, session, workspace }) => {
+const Workspace = ({ activity, isTeamOwner, modules, session, workspace, company }) => {
   const router = useRouter();
   const { workspaceSlug, section } = router.query;
   workspace = workspace[0]
@@ -53,7 +54,7 @@ const Workspace = ({ activity, isTeamOwner, modules, session, workspace }) => {
             <Activity activity={activity} session={session} />
           }
           {section === "settings" &&
-            <Settings workspace={workspace} isTeamOwner={isTeamOwner} modules={modules} />
+            <Settings workspace={workspace} isTeamOwner={isTeamOwner} modules={modules} company={company} />
           }
           {!section &&
             <Main workspace={workspace} modules={modules} />
@@ -277,11 +278,11 @@ const Activity = ({ activity, session }) => {
   )
 }
 
-const Settings = ({ workspace, isTeamOwner, modules }) => {
+const Settings = ({ workspace, isTeamOwner, modules, company }) => {
 
   return (
     <>
-      <General workspace={workspace} isTeamOwner={isTeamOwner} modules={modules} />
+      <General workspace={workspace} isTeamOwner={isTeamOwner} modules={modules} company={company} />
     </>
 
   )
@@ -361,6 +362,7 @@ export async function getServerSideProps(context) {
     ? await getModules(session.user.userId, currentWorkspace.id)
     : await getModules(member, currentWorkspace.id);
 
+  const company = await getCompanies(workspace.id);
 
   return {
     props: {
@@ -368,6 +370,7 @@ export async function getServerSideProps(context) {
       activity: JSON.stringify(activity),
       modules: modules.length === 0 ? [] : JSON.parse(JSON.stringify(modules)),
       session,
+      company: JSON.parse(JSON.stringify(company)),
       workspace: JSON.parse(JSON.stringify(workspace))
     },
   };

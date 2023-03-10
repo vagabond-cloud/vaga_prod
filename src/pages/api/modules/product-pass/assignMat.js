@@ -15,7 +15,6 @@ const handler = async (req, res) => {
         return res.status(200).json({ data: material });
     } else if (method === 'DELETE') {
         const { id } = req.body;
-        console.log(id)
         const material = await deleteAssignMaterial(id);
         return res.status(200).json({ data: material });
     }

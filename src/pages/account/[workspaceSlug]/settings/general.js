@@ -15,7 +15,7 @@ import Input from '@/components/Input';
 import Select from '@/components/Select';
 import { useForm, Controller } from "react-hook-form";
 
-const General = ({ isTeamOwner, workspace, modules }) => {
+const General = ({ isTeamOwner, workspace, modules, company }) => {
 
   const router = useRouter();
   const { setWorkspace } = useWorkspace();
@@ -229,7 +229,37 @@ const General = ({ isTeamOwner, workspace, modules }) => {
           </Card.Footer>
         </form>
       </Card>
-    </div>
+      <div className="h-6" />
+
+      <Card>
+        <Card.Body
+          title={company[0] ? company[0].company_name : "Register Company"}
+          subtitle={company[0] ? "Application ID:" + company[0].applicationid : "Register your company to be able to use more features"}
+        >
+          {company[0] &&
+            <div className="flex items-center justify-between font-mono text-sm  rounded md:w-1/2">
+              <div className="w-full">
+                {"Status: " + company[0].status}
+              </div>
+            </div>
+          }
+        </Card.Body>
+        {!company[0] &&
+          <Card.Footer>
+            <small>Click to register your company</small>
+            {isTeamOwner && (
+              <Button
+                className="text-white bg-red-600 hover:bg-red-500"
+                disabled={!validName || isSubmitting}
+                onClick={() => router.push(`/account/${workspace?.slug}/settings/company`)}
+              >
+                Register Now
+              </Button>
+            )}
+          </Card.Footer>
+        }
+      </Card>
+    </div >
   );
 };
 

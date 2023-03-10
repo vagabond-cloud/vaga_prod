@@ -44,7 +44,6 @@ export default function index({ subPass, pass, qr, lat, lng }) {
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
 
-    console.log(PATHS)
     return (
         <div className="flex flex-col items-center justify-center bg-gray-900">
             <div className="flex flex-col items-center justify-cente bg-gray-900">
@@ -161,22 +160,10 @@ export default function index({ subPass, pass, qr, lat, lng }) {
                                                     )
                                                 }
                                                 )}
-                                                {/* {PATHS.map((item, index) => {
-                                                    return (
-                                                        <InfoBox key={index} position={item} options={{ closeBoxURL: ``, enableEventPropagation: true }}>
-                                                            <div style={{ backgroundColor: `white`, opacity: 0.75, padding: `10px` }}>
-                                                                <div style={{ fontSize: `10px`, fontColor: `#08233B` }}>
-                                                                    {item.lat}, {item.lng}
-                                                                </div>
-                                                            </div>
-                                                        </InfoBox>
-                                                    )
-                                                })} */}
                                                 <Polyline
                                                     key={1}
-                                                    path={PATHS}
+                                                    path={PATHS.map(item => ({ lat: item.lat, lng: item.lng }))}
                                                     options={{
-                                                        path: "M 0,-1 0,1",
                                                         geodesic: true,
                                                         strokeColor: '#FF0000',
                                                         strokeOpacity: 0.8,

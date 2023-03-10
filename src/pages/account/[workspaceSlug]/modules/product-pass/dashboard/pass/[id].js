@@ -1,34 +1,30 @@
 import { getSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
 
+import Button from '@/components/Button/index';
 import Content from '@/components/Content/index';
 import Input from '@/components/Input';
-import Textarea from '@/components/Textarea';
 import Meta from '@/components/Meta/index';
 import Select from '@/components/Select';
-import Button from '@/components/Button/index';
 import SlideOver from '@/components/SlideOver';
-import api from '@/lib/common/api';
+import Textarea from '@/components/Textarea';
 
+import Pagniation from '@/components/Pagination/';
+import { ageGroups } from '@/config/common/ageGroups';
 import { countries } from '@/config/common/countries';
-import { materialStatus } from '@/config/modules/pass';
 import { AccountLayout } from '@/layouts/index';
-import { getProductPasses, getLocationsByModule, getModule } from '@/prisma/services/modules';
+import generateVID from '@/lib/server/vid';
+import { getCompanies } from '@/prisma/services/company';
+import { getLocationsByModule, getModule, getProductPasses } from '@/prisma/services/modules';
 import { getWorkspace, isWorkspaceOwner } from '@/prisma/services/workspace';
-import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid';
 import { ArrowRightCircleIcon } from '@heroicons/react/24/outline';
 import moment from 'moment';
+import { Controller, useForm } from "react-hook-form";
 import toast from 'react-hot-toast';
-import { useForm, Controller } from "react-hook-form";
-import Pagniation from '@/components/Pagination/';
-import generateVID from '@/lib/server/vid';
-import { units } from '@/config/common/units';
-import { ageGroups } from '@/config/common/ageGroups';
 
 /** @param {import('next').InferGetServerSidePropsType<typeof getServerSideProps> } props */
-function Pass({ modules, passes, workspace, total, locations }) {
+function Pass({ modules, passes, workspace, total, locations, company }) {
 
 
     const router = useRouter();
@@ -76,26 +72,26 @@ function Pass({ modules, passes, workspace, total, locations }) {
 
 
     const createProductPass = async (data) => {
+        console.log(data)
+        // try {
+        //     const res = await api(`/api/modules/product-pass/pass`, {
+        //         method: 'POST',
+        //         body: {
+        //             data,
+        //             workspaceid: workspace[0].id,
+        //             moduleid: modules.id
+        //         }
+        //     });
 
-        try {
-            const res = await api(`/api/modules/product-pass/pass`, {
-                method: 'POST',
-                body: {
-                    data,
-                    workspaceid: workspace[0].id,
-                    moduleid: modules.id
-                }
-            });
-
-            if (res.status === 200) {
-                writeLog();
-                router.replace(router.asPath);
-            } else {
-                toast.error('Error creating Product Pass');
-            }
-        } catch (error) {
-            toast.error(`Error creating Product Pass: ${error.response ? error.response.data.message : error.message}`);
-        }
+        //     if (res.status === 200) {
+        //         writeLog();
+        //         router.replace(router.asPath);
+        //     } else {
+        //         toast.error('Error creating Product Pass');
+        //     }
+        // } catch (error) {
+        //     toast.error(`Error creating Product Pass: ${error.response ? error.response.data.message : error.message}`);
+        // }
     };
 
     const writeLog = async () => {
@@ -149,7 +145,9 @@ function Pass({ modules, passes, workspace, total, locations }) {
                                             control={control}
                                             rules={{ required: true }}
                                             render={({ field }) => (
-                                                <Select label="Identificaiton *" {...field}>
+                                                <Select label="Identificaiton *"
+                                                    {...field}
+                                                >
                                                     <option value="">Select Identification</option>
                                                     <option value="vid">VID</option>
                                                     <option value="ean">EAN</option>
@@ -166,16 +164,14 @@ function Pass({ modules, passes, workspace, total, locations }) {
                                                 name="identification_value"
                                                 id="identification_value"
                                                 control={control}
-                                                rules={{ required: true }}
                                                 render={({ field }) => (
                                                     <Input
-                                                        label="Identification Value *"
+                                                        label="Identification Value"
                                                         {...field}
 
                                                     />
                                                 )}
                                             />
-                                            <div className="text-red-600 mt-1 text-xs">{errors.identification_value?.type === 'required' && <p role="alert">Identification Value is required</p>}</div>
                                         </div>
                                     </div>
                                     <div className="px-4 my-10">
@@ -206,6 +202,8 @@ function Pass({ modules, passes, workspace, total, locations }) {
                                                     <Input
                                                         label="Parent Organization *"
                                                         {...field}
+                                                        defaultValue={company[0] ? company[0]?.company_name : ''}
+                                                        disabled={company[0] ? true : false}
                                                     />
                                                 )}
                                             />
@@ -744,6 +742,8 @@ export async function getServerSideProps(context) {
         }
     }
 
+    const company = await getCompanies(workspace.id);
+
 
     return {
         props: {
@@ -752,7 +752,8 @@ export async function getServerSideProps(context) {
             modules: JSON.parse(JSON.stringify(modules)),
             passes: JSON.parse(JSON.stringify(productPasses.passes)),
             locations: JSON.parse(JSON.stringify(locations)),
-            total: productPasses.total
+            total: productPasses.total,
+            company: JSON.parse(JSON.stringify(company)),
         }
     }
 }

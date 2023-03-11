@@ -1604,6 +1604,12 @@ export const getProductPassImages = async (id) => {
     return images;
 };
 
+export const updateProductPassImage = async (id, data) =>
+    await prisma.pp_productImages.update({
+        where: { id },
+        data
+    })
+
 export const createProductPassDoc = async (addedbyid, addedbyemail, workspaceid, moduleid, data, type, size, name) => {
     const doc = await prisma.pp_productDocuments.createMany({
         data: {
@@ -1621,6 +1627,8 @@ export const createProductPassDoc = async (addedbyid, addedbyemail, workspaceid,
     })
     return doc
 }
+
+
 
 export const deleteProductPassDoc = async (id) => {
     const doc = await prisma.pp_productDocuments.delete({

@@ -370,7 +370,7 @@ export async function getServerSideProps(context) {
       activity: JSON.stringify(activity),
       modules: modules.length === 0 ? [] : JSON.parse(JSON.stringify(modules)),
       session,
-      company: JSON.parse(JSON.stringify(company)),
+      company: JSON.parse(JSON.stringify(company[0])),
       workspace: JSON.parse(JSON.stringify(workspace))
     },
   };

@@ -233,18 +233,18 @@ const General = ({ isTeamOwner, workspace, modules, company }) => {
 
       <Card>
         <Card.Body
-          title={company[0] ? company[0].company_name : "Register Company"}
-          subtitle={company[0] ? "Application ID:" + company[0].applicationid : "Register your company to be able to use more features"}
+          title={company ? company?.company_name : "Register Company"}
+          subtitle={company ? "Application ID:" + company?.applicationid : "Register your company to be able to use more features"}
         >
-          {company[0] &&
+          {company &&
             <div className="flex items-center justify-between font-mono text-sm  rounded md:w-1/2">
               <div className="w-full">
-                {"Status: " + company[0].status}
+                {"Status: " + company?.status}
               </div>
             </div>
           }
         </Card.Body>
-        {!company[0] &&
+        {!company &&
           <Card.Footer>
             <small>Click to register your company</small>
             {isTeamOwner && (

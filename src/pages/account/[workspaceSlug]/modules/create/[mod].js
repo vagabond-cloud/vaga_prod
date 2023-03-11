@@ -18,6 +18,7 @@ function classNames(...classes) {
 
 
 
+/** @param {import('next').InferGetServerSidePropsType<typeof getServerSideProps> } props */
 function CreateModule({ workspace, isTeamOwner }) {
     workspace = JSON.parse(workspace);
 

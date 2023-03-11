@@ -362,7 +362,8 @@ export async function getServerSideProps(context) {
     ? await getModules(session.user.userId, currentWorkspace.id)
     : await getModules(member, currentWorkspace.id);
 
-  const company = await getCompanies(workspace.id);
+  let company = await getCompanies(workspace.id);
+  company = company.length > 0 ? company[0] : null;
 
   return {
     props: {
@@ -370,7 +371,7 @@ export async function getServerSideProps(context) {
       activity: JSON.stringify(activity),
       modules: modules.length === 0 ? [] : JSON.parse(JSON.stringify(modules)),
       session,
-      company: JSON.parse(JSON.stringify(company[0])),
+      company: JSON.parse(JSON.stringify(company)),
       workspace: JSON.parse(JSON.stringify(workspace))
     },
   };

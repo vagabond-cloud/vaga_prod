@@ -928,7 +928,7 @@ model pp_subProductpass {
   passid           String    @unique
   pp_productPassid String    @db.ObjectId
   tokenid          String
-  name            String
+  name            String?
   description     String?
   location        String?
   ean             String?

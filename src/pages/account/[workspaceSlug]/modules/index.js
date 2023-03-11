@@ -1,12 +1,10 @@
-import Card from '@/components/Card/index';
 import Content from '@/components/Content/index';
 import Meta from '@/components/Meta/index';
-import Reload from '@/components/Reload';
+import { items } from '@/config/modules/items';
 import { AccountLayout } from '@/layouts/index';
+import { ChevronRightIcon } from '@heroicons/react/20/solid';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { ChevronRightIcon } from '@heroicons/react/20/solid'
-import { items } from '@/config/modules/items'
-import Link from 'next/link'
 
 function classNames(...classes) {
     return classes.filter(Boolean).join(' ')

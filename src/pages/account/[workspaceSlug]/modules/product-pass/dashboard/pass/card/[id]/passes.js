@@ -1,28 +1,22 @@
 import { getSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useState, useRef } from 'react'
 
-import Content from '@/components/Content/index';
-import Input from '@/components/Input';
-import Textarea from '@/components/Textarea';
-import Meta from '@/components/Meta/index';
-import Select from '@/components/Select';
 import Button from '@/components/Button/index';
-import SlideOver from '@/components/SlideOver';
+import Input from '@/components/Input/index';
+import Content from '@/components/Content/index';
+import Meta from '@/components/Meta/index';
 import api from '@/lib/common/api';
-import Modal from '@/components/Modal';
 
-import { AccountLayout } from '@/layouts/index';
-import { getProductPass } from '@/prisma/services/modules';
-import { uploadToGCS } from '@/lib/client/upload';
-import toast from 'react-hot-toast';
 import Pagniation from '@/components/Pagination/';
-import { getSubPasses } from '@/prisma/services/modules';
-import moment from 'moment';
-import { ArrowRightCircleIcon } from '@heroicons/react/24/outline';
+import { AccountLayout } from '@/layouts/index';
 import { generatePassid } from '@/lib/server/vid';
+import { getProductPass, getSubPasses } from '@/prisma/services/modules';
 import { TicketIcon } from '@heroicons/react/24/outline';
+import moment from 'moment';
+import toast from 'react-hot-toast';
+import Modal from '@/components/Modal';
+import { useState } from 'react';
 
 function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
@@ -31,6 +25,17 @@ function classNames(...classes) {
 export default function MaterialList({ pass, passes, total }) {
     const router = useRouter();
     const { workspaceSlug, id } = router.query;
+
+    const [showModal, setShowModal] = useState(false);
+    const [name, setName] = useState('');
+    const [description, setDescription] = useState('');
+    const [location, setLocation] = useState('');
+    const [ean, setEan] = useState('');
+    const [quantity, setQuantity] = useState(0);
+
+    const toggleModal = () => {
+        setShowModal(!showModal);
+    }
 
     const tabs = [
         { name: 'Overview', href: '', current: false },
@@ -41,12 +46,13 @@ export default function MaterialList({ pass, passes, total }) {
         { name: 'Passes', href: 'passes', current: true }
     ]
 
-    const createPass = async (matid) => {
+    const createPass = async () => {
+
         const res = await api(`/api/modules/product-pass/subPass`, {
             method: 'POST',
             body: {
                 workspaceid: pass.workspaceId,
-                moduleid: pass.id,
+                moduleid: pass.moduleid,
                 data: {
                     vid: pass.vid,
                     passid: generatePassid(),
@@ -63,6 +69,28 @@ export default function MaterialList({ pass, passes, total }) {
         }
     }
 
+    const mintPass = async (data) => {
+        const res = await api(`/api/modules/product-pass/mintPass`, {
+            method: 'POST',
+            body: {
+                meta: {
+                    name,
+                    description,
+                    ean,
+                    quantity,
+                    product_name: pass.product_name,
+                    parent_organization: pass.parent_organization,
+                    brand: pass.brand,
+                    id_type_value: pass.id_type_value,
+                    id_material_value: pass.id_material_value,
+                    id_location_value: pass.id_location_value
+                },
+                location: location,
+                contractAddress: pass.contractAddress,
+            }
+        });
+        console.log(res)
+    }
 
     return (
         <AccountLayout>
@@ -103,7 +131,7 @@ export default function MaterialList({ pass, passes, total }) {
                     <div className="">
                         <Button
                             className="bg-red-600 text-white hover:bg-red-500"
-                            onClick={() => createPass()}
+                            onClick={() => toggleModal()}
                         >
                             Add
                         </Button>
@@ -144,7 +172,7 @@ export default function MaterialList({ pass, passes, total }) {
                                                 <td className="whitespace-nowrap px-3 py-4 text-xs text-gray-500">{moment(pass.createdAt).format("DD MMM. YYYY")}</td>
 
                                                 <td className="relative whitespace-nowrap py-4 pl-3 pr-4 flex justify-end text-right text-xs font-medium sm:pr-6">
-                                                    <Link href={`${process.env.NEXT_PUBLIC_APP_URL}/${pass.vid}/pass/${pass.passid}`} target="_blank" className="text-red-600 hover:text-red-900 mr-2 flex items-center mr-8">
+                                                    <Link href={`${process.env.NEXT_PUBLIC_APP_URL}/${pass.vid} /pass/${pass.passid}`} target="_blank" className="text-red-600 hover:text-red-900 mr-2 flex items-center mr-8">
                                                         <TicketIcon className="text-red-600 w-8 h-8 hover:text-red-400" />
                                                     </Link>
                                                     <Link href={`/account/${workspaceSlug}/modules/product-pass/dashboard/pass/card/${pass.vid}/pass/${pass.passid}`} className="text-red-600 hover:text-red-900 mr-2">
@@ -162,8 +190,39 @@ export default function MaterialList({ pass, passes, total }) {
                 {total > 10 &&
                     <Pagniation page={page} total={total} />
                 }
+
+                <Modal show={showModal} title="Add Pass" toggle={toggleModal}>
+                    <div className="w-96 text-sm text-gray-400">
+                        Mint a Product to your master Pass. This will create a new Pass and assign it to your master Pass with a unique pass ID.
+                        This information will be used to verify the authenticity of the Pass and are publicly available.
+                    </div>
+                    <div className="text-sm mt-8 flex gap-4">
+                        <p className="text-xs">VID:</p>
+                        <p className="text-xs">{pass.vid}</p>
+                    </div>
+                    <div className="text-xs flex gap-4">
+                        <p className="text-xs">Contract:</p>
+                        <p className="truncate w-96 text-xs">{pass.contractAddress}</p>
+                    </div>
+                    <div className="text-sm mt-2">
+                        <Input className="w-full" placeholder="Name" onChange={(e) => setName(e.target.value)} />
+                    </div>
+                    <div className="text-sm mt-2">
+                        <Input className="w-full" placeholder="Description" onChange={(e) => setDescription(e.target.value)} />
+                    </div>
+                    <div className="text-sm mt-2">
+                        <Input className="w-full" placeholder="Location" onChange={(e) => setLocation(e.target.value)} />
+                    </div>
+                    <div className="text-sm mt-2">
+                        <Input className="w-full" placeholder="EAN" onChange={(e) => setEan(e.target.value)} />
+                    </div>
+                    <div className="text-sm mt-2">
+                        <Input className="w-full" placeholder="Quantity" onChange={(e) => setQuantity(e.target.value)} />
+                    </div>
+                    <Button className="bg-red-600 text-white hover:bg-red-500" onClick={() => mintPass()}>Create Pass</Button>
+                </Modal>
             </Content.Container>
-        </AccountLayout>
+        </AccountLayout >
     );
 }
 

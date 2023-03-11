@@ -1,23 +1,18 @@
-import { useState, useRef } from 'react';
 import api from '@/lib/common/api';
-import { useForm, Controller } from "react-hook-form";
-import { useRouter } from 'next/router'
+import { useRouter } from 'next/router';
+import { useRef, useState } from 'react';
+import { Controller, useForm } from "react-hook-form";
 
+import Button from '@/components/Button/index';
 import Content from '@/components/Content/index';
 import Input from '@/components/Input';
-import Button from '@/components/Button/index';
 import Meta from '@/components/Meta/index';
-import Select from '@/components/Select';
-import SlideOver from '@/components/SlideOver';
-import { dealStage, types } from '@/config/modules/crm';
 import { AccountLayout } from '@/layouts/index';
-import { log } from '@/lib/client/log';
-import { contactActivity } from '@/lib/client/log';
 import { uploadToGCS } from '@/lib/client/upload';
-import toast from 'react-hot-toast';
-import { CheckCircleIcon } from '@heroicons/react/24/outline'
-import { getSession } from 'next-auth/react';
 import { getWorkspace, isWorkspaceOwner } from '@/prisma/services/workspace';
+import { CheckCircleIcon } from '@heroicons/react/24/outline';
+import { getSession } from 'next-auth/react';
+import toast from 'react-hot-toast';
 
 /** @param {import('next').InferGetServerSidePropsType<typeof getServerSideProps> } props */
 export default function Company({ workspace, isTeamOwner, session }) {

@@ -1,18 +1,15 @@
+import Button from '@/components/Button';
 import Card from '@/components/Card/index';
 import Content from '@/components/Content/index';
 import Meta from '@/components/Meta/index';
-import Reload from '@/components/Reload';
-import { AccountLayout } from '@/layouts/index';
-import { useRouter } from 'next/router';
-import { ChevronRightIcon } from '@heroicons/react/20/solid'
-import { items } from '@/config/modules/items'
-import Link from 'next/link'
-import { getModule } from '@/prisma/services/modules';
-import { getSession } from 'next-auth/react';
-import { getWorkspace, isWorkspaceOwner } from '@/prisma/services/workspace';
 import { types } from '@/config/workspace-overview/module-types';
-import Button from '@/components/Button';
+import { AccountLayout } from '@/layouts/index';
+import { getModule } from '@/prisma/services/modules';
 import { getUser } from '@/prisma/services/user';
+import { getWorkspace, isWorkspaceOwner } from '@/prisma/services/workspace';
+import { getSession } from 'next-auth/react';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
 
 function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
@@ -104,7 +101,7 @@ function ProductPass({ isWorkspaceOwner, workspace, modules, user }) {
                 </div>
                 <div className="grid grid-cols-3 gap-4 mt-4">
                     <Card>
-                        <Card.Body title="Materials" subtitle="Materials, inventory and warehouse management">
+                        <Card.Body title="Materials" subtitle="Information about all Materials">
                             <Button className="bg-red-600 text-white my-6 hover:bg-red-500" onClick={() => goToMaterials()}>Open</Button>
                         </Card.Body>
                     </Card>

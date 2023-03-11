@@ -1,25 +1,13 @@
-import { getSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useState, useRef } from 'react'
+import { useState } from 'react';
 
 import Content from '@/components/Content/index';
-import Input from '@/components/Input';
-import Textarea from '@/components/Textarea';
 import Meta from '@/components/Meta/index';
-import Select from '@/components/Select';
-import Button from '@/components/Button/index';
-import SlideOver from '@/components/SlideOver';
 import api from '@/lib/common/api';
-import Modal from '@/components/Modal';
 
 import { AccountLayout } from '@/layouts/index';
-import { getProductPass, getMaterial } from '@/prisma/services/modules';
-import { uploadToGCS } from '@/lib/client/upload';
-import toast from 'react-hot-toast';
-import Pagniation from '@/components/Pagination/';
-import moment from 'moment';
-import { ArrowRightCircleIcon } from '@heroicons/react/24/outline';
+import { getMaterial, getProductPass } from '@/prisma/services/modules';
 
 function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
@@ -106,7 +94,7 @@ export default function MaterialList({ pass, materials }) {
                                 </button>
                                 <button
                                     className="bg-red-600 text-white px-4 py-2 rounded-md"
-                                    onClick={() => aiPrompt(`create a GRI 3: Material Topics report for ${pass.product_name} by ${pass.brand} using following materials: ${material_list.map((i) => i)}.It is produced in ${pass.country_origin} `)}
+                                    onClick={() => aiPrompt(`Create a GRI 3-2 Material topics that represent the ${pass.parent_organization} by ${pass.brand} using materials: ${material_list.map((i) => i)} most significant impacts on the economy, environment, and people, including impacts on their human rights`)}
                                 >
                                     GRI Index
                                 </button>
@@ -127,7 +115,6 @@ export default function MaterialList({ pass, materials }) {
 }
 
 export async function getServerSideProps(ctx) {
-    const session = await getSession(ctx);
 
     const pass = await getProductPass(ctx.params.id);
 

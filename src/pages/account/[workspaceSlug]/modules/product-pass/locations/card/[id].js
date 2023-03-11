@@ -1,29 +1,23 @@
 import { getSession } from 'next-auth/react';
-import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
 
+import Button from '@/components/Button/index';
 import Content from '@/components/Content/index';
 import Input from '@/components/Input';
-import Textarea from '@/components/Textarea';
 import Meta from '@/components/Meta/index';
-import Select from '@/components/Select';
-import Button from '@/components/Button/index';
 import SlideOver from '@/components/SlideOver';
 import api from '@/lib/common/api';
 
 import { AccountLayout } from '@/layouts/index';
-import { materialStatus } from '@/config/modules/pass';
 import moment from 'moment';
+import { Controller, useForm } from "react-hook-form";
 import toast from 'react-hot-toast';
-import { useForm, Controller } from "react-hook-form";
 
+import { containerStyle, mapStyles } from '@/config/common/mapStyles';
+import { getMap } from '@/lib/server/map';
 import { getLocation } from '@/prisma/services/modules';
-import { units } from '@/config/common/units';
-import { GoogleMap, MarkerF, useJsApiLoader, InfoBox } from '@react-google-maps/api';
-import { mapStyles, containerStyle } from '@/config/common/mapStyles';
-import { getMap } from '@/lib/server/map'
 import { CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/solid';
+import { GoogleMap, MarkerF, useJsApiLoader } from '@react-google-maps/api';
 
 /** @param {import('next').InferGetServerSidePropsType<typeof getServerSideProps> } props */
 export default function MaterialDetails({ location, lat, lng }) {

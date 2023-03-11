@@ -11,9 +11,14 @@ import {
     connect
 } from './connect'
 
+import {
+    deployPass
+} from './productPass'
+
 export {
     getGasPrice,
     query,
     createWallet,
-    connect
+    connect,
+    deployPass
 }

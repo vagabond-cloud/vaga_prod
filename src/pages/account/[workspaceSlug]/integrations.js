@@ -1,8 +1,6 @@
-import Card from '@/components/Card/index';
 import Content from '@/components/Content/index';
 import Meta from '@/components/Meta/index';
 import { AccountLayout } from '@/layouts/index';
-import Link from 'next/link';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
 

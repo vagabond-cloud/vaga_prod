@@ -1,4 +1,4 @@
-import { createProductPass, updateProductPass } from '@/prisma/services/modules';
+import { createProductPass, updateProductPass, deleteProductPass } from '@/prisma/services/modules';
 import { validateSession } from '@/config/api-validation';
 
 const handler = async (req, res) => {
@@ -13,6 +13,12 @@ const handler = async (req, res) => {
         const { id, data } = req.body;
         const pass = await updateProductPass(id, data);
         return res.status(200).json({ data: pass });
+    } else if (method === 'DELETE') {
+        const { id, data } = req.body;
+        const pass = await deleteProductPass(id);
+        return res.status(200).json({ data: pass });
+    } else {
+        return res.status(405).json({ message: 'Method not allowed' });
     }
 };
 

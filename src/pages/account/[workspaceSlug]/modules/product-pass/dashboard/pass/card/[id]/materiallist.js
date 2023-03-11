@@ -1,4 +1,3 @@
-import { getSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 
@@ -161,7 +160,6 @@ export default function MaterialList({ pass, materials, total, matList }) {
 export async function getServerSideProps(ctx) {
     const { page } = ctx.query
 
-    const session = await getSession(ctx);
 
     const pass = await getProductPass(ctx.params.id);
     const materials = await getMaterials(!page ? 1 : page, 10, { id: 'asc' }, pass.moduleid)

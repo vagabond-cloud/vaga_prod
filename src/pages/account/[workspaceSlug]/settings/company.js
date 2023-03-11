@@ -29,19 +29,20 @@ const Advanced = ({ isCreator }) => {
   const [name, setName] = useState('');
 
 
-
+  console.log(searchResult)
   const search = async (e) => {
 
     e.preventDefault();
     const res = await api(`/api/company?name=${name}`, {
       method: 'GET'
     })
+
     setSearchResult(res.comps.entities)
     toggleModal()
   }
 
   const handelCompany = async (data) => {
-    console.log(data)
+
     router.push(`/account/${workspaceSlug}/company/${data.identifier.value}`)
   }
 
@@ -93,9 +94,22 @@ const Advanced = ({ isCreator }) => {
                   <div>
                     <Button className="bg-red-600 text-white hover:bg-red-500" onClick={() => handelCompany(item)}>Select</Button>
                   </div>
-
                 </li>
               ))}
+              {searchResult.length > 0 &&
+                <li className="flex py-4 justify-between">
+                  <div className="flex">
+                    <img className="h-10 w-10 rounded-full" src={`https://avail.app/images/brand/placeholder/group_logo_placeholder.jpg`} alt="" />
+                    <div className="ml-3">
+                      <p className="text-sm font-medium text-gray-900">Company not listed</p>
+                      <p className="text-xs text-gray-400">I will manually add my company information</p>
+                    </div>
+                  </div>
+                  <div>
+                    <Button className="bg-red-600 text-white hover:bg-red-500" onClick={() => router.push(`/account/${workspaceSlug}/company/---`)}>Select</Button>
+                  </div>
+                </li>
+              }
             </ul>
           </div>
 

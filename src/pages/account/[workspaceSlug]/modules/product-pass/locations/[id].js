@@ -1,29 +1,22 @@
 import { getSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
 
+import Button from '@/components/Button/index';
 import Content from '@/components/Content/index';
 import Input from '@/components/Input';
-import Textarea from '@/components/Textarea';
 import Meta from '@/components/Meta/index';
-import Select from '@/components/Select';
-import Button from '@/components/Button/index';
 import SlideOver from '@/components/SlideOver';
 import api from '@/lib/common/api';
 
-import { countries } from '@/config/common/countries';
-import { materialStatus } from '@/config/modules/pass';
+import Pagniation from '@/components/Pagination/';
 import { AccountLayout } from '@/layouts/index';
+import generateVID from '@/lib/server/vid';
 import { getLocations, getModule } from '@/prisma/services/modules';
 import { getWorkspace, isWorkspaceOwner } from '@/prisma/services/workspace';
-import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid';
 import { ArrowRightCircleIcon } from '@heroicons/react/24/outline';
-import moment from 'moment';
+import { Controller, useForm } from "react-hook-form";
 import toast from 'react-hot-toast';
-import { useForm, Controller } from "react-hook-form";
-import Pagniation from '@/components/Pagination/';
-import generateVID from '@/lib/server/vid';
 
 /** @param {import('next').InferGetServerSidePropsType<typeof getServerSideProps> } props */
 function Locations({ modules, materials, workspace, total }) {

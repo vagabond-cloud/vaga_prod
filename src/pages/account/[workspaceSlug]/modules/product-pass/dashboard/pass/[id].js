@@ -21,14 +21,13 @@ import { getWorkspace, isWorkspaceOwner } from '@/prisma/services/workspace';
 import { ArrowRightCircleIcon } from '@heroicons/react/24/outline';
 import moment from 'moment';
 import { Controller, useForm } from "react-hook-form";
-import toast from 'react-hot-toast';
 
 /** @param {import('next').InferGetServerSidePropsType<typeof getServerSideProps> } props */
-function Pass({ modules, passes, workspace, total, locations, company }) {
+function Pass({ passes, total, company }) {
 
 
     const router = useRouter();
-    const { workspaceSlug, id, page } = router.query;
+    const { workspaceSlug, page } = router.query;
 
     const defaultValues = {
         vid: generateVID(),
@@ -72,31 +71,28 @@ function Pass({ modules, passes, workspace, total, locations, company }) {
 
 
     const createProductPass = async (data) => {
-        console.log(data)
-        // try {
-        //     const res = await api(`/api/modules/product-pass/pass`, {
-        //         method: 'POST',
-        //         body: {
-        //             data,
-        //             workspaceid: workspace[0].id,
-        //             moduleid: modules.id
-        //         }
-        //     });
 
-        //     if (res.status === 200) {
-        //         writeLog();
-        //         router.replace(router.asPath);
-        //     } else {
-        //         toast.error('Error creating Product Pass');
-        //     }
-        // } catch (error) {
-        //     toast.error(`Error creating Product Pass: ${error.response ? error.response.data.message : error.message}`);
-        // }
+        try {
+            const res = await api(`/api/modules/product-pass/pass`, {
+                method: 'POST',
+                body: {
+                    data,
+                    workspaceid: workspace[0].id,
+                    moduleid: modules.id
+                }
+            });
+
+            if (res.status === 200) {
+                writeLog();
+                router.replace(router.asPath);
+            } else {
+                toast.error('Error creating Product Pass');
+            }
+        } catch (error) {
+            toast.error(`Error creating Product Pass: ${error.response ? error.response.data.message : error.message}`);
+        }
     };
 
-    const writeLog = async () => {
-        toast.success('Product Pass created successfully')
-    }
 
     return (
         <AccountLayout>

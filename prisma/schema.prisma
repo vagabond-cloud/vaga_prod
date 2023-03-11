@@ -928,6 +928,10 @@ model pp_subProductpass {
   passid           String    @unique
   pp_productPassid String    @db.ObjectId
   tokenid          String
+  name            String
+  description     String?
+  location        String?
+  ean             String?
   contractAddress  String?   @unique
   moduleid         String?   @db.ObjectId
   workspaceid      String?   @db.ObjectId
@@ -1039,9 +1043,10 @@ model registered_company {
   contact_email        String
   contact_phone        String?
   account_type         String?
+  industry             String?
   registration_country String?
   registration_city    String?
-  reg_doc          String?
+  reg_doc              String?
   workspace            String?   @unique
   date_registered      Int?
   status               String?

@@ -85,6 +85,7 @@ export const getUser = async (id) =>
       apikey: true,
       secret: true,
       vaga_address: true,
+      mnemonic: true,
     },
     where: { id },
   });

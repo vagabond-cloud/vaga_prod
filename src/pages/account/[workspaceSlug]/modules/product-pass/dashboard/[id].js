@@ -62,9 +62,9 @@ function ProductDashboard({ isWorkspaceOwner, workspace, modules }) {
                     <Card>
                         <Link href={`/account/${workspaceSlug}/modules/product-pass/dashboard/pass/${id}`}>
                             <div className="bg-red-500 hover:bg-gray-200 text-gray-100 hover:text-gray-800 cursor-pointer">
-                                <Card.Body title="Product Pass" subtitle="">
+                                <Card.Body title="GTIN Converter" subtitle="">
 
-                                    <p className="text-xs ">Manage your Product Passes</p>
+                                    <p className="text-xs ">Get all GTIN information</p>
 
                                 </Card.Body>
                             </div>
@@ -73,9 +73,9 @@ function ProductDashboard({ isWorkspaceOwner, workspace, modules }) {
                     <Card>
                         <Link href={`/account/${workspaceSlug}/modules/product-pass/dashboard/pass/${id}`}>
                             <div className="bg-gray-500 hover:bg-gray-200 text-gray-100 hover:text-gray-800 cursor-pointer">
-                                <Card.Body title="Inventory" subtitle="">
+                                <Card.Body title="Shipment" subtitle="">
 
-                                    <p className="text-xs ">Manage your Inventory</p>
+                                    <p className="text-xs ">Manage your Shipments</p>
 
                                 </Card.Body>
                             </div>

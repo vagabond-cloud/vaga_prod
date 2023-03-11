@@ -1,12 +1,11 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 /** @param {import('next').InferGetServerSidePropsType<typeof getServerSideProps> } props */
-import { useState, useEffect } from 'react';
-import { getProductPassByVID, getSubPassByPassid } from '@/prisma/services/modules';
-import { getMap } from '@/lib/server/map'
 import { countries } from '@/config/common/countries';
+import { containerStyle, mapStyles } from '@/config/common/mapStyles';
 import api from '@/lib/common/api';
-import { GoogleMap, MarkerF, useJsApiLoader, InfoBox, Polyline } from '@react-google-maps/api';
-import { mapStyles, containerStyle } from '@/config/common/mapStyles';
+import { getMap } from '@/lib/server/map';
+import { getProductPassByVID, getSubPassByPassid } from '@/prisma/services/modules';
+import { GoogleMap, MarkerF, Polyline, useJsApiLoader } from '@react-google-maps/api';
 
 /** @param {import('next').InferGetServerSidePropsType<typeof getServerSideProps> } props */
 export default function index({ subPass, pass, qr, lat, lng }) {

@@ -1433,6 +1433,7 @@ export const getProductPass = async (id) => {
             pp_productImages: true,
             pp_assignedMaterial: true,
             pp_productDocuments: true,
+            pp_subProductpass: true,
         }
     });
     return pass;
@@ -1442,11 +1443,33 @@ export const getProductPassByVID = async (vid) => {
     const pass = await prisma.pp_productPass.findUnique({
         where: { vid },
         include: {
-            pp_productImages: true
+            pp_productImages: true,
+            pp_productDocuments: true
         }
     });
     return pass;
 };
+
+export const getProductPassByWSID = async (workspaceid) => {
+    const pass = await prisma.pp_productPass.findUnique({
+        where: { workspaceid },
+        include: {
+            pp_productImages: true,
+            pp_productDocuments: true,
+            pp_assignedMaterial: true,
+            pp_subProductpass: true,
+        }
+    });
+    return pass;
+};
+
+
+export const deleteProductPass = async (id) => {
+    const doc = await prisma.pp_productPass.delete({
+        where: { id },
+    });
+    return doc
+}
 
 // SUB PASS
 

@@ -1,21 +1,16 @@
 import { getSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useState, useRef } from 'react'
+import { useRef, useState } from 'react';
 
-import Content from '@/components/Content/index';
-import Input from '@/components/Input';
-import Textarea from '@/components/Textarea';
-import Meta from '@/components/Meta/index';
-import Select from '@/components/Select';
 import Button from '@/components/Button/index';
-import SlideOver from '@/components/SlideOver';
+import Content from '@/components/Content/index';
+import Meta from '@/components/Meta/index';
 import api from '@/lib/common/api';
-import Modal from '@/components/Modal';
 
 import { AccountLayout } from '@/layouts/index';
-import { getProductPass } from '@/prisma/services/modules';
 import { uploadToGCS } from '@/lib/client/upload';
+import { getProductPass } from '@/prisma/services/modules';
 import toast from 'react-hot-toast';
 
 
@@ -166,7 +161,19 @@ export default function Images({ pass, docs }) {
                         {docs?.map((file, index) => (
                             <li key={index} className="relative">
                                 <div className="group aspect-w-10 aspect-h-7 block w-full overflow-hidden rounded-lg bg-gray-100 focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 focus-within:ring-offset-gray-100">
-                                    <img src="/images/image-1@2x.jpg" alt="" className="pointer-events-none object-cover group-hover:opacity-75" />
+                                    {file.type === 'application/pdf' &&
+                                        <img src="/images/pdf.png" alt="" className="pointer-events-none object-cover group-hover:opacity-75" />
+                                    }
+                                    {file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' &&
+                                        <img src="/images/doc.png" alt="" className="pointer-events-none object-cover group-hover:opacity-75" />
+                                    }
+                                    {file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' &&
+                                        <img src="/images/xls.png" alt="" className="pointer-events-none object-cover group-hover:opacity-75" />
+                                    }
+                                    {file.type === 'application/vnd.openxmlformats-officedocument.presentationml.presentation' &&
+                                        <img src="/images/ppt.png" alt="" className="pointer-events-none object-cover group-hover:opacity-75" />
+                                    }
+
                                     <button type="button" className="absolute inset-0 focus:outline-none">
                                         <span className="sr-only">View details for {file.name}</span>
                                     </button>

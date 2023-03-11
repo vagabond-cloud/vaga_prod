@@ -1,12 +1,11 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 /** @param {import('next').InferGetServerSidePropsType<typeof getServerSideProps> } props */
-import { useState, useEffect } from 'react';
-import { getProductPassByVID } from '@/prisma/services/modules';
-import { getMap } from '@/lib/server/map'
 import { countries } from '@/config/common/countries';
+import { containerStyle, mapStyles } from '@/config/common/mapStyles';
 import api from '@/lib/common/api';
-import { GoogleMap, MarkerF, useJsApiLoader, InfoBox } from '@react-google-maps/api';
-import { mapStyles, containerStyle } from '@/config/common/mapStyles';
+import { getMap } from '@/lib/server/map';
+import { getProductPassByVID } from '@/prisma/services/modules';
+import { GoogleMap, MarkerF, useJsApiLoader } from '@react-google-maps/api';
 
 /** @param {import('next').InferGetServerSidePropsType<typeof getServerSideProps> } props */
 export default function index({ pass, qr, lat, lng }) {
@@ -165,6 +164,18 @@ export default function index({ pass, qr, lat, lng }) {
                                             <img src={qr} alt="" className="w-60" />
                                         }
                                         <div className="barcode h-14 w-0 inline-block mt-4 relative left-auto"></div>
+
+                                    </div>
+                                    {pass.contractAddress &&
+                                        <div className="flex justify-center">
+                                            <p className="text-xs text-gray-400 font-bold">Contract Address</p>
+                                        </div>
+                                    }
+                                    <div className="flex justify-center">
+                                        {pass.contractAddress &&
+                                            <p className="text-xs text-gray-300">{pass.contractAddress}</p>
+                                        }
+
                                     </div>
                                     <div className="border-dashed border-b-2 my-5 pt-5">
                                         <div className="absolute rounded-full w-5 h-5 bg-gray-900 -mt-2 -left-2"></div>

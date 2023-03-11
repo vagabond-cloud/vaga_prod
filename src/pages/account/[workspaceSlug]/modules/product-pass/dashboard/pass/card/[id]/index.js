@@ -1,42 +1,44 @@
 import { getSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useState, useRef } from 'react'
 
+import Button from '@/components/Button/index';
 import Content from '@/components/Content/index';
 import Input from '@/components/Input';
-import Textarea from '@/components/Textarea';
 import Meta from '@/components/Meta/index';
 import Select from '@/components/Select';
-import Button from '@/components/Button/index';
 import SlideOver from '@/components/SlideOver';
+import Textarea from '@/components/Textarea';
 import api from '@/lib/common/api';
-import Modal from '@/components/Modal';
 
 import { AccountLayout } from '@/layouts/index';
-import { materialStatus } from '@/config/modules/pass';
-import moment from 'moment';
-import toast from 'react-hot-toast';
-import { useForm, Controller } from "react-hook-form";
-
-import { getProductPass, getProductPassImages } from '@/prisma/services/modules';
-import { units } from '@/config/common/units';
-import { GoogleMap, MarkerF, useJsApiLoader, InfoBox, Polyline } from '@react-google-maps/api';
-import { mapStyles, containerStyle } from '@/config/common/mapStyles';
-import { getMap } from '@/lib/server/map'
-import { CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/solid';
-import { countries } from '@/config/common/countries';
+import { Controller, useForm } from "react-hook-form";
+import toast, { Toaster } from 'react-hot-toast';
+import { Fragment, useState } from 'react'
 import { ageGroups } from '@/config/common/ageGroups';
-import { uploadToGCS } from '@/lib/client/upload';
+import { countries } from '@/config/common/countries';
+import { containerStyle, mapStyles } from '@/config/common/mapStyles';
+import { getMap } from '@/lib/server/map';
+import { getProductPass, getProductPassImages } from '@/prisma/services/modules';
+import { CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/solid';
+import { GoogleMap, MarkerF, useJsApiLoader } from '@react-google-maps/api';
+import { getWorkspace, isWorkspaceOwner } from '@/prisma/services/workspace';
+import { getUser } from '@/prisma/services/user';
+import Spinner from '@/components/Spinner';
+import { Transition } from '@headlessui/react'
+import { XMarkIcon } from '@heroicons/react/20/solid'
 
 function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
 }
 
 /** @param {import('next').InferGetServerSidePropsType<typeof getServerSideProps> } props */
-export default function MaterialDetails({ pass, lat, lng, images }) {
+export default function MaterialDetails({ pass, lat, lng, images, isOwner }) {
     const router = useRouter();
     const { workspaceSlug, id } = router.query;
+
+    const [submit, setSubmit] = useState(false);
+    const [show, setShow] = useState(true)
 
     const defaultValues = {
         vid: pass.vid || '',
@@ -118,12 +120,105 @@ export default function MaterialDetails({ pass, lat, lng, images }) {
         return <p>Loading...</p>;
     }
 
-    const pathCoordinates = [
-        { lat: 36.05298765935, lng: -112.083756616339 },
-        { lat: 36.2169884797185, lng: -112.056727493181 }
-    ];
+    const deletePass = async () => {
+        if (pass.pp_productImages.length > 0) return toast.error("Cannot delete pass with Sub Passes")
 
+        const res = await api(`/api/modules/product-pass/pass`, {
+            method: 'DELETE',
+            body: {
+                id
+            }
+        })
+        toast.success("Product Pass deleted successfully")
+    }
 
+    const preVerify = async () => {
+        toast.custom((t) => (
+            <>
+                {/* Global notification live region, render this permanently at the end of the document */}
+                <div
+                    aria-live="assertive"
+                    className="pointer-events-none fixed inset-0 flex items-end px-4 py-6 sm:items-start sm:p-6"
+                >
+                    <div className="flex w-full flex-col items-center space-y-4 sm:items-end">
+                        {/* Notification panel, dynamically insert this into the live region when it needs to be displayed */}
+                        <Transition
+                            show={show}
+                            as={Fragment}
+                            enter="transform ease-out duration-300 transition"
+                            enterFrom="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2"
+                            enterTo="translate-y-0 opacity-100 sm:translate-x-0"
+                            leave="transition ease-in duration-100"
+                            leaveFrom="opacity-100"
+                            leaveTo="opacity-0"
+                        >
+                            <div className="pointer-events-auto w-full max-w-sm rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5">
+                                <div className="p-4">
+                                    <div className="flex items-start">
+
+                                        <div className="ml-3 w-0 flex-1">
+                                            <p className="text-sm font-medium text-gray-900">Verify Product Pass</p>
+                                            <p className="mt-1 text-sm text-gray-500">Your are about to deploy a Smart Contract which can´t been undone. Once the Smart Contract is deployed it can´t be changed!</p>
+                                            <div className="mt-4 flex">
+                                                <Button
+                                                    type="button"
+                                                    className="inline-flex items-center rounded-md bg-red-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
+                                                    onClick={() => {
+                                                        verifyPass()
+                                                        toast.dismiss(t.id)
+                                                    }
+                                                    }
+                                                >
+                                                    Accept
+                                                </Button>
+                                                <Button
+                                                    type="button"
+                                                    className="ml-3 inline-flex items-center rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+                                                    onClick={() => toast.dismiss(t.id)}
+                                                >
+                                                    Decline
+                                                </Button>
+                                            </div>
+                                        </div>
+                                        <div className="flex flex-shrink-0">
+                                            <button
+                                                type="button"
+                                                className="inline-flex rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                                                onClick={() => toast.dismiss(t.id)}
+
+                                            >
+                                                <span className="sr-only" >Close</span>
+                                                <XMarkIcon className="h-5 w-5" aria-hidden="true" />
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </Transition>
+                    </div>
+                </div >
+            </>
+        ))
+    }
+
+    const verifyPass = async () => {
+        if (!isOwner) return toast.error("You are not authorized to verify this pass")
+        setSubmit(true)
+        const res = await api(`/api/modules/product-pass/deployPass`, {
+            method: 'POST',
+            body: {
+                id: pass.id,
+            }
+        })
+        if (res.status === 200) {
+            toast.success("Product Pass verified successfully")
+            setSubmit(false)
+            router.replace(router.asPath)
+        } else {
+            toast.error("Something went wrong")
+            setSubmit(false)
+        }
+    }
 
     return (
         <AccountLayout>
@@ -134,6 +229,7 @@ export default function MaterialDetails({ pass, lat, lng, images }) {
             />
             <Content.Divider />
             <Content.Container>
+                <Toaster />
                 <div>
                     <div className="justify-between mt-4 flex flex-col space-y-3 sm:flex-row sm:space-y-0 sm:space-x-4">
                         <div>
@@ -141,7 +237,18 @@ export default function MaterialDetails({ pass, lat, lng, images }) {
                             <p className="mt-1 max-w-2xl text-sm text-gray-500">Details for selected Product Pass</p>
                         </div>
                         <div className="flex gap-4">
-                            <Button className="bg-gray-300 hover:bg-gray-200 text-sm">Verify Pass</Button>
+                            {pass.contractAddress ?
+                                <Button className="bg-green-600  text-sm"><CheckCircleIcon className="w-6 h-6 text-white" /></Button>
+
+                                :
+                                <Button className="bg-gray-300 hover:bg-gray-200 text-sm" onClick={() => preVerify()}>
+                                    {submit ?
+                                        <Spinner />
+                                        :
+                                        "Verify Pass"
+                                    }
+                                </Button>
+                            }
                             <Link href={`/${pass.vid}`} target="_blank">
                                 <Button className="bg-gray-600 text-white hover:gray-red-500 text-sm">View Pass</Button>
                             </Link>
@@ -670,6 +777,11 @@ export default function MaterialDetails({ pass, lat, lng, images }) {
                                                 />
                                             </div>
                                         </div>
+                                        <div className="px-4 my-10 flex justify-start">
+                                            <Button className="bg-gray-600 text-white hover:bg-gray-500" onClick={() => deletePass()}>
+                                                Delete Project
+                                            </Button>
+                                        </div>
                                     </div>
                                     <div className="flex flex-shrink-0 justify-end px-4 py-4 w-full border-t absolute bottom-0 bg-white">
                                         <Button
@@ -852,32 +964,59 @@ export default function MaterialDetails({ pass, lat, lng, images }) {
                                 <dt className="text-sm font-medium text-gray-500">Material Composition</dt>
                                 <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{pass.material_composition}</dd>
                             </div>
-                            <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5 col-span-2">
+                            <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">
                                 <dt className="text-sm font-medium text-gray-500">Deposit</dt>
                                 <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{pass.deposit ? <CheckCircleIcon className="w-6 h-6 text-gray-600" /> : <XCircleIcon className="w-6 h-6 text-gray-600" />}</dd>
                             </div>
+                            {pass.contractAddress &&
+                                <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">
+                                    <dt className="text-sm font-medium text-gray-500">Contract Address</dt>
+                                    <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0 truncate">{pass.contractAddress}</dd>
+                                </div>
+                            }
                         </dl>
                     </div>
                 </div>
 
-            </Content.Container>
-        </AccountLayout>
+            </Content.Container >
+        </AccountLayout >
     );
 }
 
 export async function getServerSideProps(ctx) {
+    const { workspaceSlug } = ctx.params;
+
     const session = await getSession(ctx);
+    let isTeamOwner = false;
+    let workspace = null;
+
+    if (session) {
+        workspace = await getWorkspace(
+            session.user.userId,
+            session.user.email,
+            ctx.params.workspaceSlug
+        );
+
+        if (workspace) {
+            isTeamOwner = isWorkspaceOwner(session.user.email, workspace);
+        }
+    }
+
+    const currentWorkspace = workspace.find((w) => w.slug === workspaceSlug);
+    const member = currentWorkspace?.members.find((m) => m.email === session.user.email).inviter;
+    const isOwner = currentWorkspace?.members.find((m) => m.email === session.user.email).teamRole === "OWNER";
 
     const pass = await getProductPass(ctx.params.id);
     const images = await getProductPassImages(ctx.params.id);
     const map = await getMap(countries.find((c) => c.code === pass?.country_origin).name)
-
+    const user = isOwner ? await getUser(session.user.userId) : [];
     return {
         props: {
             pass: JSON.parse(JSON.stringify(pass)),
             images: JSON.parse(JSON.stringify(images)),
             lat: map.lat,
-            lng: map.lng
+            lng: map.lng,
+            isOwner,
         }
     }
 }

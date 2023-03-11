@@ -21,9 +21,11 @@ import { getWorkspace, isWorkspaceOwner } from '@/prisma/services/workspace';
 import { ArrowRightCircleIcon } from '@heroicons/react/24/outline';
 import moment from 'moment';
 import { Controller, useForm } from "react-hook-form";
+import toast from 'react-hot-toast';
+import api from '@/lib/common/api';
 
 /** @param {import('next').InferGetServerSidePropsType<typeof getServerSideProps> } props */
-function Pass({ passes, total, company }) {
+function Pass({ passes, total, company, workspace, modules, isTeamOwner }) {
 
 
     const router = useRouter();
@@ -83,7 +85,6 @@ function Pass({ passes, total, company }) {
             });
 
             if (res.status === 200) {
-                writeLog();
                 router.replace(router.asPath);
             } else {
                 toast.error('Error creating Product Pass');
